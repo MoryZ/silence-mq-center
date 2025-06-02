@@ -1,0 +1,113 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.old.silence.mq.center.task;
+
+import org.apache.rocketmq.common.MixAll;
+import org.apache.rocketmq.common.stats.Stats;
+import org.apache.rocketmq.remoting.protocol.body.BrokerStatsData;
+import org.apache.rocketmq.remoting.protocol.body.GroupList;
+import org.apache.rocketmq.remoting.protocol.route.BrokerData;
+import org.apache.rocketmq.remoting.protocol.route.TopicRouteData;
+import org.apache.rocketmq.tools.admin.MQAdminExt;
+import org.apache.rocketmq.tools.command.stats.StatsAllSubCommand;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import com.google.common.base.Throwables;
+import com.old.silence.mq.center.domain.service.DashboardCollectService;
+
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
+
+public class CollectTaskRunnable implements Runnable {
+
+
+    private static final Logger log = LoggerFactory.getLogger(CollectTaskRunnable.class);
+    private final String topic;
+
+    private final MQAdminExt mqAdminExt;
+
+    private final DashboardCollectService dashboardCollectService;
+
+    public CollectTaskRunnable(String topic, MQAdminExt mqAdminExt,
+                               DashboardCollectService dashboardCollectService) {
+        this.topic = topic;
+        this.mqAdminExt = mqAdminExt;
+        this.dashboardCollectService = dashboardCollectService;
+    }
+
+    @Override
+    public void run() {
+        Date date = new Date();
+        try {
+            TopicRouteData topicRouteData = mqAdminExt.examineTopicRouteInfo(topic);
+            GroupList groupList = mqAdminExt.queryTopicConsumeByWho(topic);
+            double inTPS = 0;
+            long inMsgCntToday = 0;
+            double outTPS = 0;
+            long outMsgCntToday = 0;
+            for (BrokerData bd : topicRouteData.getBrokerDatas()) {
+                String masterAddr = bd.getBrokerAddrs().get(MixAll.MASTER_ID);
+                if (masterAddr != null) {
+                    try {
+                        BrokerStatsData bsd = mqAdminExt.viewBrokerStatsData(masterAddr, Stats.TOPIC_PUT_NUMS, topic);
+                        inTPS += bsd.getStatsMinute().getTps();
+                        inMsgCntToday += StatsAllSubCommand.compute24HourSum(bsd);
+                    } catch (Exception e) {
+                        log.warn("Exception caught: mqAdminExt get broker stats data TOPIC_PUT_NUMS failed, topic: [{}]", topic, e.getMessage());
+                    }
+                }
+            }
+            if (groupList != null && !groupList.getGroupList().isEmpty()) {
+                for (String group : groupList.getGroupList()) {
+                    for (BrokerData bd : topicRouteData.getBrokerDatas()) {
+                        String masterAddr = bd.getBrokerAddrs().get(MixAll.MASTER_ID);
+                        if (masterAddr != null) {
+                            try {
+                                String statsKey = String.format("%s@%s", topic, group);
+                                BrokerStatsData bsd = mqAdminExt.viewBrokerStatsData(masterAddr, Stats.GROUP_GET_NUMS, statsKey);
+                                outTPS += bsd.getStatsMinute().getTps();
+                                outMsgCntToday += StatsAllSubCommand.compute24HourSum(bsd);
+                            } catch (Exception e) {
+                                log.warn("Exception caught: mqAdminExt get broker stats data GROUP_GET_NUMS failed, topic: [{}], group [{}]", topic, group, e.getMessage());
+                            }
+                        }
+                    }
+                }
+            }
+
+            List<String> list;
+            try {
+                list = dashboardCollectService.getTopicMap().get(topic);
+            } catch (ExecutionException e) {
+                Throwables.throwIfUnchecked(e);
+                throw new RuntimeException(e);
+            }
+            if (null == list) {
+                list = new ArrayList<>();
+            }
+
+            list.add(date.getTime() + "," + new BigDecimal(inTPS).setScale(5, RoundingMode.HALF_UP) + "," + inMsgCntToday + "," + new BigDecimal(outTPS).setScale(5, RoundingMode.HALF_UP) + "," + outMsgCntToday);
+            dashboardCollectService.getTopicMap().put(topic, list);
+        } catch (Exception e) {
+            log.error("Failed to collect topic: {} data", topic, e);
+        }
+    }
+}
