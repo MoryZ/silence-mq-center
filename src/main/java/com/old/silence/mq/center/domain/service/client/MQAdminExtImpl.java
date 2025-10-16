@@ -1,19 +1,4 @@
-/*
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+
 package com.old.silence.mq.center.domain.service.client;
 
 import org.apache.rocketmq.client.QueryResult;
@@ -418,12 +403,6 @@ public class MQAdminExtImpl implements MQAdminExt {
     }
 
     @Override
-    public MessageExt viewMessage(String msgId)
-            throws RemotingException, MQBrokerException, InterruptedException, MQClientException {
-        return MQAdminInstance.threadLocalMQAdminExt().viewMessage(msgId);
-    }
-
-    @Override
     public QueryResult queryMessage(String topic, String key, int maxNum, long begin, long end)
             throws MQClientException, InterruptedException {
         return MQAdminInstance.threadLocalMQAdminExt().queryMessage(topic, key, maxNum, begin, end);
@@ -453,30 +432,100 @@ public class MQAdminExtImpl implements MQAdminExt {
     //next version we will remove it
     //https://issues.apache.org/jira/browse/ROCKETMQ-111
     //https://github.com/apache/incubator-rocketmq/pull/69
+    /**
+     * 根据消息ID查询消息
+     * @param topic 主题名称
+     * @param msgId 消息ID
+     * @return 消息对象，未找到时返回null
+     */
     @Override
-    public MessageExt viewMessage(String topic,
-                                  String msgId) throws RemotingException, MQBrokerException, InterruptedException, MQClientException {
-        logger.info("MessageClientIDSetter.getNearlyTimeFromID(msgId)={} msgId={}", MessageClientIDSetter.getNearlyTimeFromID(msgId), msgId);
-        try {
-            return viewMessage(msgId);
-        } catch (Exception e) {
+    public MessageExt viewMessage(String topic, String msgId) throws RemotingException, MQBrokerException, InterruptedException, MQClientException {
+        logger.info("Querying message by ID, nearlyTimeFromID: {}, msgId: {}",
+                MessageClientIDSetter.getNearlyTimeFromID(msgId), msgId);
+
+        // 1. 首先尝试使用MQAdminExt查询
+        MessageExt message = queryWithMQAdminExt(topic, msgId);
+        if (message != null) {
+            return message;
         }
+
+        // 2. 降级到MQAdminImpl查询
+        return queryWithMQAdminImpl(topic, msgId);
+    }
+
+    /**
+     * 使用MQAdminExt查询消息
+     */
+    private MessageExt queryWithMQAdminExt(String topic, String msgId) {
+        try {
+            return MQAdminInstance.threadLocalMQAdminExt().viewMessage(topic, msgId);
+        } catch (Exception e) {
+            logger.warn("Failed to query message with MQAdminExt, topic: {}, msgId: {}, error: {}",
+                    topic, msgId, e.getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * 使用MQAdminImpl查询消息（降级方案）
+     */
+    private MessageExt queryWithMQAdminImpl(String topic, String msgId) {
         MQAdminImpl mqAdminImpl = MQAdminInstance.threadLocalMqClientInstance().getMQAdminImpl();
-        Set<String> clusterList = MQAdminInstance.threadLocalMQAdminExt().getTopicClusterList(topic);
+
+        try {
+            Set<String> clusterList = MQAdminInstance.threadLocalMQAdminExt().getTopicClusterList(topic);
+            return queryFromClusters(mqAdminImpl, topic, msgId, clusterList);
+        } catch (Exception e) {
+            logger.error("Failed to query message with MQAdminImpl, topic: {}, msgId: {}, error: {}",
+                    topic, msgId, e.getMessage(), e);
+            return null;
+        }
+    }
+
+    /**
+     * 从集群列表查询消息
+     */
+    private MessageExt queryFromClusters(MQAdminImpl mqAdminImpl, String topic, String msgId, Set<String> clusterList) {
+        // 如果没有集群信息，查询默认集群
         if (clusterList == null || clusterList.isEmpty()) {
-            QueryResult qr = Reflect.on(mqAdminImpl).call("queryMessage", "", topic, msgId, 32,
-                    0L, Long.MAX_VALUE, true).get();
-            if (qr != null && qr.getMessageList() != null && !qr.getMessageList().isEmpty()) {
-                return qr.getMessageList().get(0);
+            return querySingleCluster(mqAdminImpl, "", topic, msgId);
+        }
+
+        // 遍历所有集群查询
+        for (String clusterName : clusterList) {
+            MessageExt message = querySingleCluster(mqAdminImpl, clusterName, topic, msgId);
+            if (message != null) {
+                return message;
             }
-        } else {
-            for (String name : clusterList) {
-                QueryResult qr = Reflect.on(mqAdminImpl).call("queryMessage", name, topic, msgId, 32,
-                        0L, Long.MAX_VALUE, true).get();
-                if (qr != null && qr.getMessageList() != null && !qr.getMessageList().isEmpty()) {
-                    return qr.getMessageList().get(0);
-                }
-            }
+        }
+
+        logger.debug("Message not found in any cluster, topic: {}, msgId: {}", topic, msgId);
+        return null;
+    }
+
+    /**
+     * 查询单个集群的消息
+     */
+    private MessageExt querySingleCluster(MQAdminImpl mqAdminImpl, String clusterName, String topic, String msgId) {
+        try {
+            QueryResult qr = Reflect.on(mqAdminImpl)
+                    .call("queryMessage", clusterName, topic, msgId, 32, 0L, Long.MAX_VALUE, true)
+                    .get();
+
+            return extractMessageFromResult(qr);
+        } catch (Exception e) {
+            logger.warn("Failed to query message from cluster: {}, topic: {}, msgId: {}, error: {}",
+                    clusterName, topic, msgId, e.getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * 从查询结果中提取消息
+     */
+    private MessageExt extractMessageFromResult(QueryResult qr) {
+        if (qr != null && qr.getMessageList() != null && !qr.getMessageList().isEmpty()) {
+            return qr.getMessageList().get(0);
         }
         return null;
     }
