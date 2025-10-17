@@ -97,7 +97,7 @@ public class TopicController {
 
     @PostMapping(value = "/topics/send")
     public SendResult sendTopicMessage(
-        @RequestBody SendTopicMessageRequest sendTopicMessageRequest) throws RemotingException, MQClientException, InterruptedException {
+        @RequestBody SendTopicMessageRequest sendTopicMessageRequest) {
         return  topicService.sendTopicMessageRequest(sendTopicMessageRequest);
     }
 

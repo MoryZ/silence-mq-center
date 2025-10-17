@@ -361,7 +361,7 @@ public class TopicServiceImpl extends AbstractCommonService implements TopicServ
     @Override
     public SendResult sendTopicMessageRequest(SendTopicMessageRequest sendTopicMessageRequest) {
         List<TopicConfigInfo> topicConfigInfos = examineTopicConfig(sendTopicMessageRequest.getTopic());
-        String messageType = topicConfigInfos.get(0).getMessageType();
+        String messageType = topicConfigInfos.getFirst().getMessageType();
         AclClientRPCHook rpcHook = null;
         if (configure.isACLEnabled()) {
             rpcHook = new AclClientRPCHook(new SessionCredentials(
@@ -369,7 +369,7 @@ public class TopicServiceImpl extends AbstractCommonService implements TopicServ
                     configure.getSecretKey()
             ));
         }
-        if (TopicMessageType.TRANSACTION.equals(messageType)) {
+        if (TopicMessageType.TRANSACTION.getValue().equals(messageType)) {
             // transaction message
             TransactionListener transactionListener = new TransactionListenerImpl();
 
@@ -433,7 +433,7 @@ public class TopicServiceImpl extends AbstractCommonService implements TopicServ
             TraceDispatcher traceDispatcher = Reflect.on(producer).field("traceDispatcher").get();
             if (traceDispatcher != null) {
                 ArrayBlockingQueue<TraceContext> traceContextQueue = Reflect.on(traceDispatcher).field("traceContextQueue").get();
-                while (traceContextQueue.size() > 0) {
+                while (!traceContextQueue.isEmpty()) {
                     Thread.sleep(1);
                 }
             }
@@ -446,9 +446,9 @@ public class TopicServiceImpl extends AbstractCommonService implements TopicServ
     }
 
     static class TransactionListenerImpl implements TransactionListener {
-        private AtomicInteger transactionIndex = new AtomicInteger(0);
+        private final AtomicInteger transactionIndex = new AtomicInteger(0);
 
-        private ConcurrentHashMap<String, Integer> localTrans = new ConcurrentHashMap<>();
+        private final ConcurrentHashMap<String, Integer> localTrans = new ConcurrentHashMap<>();
 
         @Override
         public LocalTransactionState executeLocalTransaction(Message msg, Object arg) {

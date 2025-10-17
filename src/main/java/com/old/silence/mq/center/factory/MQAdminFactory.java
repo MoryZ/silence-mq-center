@@ -27,13 +27,13 @@ public class MQAdminFactory {
 
     public MQAdminExt getInstance() throws Exception {
         RPCHook rpcHook = null;
-        final String accessKey = rmqConfigure.getAccessKey();
-        final String secretKey = rmqConfigure.getSecretKey();
+        String accessKey = rmqConfigure.getAccessKey();
+        String secretKey = rmqConfigure.getSecretKey();
         boolean isEnableAcl = StringUtils.isNotEmpty(accessKey) && StringUtils.isNotEmpty(secretKey);
         if (isEnableAcl) {
             rpcHook = new AclClientRPCHook(new SessionCredentials(accessKey, secretKey));
         }
-        DefaultMQAdminExt mqAdminExt = null;
+        DefaultMQAdminExt mqAdminExt;
         if (rmqConfigure.getTimeoutMillis() == null) {
             mqAdminExt = new DefaultMQAdminExt(rpcHook);
         } else {
