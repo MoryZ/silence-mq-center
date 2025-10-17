@@ -31,7 +31,7 @@ public class MQAdminAspect {
     @Around(value = "mQAdminMethodPointCut()")
     public Object aroundMQAdminMethod(ProceedingJoinPoint joinPoint) throws Throwable {
         long start = System.currentTimeMillis();
-        Object obj = null;
+        Object obj;
         try {
             MQAdminInstance.createMQAdmin(mqAdminExtPool);
             obj = joinPoint.proceed();

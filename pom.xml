@@ -5,8 +5,8 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>com.old.silence</groupId>
-        <artifactId>platform-parent</artifactId>
-        <version>2.0.1-SNAPSHOT</version>
+        <artifactId>platform-framework</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>silence-mq-center</artifactId>
@@ -14,29 +14,29 @@
     <packaging>jar</packaging>
 
     <properties>
-        <maven.compiler.source>21</maven.compiler.source>
-        <maven.compiler.target>21</maven.compiler.target>
+        <maven.compiler.source>11</maven.compiler.source>
+        <maven.compiler.target>11</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-        <guava.version>33.2.0-jre</guava.version>
+        <guava.version>29.0-jre</guava.version>
         <commons-digester.version>2.1</commons-digester.version>
-        <commons-lang.version>3.17.0</commons-lang.version>
+        <commons-lang.version>3.17</commons-lang.version>
         <commons-io.version>2.18.0</commons-io.version>
         <commons-cli.version>1.2</commons-cli.version>
 
         <rocketmq.version>5.1.0</rocketmq.version>
-        <surefire.version>3.2.5</surefire.version>
-        <aspectj.version>1.9.21</aspectj.version>
+        <surefire.version>2.19.1</surefire.version>
+        <aspectj.version>1.9.6</aspectj.version>
         <main.basedir>${basedir}/../..</main.basedir>
-        <spring.boot.version>3.3.8</spring.boot.version>
+        <spring.boot.version>2.7.18</spring.boot.version>
         <jaxb-api.version>2.3.1</jaxb-api.version>
-        <commons-pool2.version>2.12.0</commons-pool2.version>
-        <easyexcel.version>4.0.3</easyexcel.version>
-        <asm.version>9.7</asm.version>
-        <junit.version>5.10.3</junit.version>
-        <cglib.version>3.3.0</cglib.version>
-        <joor.version>0.9.15</joor.version>
-        <bcpkix-jdk15on.version>1.70</bcpkix-jdk15on.version>
+        <commons-pool2.version>2.4.3</commons-pool2.version>
+        <easyexcel.version>2.2.10</easyexcel.version>
+        <asm.version>4.2</asm.version>
+        <junit.version>4.12</junit.version>
+        <cglib.version>2.2.2</cglib.version>
+        <joor.version>0.9.6</joor.version>
+        <bcpkix-jdk15on.version>1.68</bcpkix-jdk15on.version>
     </properties>
 
     <dependencies>
@@ -172,23 +172,21 @@
         </dependency>
 
         <dependency>
-            <groupId>jakarta.servlet</groupId>
-            <artifactId>jakarta.servlet-api</artifactId>
-            <version>5.0.0</version> <!-- 或者 6.0.0，根据您的目标Jakarta EE版本选择 -->
-            <scope>provided</scope>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
+            <version>4.0.1</version>
         </dependency>
-
-
-<!--        <dependency>
-            <groupId>com.old.silence</groupId>
-            <artifactId>silence-auth-center-client</artifactId>
-            <version>2.0.1-SNAPSHOT</version>
-        </dependency>-->
 
         <dependency>
             <groupId>com.old.silence</groupId>
             <artifactId>platform-webmvc</artifactId>
         </dependency>
 
+
+        <!--<dependency>
+            <groupId>com.old.silence</groupId>
+            <artifactId>silence-auth-center</artifactId>
+            <version>1.0.0-SNAPSHOT</version>
+        </dependency>-->
     </dependencies>
 </project>

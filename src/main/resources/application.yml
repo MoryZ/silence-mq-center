@@ -25,15 +25,8 @@ rocketmq:
     loginRequired: false
     useTLS: false
     # set the accessKey and secretKey if you used acl
-    accessKey: admin
-    secretKey: 123456
-
-thread-pool:
-  config:
-    coreSize: 10
-    maxSize: 10
-    keepAliveTime: 3000
-    queueSize: 5000
+#    accessKey: rocketmq2
+#    secretKey: 12345678
 
 platform:
   system:

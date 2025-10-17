@@ -126,14 +126,11 @@ public class MQAdminExtImpl implements MQAdminExt {
             throw new RuntimeException(err);
         }
         assert response != null;
-        switch (response.getCode()) {
-            case ResponseCode.SUCCESS: {
-                SubscriptionGroupWrapper subscriptionGroupWrapper = decode(response.getBody(), SubscriptionGroupWrapper.class);
-                return subscriptionGroupWrapper.getSubscriptionGroupTable().get(group);
-            }
-            default:
-                throw new MQBrokerException(response.getCode(), response.getRemark());
+        if (response.getCode() == ResponseCode.SUCCESS) {
+            SubscriptionGroupWrapper subscriptionGroupWrapper = decode(response.getBody(), SubscriptionGroupWrapper.class);
+            return subscriptionGroupWrapper.getSubscriptionGroupTable().get(group);
         }
+        throw new MQBrokerException(response.getCode(), response.getRemark());
     }
 
     @Override
@@ -153,17 +150,14 @@ public class MQAdminExtImpl implements MQAdminExt {
             Throwables.throwIfUnchecked(err);
             throw new RuntimeException(err);
         }
-        switch (response.getCode()) {
-            case ResponseCode.SUCCESS: {
-                TopicConfigSerializeWrapper topicConfigSerializeWrapper =
-                        decode(response.getBody(), TopicConfigSerializeWrapper.class);
+        if (response.getCode() == ResponseCode.SUCCESS) {
+            TopicConfigSerializeWrapper topicConfigSerializeWrapper =
+                    decode(response.getBody(), TopicConfigSerializeWrapper.class);
 
-                TOPIC_CONFIG_CACHE.put(addr, topicConfigSerializeWrapper);
-                return topicConfigSerializeWrapper.getTopicConfigTable().get(topic);
-            }
-            default:
-                throw new MQBrokerException(response.getCode(), response.getRemark());
+            TOPIC_CONFIG_CACHE.put(addr, topicConfigSerializeWrapper);
+            return topicConfigSerializeWrapper.getTopicConfigTable().get(topic);
         }
+        throw new MQBrokerException(response.getCode(), response.getRemark());
     }
 
     @Override
