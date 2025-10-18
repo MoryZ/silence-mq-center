@@ -62,15 +62,12 @@
         <dependency>
             <groupId>org.apache.rocketmq</groupId>
             <artifactId>rocketmq-tools</artifactId>
-            <version>${rocketmq.version}</version>
+            <version>5.1.0</version>
             <exclusions>
+                <!-- 只排除导致多提供商的桥接类（核心冲突源） -->
                 <exclusion>
-                    <groupId>ch.qos.logback</groupId>
-                    <artifactId>logback-classic</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>ch.qos.logback</groupId>
-                    <artifactId>logback-core</artifactId>
+                    <groupId>io.github.aliyunmq</groupId>
+                    <artifactId>rocketmq-shaded-slf4j-api-bridge</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
@@ -80,16 +77,8 @@
             <version>${rocketmq.version}</version>
             <exclusions>
                 <exclusion>
-                    <groupId>org.slf4j</groupId>
-                    <artifactId>slf4j-api</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>ch.qos.logback</groupId>
-                    <artifactId>logback-classic</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>ch.qos.logback</groupId>
-                    <artifactId>logback-core</artifactId>
+                    <groupId>io.github.aliyunmq</groupId>
+                    <artifactId>rocketmq-shaded-slf4j-api-bridge</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
@@ -97,20 +86,6 @@
             <groupId>org.apache.rocketmq</groupId>
             <artifactId>rocketmq-broker</artifactId>
             <version>${rocketmq.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.slf4j</groupId>
-                    <artifactId>slf4j-api</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>ch.qos.logback</groupId>
-                    <artifactId>logback-classic</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>ch.qos.logback</groupId>
-                    <artifactId>logback-core</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
             <groupId>com.google.guava</groupId>
@@ -191,4 +166,15 @@
         </dependency>
 
     </dependencies>
+
+    <dependencyManagement>
+        <dependencies>
+            <!-- 统一 Spring Boot 和 RocketMQ 的 SLF4J API 版本 -->
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-api</artifactId>
+                <version>2.0.16</version> <!-- 与 Spring Boot 3.3.8 自带版本一致 -->
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 </project>
