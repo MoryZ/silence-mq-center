@@ -38,3 +38,10 @@ thread-pool:
 platform:
   system:
     identifier: MC
+
+spring:
+  cloud:
+    openfeign:
+      autoconfiguration:
+        jackson:
+          enabled: false
