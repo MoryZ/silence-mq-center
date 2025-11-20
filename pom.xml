@@ -37,6 +37,9 @@
         <cglib.version>3.3.0</cglib.version>
         <joor.version>0.9.15</joor.version>
         <bcpkix-jdk15on.version>1.70</bcpkix-jdk15on.version>
+        <nacos-client.version>2.4.3</nacos-client.version>
+        <spring-cloud-dependencies.version>2023.0.5</spring-cloud-dependencies.version>
+        <spring-cloud-alibaba-dependencies.version>2023.0.3.2</spring-cloud-alibaba-dependencies.version>
     </properties>
 
     <dependencies>
@@ -165,10 +168,32 @@
             <artifactId>platform-webmvc</artifactId>
         </dependency>
 
+        <!-- Nacos Discovery -->
+        <dependency>
+            <groupId>com.alibaba.cloud</groupId>
+            <artifactId>spring-cloud-starter-alibaba-nacos-discovery</artifactId>
+        </dependency>
+
     </dependencies>
 
     <dependencyManagement>
         <dependencies>
+            <!-- Spring Cloud Dependencies -->
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-dependencies</artifactId>
+                <version>${spring-cloud-dependencies.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <!-- Spring Cloud Alibaba Dependencies -->
+            <dependency>
+                <groupId>com.alibaba.cloud</groupId>
+                <artifactId>spring-cloud-alibaba-dependencies</artifactId>
+                <version>${spring-cloud-alibaba-dependencies.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
             <!-- 统一 Spring Boot 和 RocketMQ 的 SLF4J API 版本 -->
             <dependency>
                 <groupId>org.slf4j</groupId>
