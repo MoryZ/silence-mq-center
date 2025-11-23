@@ -10,10 +10,6 @@ spring:
         server-addr: localhost:8848
         username: nacos
         password: nacos
-    openfeign:
-      autoconfiguration:
-        jackson:
-          enabled: false
 
 rocketmq:
   config:

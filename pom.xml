@@ -152,7 +152,7 @@
         <dependency>
             <groupId>jakarta.servlet</groupId>
             <artifactId>jakarta.servlet-api</artifactId>
-            <version>5.0.0</version> <!-- 或者 6.0.0，根据您的目标Jakarta EE版本选择 -->
+            <version>6.0.0</version> <!-- 或者 6.0.0，根据您的目标Jakarta EE版本选择 -->
             <scope>provided</scope>
         </dependency>
 
