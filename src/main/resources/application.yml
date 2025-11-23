@@ -48,3 +48,10 @@ thread-pool:
 platform:
   system:
     identifier: MC
+
+silence:
+  auth:
+    center:
+      security:
+        api:
+          white-list:

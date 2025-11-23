@@ -428,6 +428,11 @@ public class MQAdminExtImpl implements MQAdminExt {
         return MQAdminInstance.threadLocalMQAdminExt().queryConsumeTimeSpan(topic, group);
     }
 
+    @Override
+    public MessageExt viewMessage(String offsetMsgId) throws RemotingException, MQBrokerException, InterruptedException, MQClientException {
+        return MQAdminInstance.threadLocalMQAdminExt().viewMessage(offsetMsgId);
+    }
+
     //MessageClientIDSetter.getNearlyTimeFromID has bug,so we subtract half a day
     //next version we will remove it
     //https://issues.apache.org/jira/browse/ROCKETMQ-111
