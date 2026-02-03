@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CoolRequestCookiePersistent">
+    <option name="cookies" value="[&#13;&#10;  {&#13;&#10;    &quot;domain&quot; : &quot;localhost:8099&quot;,&#13;&#10;    &quot;infos&quot; : [&#13;&#10;      {&#13;&#10;        &quot;createTimeMillis&quot; : 1763914259963,&#13;&#10;        &quot;raw&quot; : &quot;JSESSIONID=7653D12E1EA610B8FDBBA9BB1D7B50CF; Path=/; HttpOnly&quot;,&#13;&#10;        &quot;requestURL&quot; : &quot;http://localhost:8099/api/v1/topics&quot;&#13;&#10;      }&#13;&#10;    ]&#13;&#10;  }&#13;&#10;]" />
+  </component>
+</project>
