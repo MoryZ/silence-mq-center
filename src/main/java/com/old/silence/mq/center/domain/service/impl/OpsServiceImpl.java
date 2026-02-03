@@ -1,15 +1,17 @@
 
 package com.old.silence.mq.center.domain.service.impl;
 
-import org.apache.commons.pool2.impl.GenericObjectPool;
-import org.apache.rocketmq.tools.admin.MQAdminExt;
-import org.springframework.stereotype.Service;
 import com.google.common.collect.Maps;
 import com.old.silence.mq.center.api.config.RMQConfigure;
 import com.old.silence.mq.center.domain.service.AbstractCommonService;
 import com.old.silence.mq.center.domain.service.OpsService;
 import com.old.silence.mq.center.domain.service.checker.CheckerType;
 import com.old.silence.mq.center.domain.service.checker.RocketMqChecker;
+import com.old.silence.mq.center.domain.service.facade.RocketMQClientFacade;
+import com.old.silence.mq.center.domain.service.helper.ConfigManagementHelper;
+import org.apache.commons.pool2.impl.GenericObjectPool;
+import org.apache.rocketmq.tools.admin.MQAdminExt;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
@@ -22,30 +24,33 @@ public class OpsServiceImpl extends AbstractCommonService implements OpsService 
     private final GenericObjectPool<MQAdminExt> mqAdminExtPool;
 
     private final List<RocketMqChecker> rocketMqCheckerList;
+    
+    private final RocketMQClientFacade mqFacade;
 
-    protected OpsServiceImpl(MQAdminExt mqAdminExt, RMQConfigure configure, GenericObjectPool<MQAdminExt> mqAdminExtPool, List<RocketMqChecker> rocketMqCheckerList) {
+    protected OpsServiceImpl(MQAdminExt mqAdminExt, RMQConfigure configure, GenericObjectPool<MQAdminExt> mqAdminExtPool, List<RocketMqChecker> rocketMqCheckerList, RocketMQClientFacade mqFacade) {
         super(mqAdminExt);
         this.configure = configure;
         this.mqAdminExtPool = mqAdminExtPool;
         this.rocketMqCheckerList = rocketMqCheckerList;
+        this.mqFacade = mqFacade;
     }
 
 
     @Override
     public Map<String, Object> homePageInfo() {
-        Map<String, Object> homePageInfoMap = Maps.newHashMap();
-        homePageInfoMap.put("currentNamesrv", configure.getNamesrvAddr());
-        homePageInfoMap.put("namesvrAddrList", configure.getNamesrvAddrs());
-        homePageInfoMap.put("useVIPChannel", Boolean.valueOf(configure.getIsVIPChannel()));
-        homePageInfoMap.put("useTLS", configure.isUseTLS());
-        return homePageInfoMap;
+        Map<String, Object> infoMap = ConfigManagementHelper.buildInfoMap();
+        ConfigManagementHelper.putConfigToMap(infoMap, "currentNamesrv", configure.getNamesrvAddr());
+        ConfigManagementHelper.putConfigToMap(infoMap, "namesvrAddrList", configure.getNamesrvAddrs());
+        ConfigManagementHelper.putConfigToMap(infoMap, "useVIPChannel", Boolean.valueOf(configure.getIsVIPChannel()));
+        ConfigManagementHelper.putConfigToMap(infoMap, "useTLS", configure.isUseTLS());
+        return infoMap;
     }
 
     @Override
     public void updateNameSvrAddrList(String nameSvrAddrList) {
-        configure.setNamesrvAddr(nameSvrAddrList);
-        // when update namesrvAddr, clean the mqAdminExt objects pool.
-        mqAdminExtPool.clear();
+        ConfigManagementHelper.updateConfigAndClearPool(
+                () -> configure.setNamesrvAddr(nameSvrAddrList),
+                mqAdminExtPool);
     }
 
     @Override
@@ -64,15 +69,17 @@ public class OpsServiceImpl extends AbstractCommonService implements OpsService 
 
     @Override
     public boolean updateIsVIPChannel(String useVIPChannel) {
-        configure.setIsVIPChannel(useVIPChannel);
-        mqAdminExtPool.clear();
+        ConfigManagementHelper.updateConfigAndClearPool(
+                () -> configure.setIsVIPChannel(useVIPChannel),
+                mqAdminExtPool);
         return true;
     }
 
     @Override
     public boolean updateUseTLS(boolean useTLS) {
-        configure.setUseTLS(useTLS);
-        mqAdminExtPool.clear();
+        ConfigManagementHelper.updateConfigAndClearPool(
+                () -> configure.setUseTLS(useTLS),
+                mqAdminExtPool);
         return true;
     }
 

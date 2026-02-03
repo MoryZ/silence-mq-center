@@ -7,7 +7,7 @@ import org.apache.rocketmq.remoting.protocol.body.ClusterInfo;
 import org.apache.rocketmq.remoting.protocol.body.KVTable;
 import org.apache.rocketmq.remoting.protocol.body.TopicList;
 import org.apache.rocketmq.remoting.protocol.route.BrokerData;
-import org.apache.rocketmq.tools.admin.MQAdminExt;
+import com.old.silence.mq.center.domain.service.facade.RocketMQClientFacade;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -38,7 +38,7 @@ import java.util.concurrent.ExecutorService;
 @Component
 public class DashboardCollectTask {
     private Date currentDate = new Date();
-    private final MQAdminExt mqAdminExt;
+    private final RocketMQClientFacade mqFacade;
     private final RMQConfigure rmqConfigure;
 
     private final DashboardCollectService dashboardCollectService;
@@ -47,8 +47,8 @@ public class DashboardCollectTask {
 
     private final ExecutorService collectExecutor;
 
-    public DashboardCollectTask(MQAdminExt mqAdminExt, RMQConfigure rmqConfigure, DashboardCollectService dashboardCollectService, ExecutorService collectExecutor) {
-        this.mqAdminExt = mqAdminExt;
+    public DashboardCollectTask(RocketMQClientFacade mqFacade, RMQConfigure rmqConfigure, DashboardCollectService dashboardCollectService, ExecutorService collectExecutor) {
+        this.mqFacade = mqFacade;
         this.rmqConfigure = rmqConfigure;
         this.dashboardCollectService = dashboardCollectService;
         this.collectExecutor = collectExecutor;
@@ -60,7 +60,7 @@ public class DashboardCollectTask {
             return;
         }
         try {
-            TopicList topicList = mqAdminExt.fetchAllTopicList();
+            TopicList topicList = mqFacade.fetchAllTopicList();
             Set<String> topicSet = topicList.getTopicList();
             this.addSystemTopic();
             for (String topic : topicSet) {
@@ -69,7 +69,7 @@ public class DashboardCollectTask {
                     || TopicValidator.isSystemTopic(topic)) {
                     continue;
                 }
-                CollectTaskRunnable collectTask = new CollectTaskRunnable(topic, mqAdminExt, dashboardCollectService);
+                CollectTaskRunnable collectTask = new CollectTaskRunnable(topic, mqFacade, dashboardCollectService);
                 collectExecutor.submit(collectTask);
             }
         }
@@ -86,7 +86,7 @@ public class DashboardCollectTask {
         }
         try {
             Date date = new Date();
-            ClusterInfo clusterInfo = mqAdminExt.examineBrokerClusterInfo();
+            ClusterInfo clusterInfo = mqFacade.getRawClusterInfo();
             Set<Map.Entry<String, BrokerData>> clusterEntries = clusterInfo.getBrokerAddrTable().entrySet();
 
             Map<String, String> addresses = Maps.newHashMap();
@@ -129,7 +129,7 @@ public class DashboardCollectTask {
             return null;
         }
         try {
-            return mqAdminExt.fetchBrokerRuntimeStats(brokerAddr);
+            return mqFacade.fetchBrokerRuntimeStats(brokerAddr);
         }
         catch (Exception e) {
             try {
@@ -244,7 +244,7 @@ public class DashboardCollectTask {
     }
 
     private void addSystemTopic() throws Exception {
-        ClusterInfo clusterInfo = mqAdminExt.examineBrokerClusterInfo();
+            ClusterInfo clusterInfo = mqFacade.getRawClusterInfo();
         Map<String, Set<String>> clusterTable = clusterInfo.getClusterAddrTable();
         for (Map.Entry<String, Set<String>> entry : clusterTable.entrySet()) {
             String clusterName = entry.getKey();

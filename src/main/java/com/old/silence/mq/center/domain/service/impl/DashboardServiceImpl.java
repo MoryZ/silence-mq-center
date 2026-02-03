@@ -21,12 +21,6 @@ public class DashboardServiceImpl implements DashboardService {
 
     public DashboardServiceImpl(DashboardCollectService dashboardCollectService) {
         this.dashboardCollectService = dashboardCollectService;
-    }
-
-    /**
-     * @param date format yyyy-MM-dd
-     */
-    @Override
     public Map<String, List<String>> queryBrokerData(String date) {
         return dashboardCollectService.getBrokerCache(date);
     }

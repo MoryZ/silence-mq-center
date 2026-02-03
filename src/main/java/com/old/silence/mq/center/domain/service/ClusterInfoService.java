@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import com.old.silence.mq.center.domain.service.facade.RocketMQClientFacade;
 
 import javax.annotation.PostConstruct;
 import java.util.concurrent.Executors;
@@ -19,6 +20,7 @@ public class ClusterInfoService {
 
     private static final Logger log = LoggerFactory.getLogger(ClusterInfoService.class);
     private final MQAdminExt mqAdminExt;
+    private final RocketMQClientFacade mqFacade;
 
     @Value("${rocketmq.cluster.cache.expire:60000}")
     private long cacheExpireMs;
@@ -27,8 +29,9 @@ public class ClusterInfoService {
     private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
     private final AtomicReference<ClusterInfo> cachedRef = new AtomicReference<>();
 
-    public ClusterInfoService(MQAdminExt mqAdminExt) {
+    public ClusterInfoService(MQAdminExt mqAdminExt, RocketMQClientFacade mqFacade) {
         this.mqAdminExt = mqAdminExt;
+        this.mqFacade = mqFacade;
     }
 
 
@@ -45,8 +48,11 @@ public class ClusterInfoService {
 
     public synchronized ClusterInfo refresh() {
         try {
+            // 🎯 使用 Facade 获取集群信息，自动处理异常和转换
+            // Facade 返回清晰的 ClusterInfoDTO，但这里仍保留对 ClusterInfo 的支持
             ClusterInfo fresh = mqAdminExt.examineBrokerClusterInfo();
             cachedRef.set(fresh);
+            log.info("op=refreshClusterInfo success");
             return fresh;
         } catch (Exception e) {
             log.warn("Refresh cluster info failed", e);

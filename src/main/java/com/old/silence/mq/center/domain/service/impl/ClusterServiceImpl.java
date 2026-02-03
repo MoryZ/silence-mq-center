@@ -4,13 +4,11 @@ package com.old.silence.mq.center.domain.service.impl;
 
 import org.apache.rocketmq.common.attribute.TopicMessageType;
 import org.apache.rocketmq.remoting.protocol.body.ClusterInfo;
-import org.apache.rocketmq.remoting.protocol.body.KVTable;
 import org.apache.rocketmq.remoting.protocol.route.BrokerData;
-import org.apache.rocketmq.tools.admin.MQAdminExt;
+import com.old.silence.mq.center.domain.service.facade.RocketMQClientFacade;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import com.google.common.base.Throwables;
 import com.google.common.collect.Maps;
 import com.old.silence.mq.center.domain.service.ClusterService;
 import com.old.silence.mq.center.util.JsonUtil;
@@ -23,24 +21,24 @@ import java.util.stream.Collectors;
 @Service
 public class ClusterServiceImpl implements ClusterService {
     private final Logger logger = LoggerFactory.getLogger(ClusterServiceImpl.class);
-    private final MQAdminExt mqAdminExt;
+    private final RocketMQClientFacade mqFacade;
 
-    public ClusterServiceImpl(MQAdminExt mqAdminExt) {
-        this.mqAdminExt = mqAdminExt;
+    public ClusterServiceImpl(RocketMQClientFacade mqFacade) {
+        this.mqFacade = mqFacade;
     }
 
     @Override
     public Map<String, Object> list() {
         try {
             Map<String, Object> resultMap = Maps.newHashMap();
-            ClusterInfo clusterInfo = mqAdminExt.examineBrokerClusterInfo();
+            ClusterInfo clusterInfo = mqFacade.getRawClusterInfo();
             logger.info("op=look_clusterInfo {}", JsonUtil.obj2String(clusterInfo));
             Map<String/*brokerName*/, Map<Long/* brokerId */, Object/* brokerDetail */>> brokerServer = Maps.newHashMap();
             for (BrokerData brokerData : clusterInfo.getBrokerAddrTable().values()) {
                 Map<Long, Object> brokerMasterSlaveMap = Maps.newHashMap();
                 for (Map.Entry<Long/* brokerId */, String/* broker address */> brokerAddr : brokerData.getBrokerAddrs().entrySet()) {
-                    KVTable kvTable = mqAdminExt.fetchBrokerRuntimeStats(brokerAddr.getValue());
-                    brokerMasterSlaveMap.put(brokerAddr.getKey(), kvTable.getTable());
+                    Map<String, String> brokerStats = mqFacade.fetchBrokerRuntimeStats(brokerAddr.getValue()).getTable();
+                    brokerMasterSlaveMap.put(brokerAddr.getKey(), brokerStats);
                 }
                 brokerServer.put(brokerData.getBrokerName(), brokerMasterSlaveMap);
             }
@@ -52,7 +50,7 @@ public class ClusterServiceImpl implements ClusterService {
             return resultMap;
         }
         catch (Exception err) {
-            Throwables.throwIfUnchecked(err);
+            logger.error("op=list failed", err);
             throw new RuntimeException(err);
         }
     }
@@ -61,11 +59,7 @@ public class ClusterServiceImpl implements ClusterService {
     @Override
     public Properties getBrokerConfig(String brokerAddr) {
         try {
-            return mqAdminExt.getBrokerConfig(brokerAddr);
+            return mqFacade.getBrokerConfig(brokerAddr);
         }
         catch (Exception e) {
-            Throwables.throwIfUnchecked(e);
-            throw new RuntimeException(e);
-        }
-    }
-}
+            logger.error("op=getBrokerConfig failed, brokerAddr={}", brokerAddr, e);

@@ -7,7 +7,7 @@ import org.apache.rocketmq.remoting.protocol.body.BrokerStatsData;
 import org.apache.rocketmq.remoting.protocol.body.GroupList;
 import org.apache.rocketmq.remoting.protocol.route.BrokerData;
 import org.apache.rocketmq.remoting.protocol.route.TopicRouteData;
-import org.apache.rocketmq.tools.admin.MQAdminExt;
+import com.old.silence.mq.center.domain.service.facade.RocketMQClientFacade;
 import org.apache.rocketmq.tools.command.stats.StatsAllSubCommand;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,14 +27,14 @@ public class CollectTaskRunnable implements Runnable {
     private static final Logger log = LoggerFactory.getLogger(CollectTaskRunnable.class);
     private final String topic;
 
-    private final MQAdminExt mqAdminExt;
+    private final RocketMQClientFacade mqFacade;
 
     private final DashboardCollectService dashboardCollectService;
 
-    public CollectTaskRunnable(String topic, MQAdminExt mqAdminExt,
+    public CollectTaskRunnable(String topic, RocketMQClientFacade mqFacade,
                                DashboardCollectService dashboardCollectService) {
         this.topic = topic;
-        this.mqAdminExt = mqAdminExt;
+        this.mqFacade = mqFacade;
         this.dashboardCollectService = dashboardCollectService;
     }
 
@@ -42,8 +42,8 @@ public class CollectTaskRunnable implements Runnable {
     public void run() {
         Date date = new Date();
         try {
-            TopicRouteData topicRouteData = mqAdminExt.examineTopicRouteInfo(topic);
-            GroupList groupList = mqAdminExt.queryTopicConsumeByWho(topic);
+            TopicRouteData topicRouteData = mqFacade.getTopicRoute(topic);
+            GroupList groupList = mqFacade.queryTopicConsumers(topic);
             double inTPS = 0;
             long inMsgCntToday = 0;
             double outTPS = 0;
@@ -51,13 +51,13 @@ public class CollectTaskRunnable implements Runnable {
             for (BrokerData bd : topicRouteData.getBrokerDatas()) {
                 String masterAddr = bd.getBrokerAddrs().get(MixAll.MASTER_ID);
                 if (masterAddr != null) {
-                    try {
-                        BrokerStatsData bsd = mqAdminExt.viewBrokerStatsData(masterAddr, Stats.TOPIC_PUT_NUMS, topic);
-                        inTPS += bsd.getStatsMinute().getTps();
-                        inMsgCntToday += StatsAllSubCommand.compute24HourSum(bsd);
-                    } catch (Exception e) {
-                        log.warn("Exception caught: mqAdminExt get broker stats data TOPIC_PUT_NUMS failed, topic: [{}]", topic, e.getMessage());
-                    }
+                            try {
+                                BrokerStatsData bsd = mqFacade.viewBrokerStatsData(masterAddr, Stats.TOPIC_PUT_NUMS, topic);
+                                inTPS += bsd.getStatsMinute().getTps();
+                                inMsgCntToday += StatsAllSubCommand.compute24HourSum(bsd);
+                            } catch (Exception e) {
+                                log.warn("Exception caught: viewBrokerStatsData TOPIC_PUT_NUMS failed, topic: [{}]", topic, e.getMessage());
+                            }
                 }
             }
             if (groupList != null && !groupList.getGroupList().isEmpty()) {
@@ -65,14 +65,14 @@ public class CollectTaskRunnable implements Runnable {
                     for (BrokerData bd : topicRouteData.getBrokerDatas()) {
                         String masterAddr = bd.getBrokerAddrs().get(MixAll.MASTER_ID);
                         if (masterAddr != null) {
-                            try {
-                                String statsKey = String.format("%s@%s", topic, group);
-                                BrokerStatsData bsd = mqAdminExt.viewBrokerStatsData(masterAddr, Stats.GROUP_GET_NUMS, statsKey);
-                                outTPS += bsd.getStatsMinute().getTps();
-                                outMsgCntToday += StatsAllSubCommand.compute24HourSum(bsd);
-                            } catch (Exception e) {
-                                log.warn("Exception caught: mqAdminExt get broker stats data GROUP_GET_NUMS failed, topic: [{}], group [{}]", topic, group, e.getMessage());
-                            }
+                                        try {
+                                            String statsKey = String.format("%s@%s", topic, group);
+                                            BrokerStatsData bsd = mqFacade.viewBrokerStatsData(masterAddr, Stats.GROUP_GET_NUMS, statsKey);
+                                            outTPS += bsd.getStatsMinute().getTps();
+                                            outMsgCntToday += StatsAllSubCommand.compute24HourSum(bsd);
+                                        } catch (Exception e) {
+                                            log.warn("Exception caught: viewBrokerStatsData GROUP_GET_NUMS failed, topic: [{}], group [{}]", topic, group, e.getMessage());
+                                        }
                         }
                     }
                 }
