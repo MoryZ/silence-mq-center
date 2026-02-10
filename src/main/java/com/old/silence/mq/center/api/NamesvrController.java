@@ -16,6 +16,6 @@ public class NamesvrController {
 
     @GetMapping(value = "/nsaddr")
     public String nsAddr() {
-        return  opsService.getNameSvrList();
+        return opsService.getNameSvrList();
     }
 }

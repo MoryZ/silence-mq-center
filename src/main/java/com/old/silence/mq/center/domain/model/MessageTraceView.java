@@ -1,5 +1,3 @@
-
-
 package com.old.silence.mq.center.domain.model;
 
 import org.apache.rocketmq.client.trace.TraceBean;

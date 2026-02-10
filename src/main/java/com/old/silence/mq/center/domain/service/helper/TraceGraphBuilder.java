@@ -1,6 +1,8 @@
 package com.old.silence.mq.center.domain.service.helper;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.rocketmq.client.trace.TraceType;
+import org.apache.rocketmq.common.Pair;
 import org.springframework.beans.BeanUtils;
 import org.springframework.util.CollectionUtils;
 import com.google.common.base.Function;
@@ -11,8 +13,6 @@ import com.old.silence.mq.center.domain.model.trace.MessageTraceStatusEnum;
 import com.old.silence.mq.center.domain.model.trace.ProducerNode;
 import com.old.silence.mq.center.domain.model.trace.SubscriptionNode;
 import com.old.silence.mq.center.domain.model.trace.TraceNode;
-import org.apache.rocketmq.client.trace.TraceType;
-import org.apache.rocketmq.common.Pair;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -182,7 +182,7 @@ public class TraceGraphBuilder {
      * 将TraceView存入Map，合并SubBefore和SubAfter
      */
     private static void putTraceViewPair(MessageTraceView traceView,
-                                        Map<String, Pair<MessageTraceView, MessageTraceView>> map) {
+                                         Map<String, Pair<MessageTraceView, MessageTraceView>> map) {
         Pair<MessageTraceView, MessageTraceView> pair = map
                 .computeIfAbsent(traceView.getRequestId(), k -> new Pair<>(null, null));
 
@@ -198,7 +198,7 @@ public class TraceGraphBuilder {
      * 从Pair中获取TraceView值
      */
     private static <E> E getTraceValue(Pair<MessageTraceView, MessageTraceView> pair,
-                                      Function<MessageTraceView, E> function) {
+                                       Function<MessageTraceView, E> function) {
         if (pair.getObject1() != null) {
             return function.apply(pair.getObject1());
         }

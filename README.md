@@ -34,7 +34,7 @@ silence-mq-center 是一个基于 Spring Boot 的 RocketMQ 管理控制台，为
 - 提供统一的调用接口
 - 处理 API 异常转换
 
-详见 [CLAUDE.md](CLAUDE.md) - 完整的开发规范文档
+详见 [CLAUDE.md](docs/CLAUDE.md) - 完整的开发规范文档
 
 ##  技术栈
 
@@ -127,7 +127,7 @@ src/main/java/com/old/silence/mq/center/
 
 ### 开发规范
 
-详见 [CLAUDE.md](CLAUDE.md)，包含：
+详见 [CLAUDE.md](docs/CLAUDE.md)，包含：
 
 - ✅ **命名规范**：类、方法、变量命名规则
 - ✅ **架构分层**：Controller/Service/DAO 职责划分
@@ -159,7 +159,7 @@ src/main/java/com/old/silence/mq/center/
 
 提交 PR 前，请确保：
 
-- [ ] 代码遵循 [CLAUDE.md](CLAUDE.md) 的开发规范
+- [ ] 代码遵循 [CLAUDE.md](docs/CLAUDE.md) 的开发规范
 - [ ] 添加了适当的日志和异常处理
 - [ ] 包含必要的单元测试
 - [ ] 更新了相关文档
@@ -180,4 +180,4 @@ src/main/java/com/old/silence/mq/center/
 
 ---
 
-更多详细信息请参考 [CLAUDE.md](CLAUDE.md)
+更多详细信息请参考 [CLAUDE.md](docs/CLAUDE.md)

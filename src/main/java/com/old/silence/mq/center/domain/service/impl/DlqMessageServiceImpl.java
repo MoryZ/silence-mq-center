@@ -1,10 +1,6 @@
-
-
 package com.old.silence.mq.center.domain.service.impl;
 
-import org.apache.rocketmq.client.exception.MQClientException;
 import org.apache.rocketmq.common.MixAll;
-import org.apache.rocketmq.remoting.protocol.ResponseCode;
 import org.apache.rocketmq.remoting.protocol.body.ConsumeMessageDirectlyResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,7 +29,7 @@ public class DlqMessageServiceImpl implements DlqMessageService {
     private static final Logger log = LoggerFactory.getLogger(DlqMessageServiceImpl.class);
 
     private final MessageService messageService;
-    
+
     private final RocketMQClientFacade mqFacade;
 
     public DlqMessageServiceImpl(MessageService messageService, RocketMQClientFacade mqFacade) {
@@ -51,7 +47,7 @@ public class DlqMessageServiceImpl implements DlqMessageService {
         } catch (ServiceException e) {
             // If the %DLQ%Group does not exist, the message returns null
             if (topic.startsWith(MixAll.DLQ_GROUP_TOPIC_PREFIX)
-                && e.getMessage().contains("TOPIC_NOT_EXIST")) {
+                    && e.getMessage().contains("TOPIC_NOT_EXIST")) {
                 return new MessagePage(new PageImpl<>(messageViews, page, 0), query.getTaskId());
             } else {
                 throw e;
@@ -67,8 +63,8 @@ public class DlqMessageServiceImpl implements DlqMessageService {
         List<DlqMessageResendResult> batchResendResults = new LinkedList<>();
         for (DlqMessageRequest dlqMessage : dlqMessages) {
             ConsumeMessageDirectlyResult result = messageService.consumeMessageDirectly(dlqMessage.getTopicName(),
-                dlqMessage.getMsgId(), dlqMessage.getConsumerGroup(),
-                dlqMessage.getClientId());
+                    dlqMessage.getMsgId(), dlqMessage.getConsumerGroup(),
+                    dlqMessage.getClientId());
             DlqMessageResendResult resendResult = new DlqMessageResendResult(result, dlqMessage.getMsgId());
             batchResendResults.add(resendResult);
         }

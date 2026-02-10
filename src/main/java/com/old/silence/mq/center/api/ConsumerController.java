@@ -40,75 +40,75 @@ public class ConsumerController {
 
     @GetMapping(value = "/groupList")
     public List<GroupConsumeInfo> list(@RequestParam(value = "skipSysGroup", required = false) boolean skipSysGroup, String address) {
-        return  consumerService.queryGroupList(skipSysGroup, address);
+        return consumerService.queryGroupList(skipSysGroup, address);
     }
 
     @GetMapping(value = "/group/refresh")
     public GroupConsumeInfo refresh(String address,
-                          String consumerGroup) {
-        return  consumerService.refreshGroup(address, consumerGroup);
+                                    String consumerGroup) {
+        return consumerService.refreshGroup(address, consumerGroup);
     }
 
     @GetMapping(value = "/group/refreshAll")
     public List<GroupConsumeInfo> refreshAll(String address) {
-        return  consumerService.refreshAllGroup(address);
+        return consumerService.refreshAllGroup(address);
     }
 
     @GetMapping(value = "/group")
     public GroupConsumeInfo groupQuery(@RequestParam String consumerGroup, String address) {
-        return  consumerService.queryGroup(consumerGroup, address);
+        return consumerService.queryGroup(consumerGroup, address);
     }
 
     @PostMapping(value = "/resetOffset")
     public Map<String, ConsumerGroupRollBackStat> resetOffset(@RequestBody ResetOffsetRequest resetOffsetRequest) {
         logger.info("op=look resetOffsetRequest:{}", JsonUtil.obj2String(resetOffsetRequest));
-        return  consumerService.resetOffset(resetOffsetRequest);
+        return consumerService.resetOffset(resetOffsetRequest);
     }
 
     @PostMapping(value = "/skipAccumulate")
     public Map<String, ConsumerGroupRollBackStat> skipAccumulate(@RequestBody ResetOffsetRequest resetOffsetRequest) {
         logger.info("op=look resetOffsetRequest:{}", JsonUtil.obj2String(resetOffsetRequest));
-        return  consumerService.resetOffset(resetOffsetRequest);
+        return consumerService.resetOffset(resetOffsetRequest);
     }
 
     @GetMapping(value = "/examineSubscriptionGroupConfig")
     public List<ConsumerConfigInfo> examineSubscriptionGroupConfig(@RequestParam String consumerGroup) {
-        return   consumerService.examineSubscriptionGroupConfig(consumerGroup);
+        return consumerService.examineSubscriptionGroupConfig(consumerGroup);
     }
 
     @DeleteMapping(value = "/deleteSubGroup")
     public Boolean deleteSubGroup(@RequestBody DeleteSubGroupRequest deleteSubGroupRequest) {
         consumerService.deleteSubGroup(deleteSubGroupRequest);
-        return  true;
+        return true;
     }
 
     @PostMapping(value = "/createOrUpdate")
     public Boolean consumerCreateOrUpdateRequest(@RequestBody ConsumerConfigInfo consumerConfigInfo) {
         Preconditions.checkArgument(CollectionUtils.isNotEmpty(consumerConfigInfo.getBrokerNameList()) || CollectionUtils.isNotEmpty(consumerConfigInfo.getClusterNameList()),
-            "clusterName or brokerName can not be all blank");
-        return   consumerService.createAndUpdateSubscriptionGroupConfig(consumerConfigInfo);
+                "clusterName or brokerName can not be all blank");
+        return consumerService.createAndUpdateSubscriptionGroupConfig(consumerConfigInfo);
     }
 
     @GetMapping(value = "/fetchBrokerNameList")
     public Set<String> fetchBrokerNameList(@RequestParam String consumerGroup) {
-        return  consumerService.fetchBrokerNameSetBySubscriptionGroup(consumerGroup);
+        return consumerService.fetchBrokerNameSetBySubscriptionGroup(consumerGroup);
     }
 
     @GetMapping(value = "/queryTopicByConsumer")
     public List<TopicConsumerInfo> queryConsumerByTopic(@RequestParam String consumerGroup, String address) {
-        return   consumerService.queryConsumeStatsListByGroupName(consumerGroup, address);
+        return consumerService.queryConsumeStatsListByGroupName(consumerGroup, address);
     }
 
     @GetMapping(value = "/consumerConnection")
     public ConsumerConnection consumerConnection(@RequestParam(required = false) String consumerGroup, String address) {
         ConsumerConnection consumerConnection = consumerService.getConsumerConnection(consumerGroup, address);
         consumerConnection.setConnectionSet(ConnectionInfo.buildConnectionInfoHashSet(consumerConnection.getConnectionSet()));
-        return  consumerConnection;
+        return consumerConnection;
     }
 
     @GetMapping(value = "/consumerRunningInfo")
     public ConsumerRunningInfo getConsumerRunningInfo(@RequestParam String consumerGroup, @RequestParam String clientId,
-                                                                 @RequestParam boolean jstack) {
-        return  consumerService.getConsumerRunningInfo(consumerGroup, clientId, jstack);
+                                                      @RequestParam boolean jstack) {
+        return consumerService.getConsumerRunningInfo(consumerGroup, clientId, jstack);
     }
 }

@@ -412,23 +412,23 @@ e:\IdeaProjects\silence-mq-center\
 
 ### 快速开始
 
-1. 📖 先读 [快速参考](docs/PERMISSION_QUICK_REFERENCE.md)（5 分钟）
-2. 🗄️ 执行 [SQL 脚本](docs/permission_schema.sql)（1 分钟）
+1. 📖 先读 [快速参考](PERMISSION_QUICK_REFERENCE.md)（5 分钟）
+2. 🗄️ 执行 [SQL 脚本](permission_schema.sql)（1 分钟）
 3. 📝 在 Service 中添加 @RequirePermission 注解（1 分钟）
 4. ✅ 完成！权限系统已启用
 
 ### 深入学习
 
-1. 📘 [快速参考](docs/PERMISSION_QUICK_REFERENCE.md) - 速查表和最佳实践
-2. 📗 [拦截器指南](docs/PERMISSION_INTERCEPTOR_GUIDE.md) - AOP 和注解详解
-3. 📙 [集成指南](docs/PERMISSION_SYSTEM_INTEGRATION.md) - 完整的集成步骤
-4. 📕 [完成总结](docs/PERMISSION_SYSTEM_IMPLEMENTATION.md) - 项目全貌
-5. 📔 [文档索引](docs/PERMISSION_DOCS_INDEX.md) - 文档导航
+1. 📘 [快速参考](PERMISSION_QUICK_REFERENCE.md) - 速查表和最佳实践
+2. 📗 [拦截器指南](PERMISSION_INTERCEPTOR_GUIDE.md) - AOP 和注解详解
+3. 📙 [集成指南](PERMISSION_SYSTEM_INTEGRATION.md) - 完整的集成步骤
+4. 📕 [完成总结](PERMISSION_SYSTEM_IMPLEMENTATION.md) - 项目全貌
+5. 📔 [文档索引](PERMISSION_DOCS_INDEX.md) - 文档导航
 
 ### 获取帮助
 
 - 快速问答 → 查看对应文档中的 FAQ 部分
-- 错误排查 → 查看 [快速参考](docs/PERMISSION_QUICK_REFERENCE.md) 的错误排查部分
+- 错误排查 → 查看 [快速参考](PERMISSION_QUICK_REFERENCE.md) 的错误排查部分
 - 常见问题 → 查看对应文档中的常见问题解答
 
 ---

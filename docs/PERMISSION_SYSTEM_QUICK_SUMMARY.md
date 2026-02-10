@@ -137,31 +137,31 @@ public void produceMessage(Long topicId, String message) {
 ## 📚 文档导航（按用途）
 
 ### 🔰 新开发者（快速上手）
-👉 [快速参考](docs/PERMISSION_QUICK_REFERENCE.md) - **5 分钟入门**
+👉 [快速参考](PERMISSION_QUICK_REFERENCE.md) - **5 分钟入门**
 - 快速开始
 - API 速查表
 - 错误排查
 
 ### 🏗️ 架构师（深入理解）
-👉 [集成指南](docs/PERMISSION_SYSTEM_INTEGRATION.md) - **完整集成方案**
+👉 [集成指南](PERMISSION_SYSTEM_INTEGRATION.md) - **完整集成方案**
 - 系统架构详解
 - 逐步集成步骤
 - 完整 API 参考
 - 常见问题解答
 
 ### 🧪 测试人员（设计用例）
-👉 [集成指南](docs/PERMISSION_SYSTEM_INTEGRATION.md#测试用例) - **测试指南**
+👉 [集成指南](PERMISSION_SYSTEM_INTEGRATION.md#测试用例) - **测试指南**
 - 单元测试示例
 - 集成测试示例
 
 ### 📖 全面学习（系统掌握）
-1. [快速参考](docs/PERMISSION_QUICK_REFERENCE.md) - 5 分钟
-2. [拦截器指南](docs/PERMISSION_INTERCEPTOR_GUIDE.md) - 30 分钟
-3. [集成指南](docs/PERMISSION_SYSTEM_INTEGRATION.md) - 1 小时
-4. [完成总结](docs/PERMISSION_SYSTEM_IMPLEMENTATION.md) - 15 分钟
+1. [快速参考](PERMISSION_QUICK_REFERENCE.md) - 5 分钟
+2. [拦截器指南](PERMISSION_INTERCEPTOR_GUIDE.md) - 30 分钟
+3. [集成指南](PERMISSION_SYSTEM_INTEGRATION.md) - 1 小时
+4. [完成总结](PERMISSION_SYSTEM_IMPLEMENTATION.md) - 15 分钟
 
 ### 🧭 快速查找（找不到东西？）
-👉 [文档索引](docs/PERMISSION_DOCS_INDEX.md) - **文档导航中心**
+👉 [文档索引](PERMISSION_DOCS_INDEX.md) - **文档导航中心**
 
 ### 📋 全面了解（项目全景）
 👉 [完成报告](PERMISSION_SYSTEM_COMPLETION_REPORT.md) - **项目全景报告**
@@ -279,7 +279,7 @@ A: 系统自动处理。定期调用 expireExpiredPermissions()。
 **Q: 能否查看权限操作日志？**  
 A: ✅ 可以。所有操作都有完整的审计日志。
 
-👉 更多问题？查看 [完整的常见问题解答](docs/PERMISSION_SYSTEM_INTEGRATION.md#常见问题)
+👉 更多问题？查看 [完整的常见问题解答](PERMISSION_SYSTEM_INTEGRATION.md#常见问题)
 
 ---
 
@@ -310,16 +310,16 @@ A: ✅ 可以。所有操作都有完整的审计日志。
 ## 📞 获取帮助
 
 ### 快速问题
-👉 查看 [快速参考](docs/PERMISSION_QUICK_REFERENCE.md) 的常见问题部分
+👉 查看 [快速参考](PERMISSION_QUICK_REFERENCE.md) 的常见问题部分
 
 ### 集成问题
-👉 查看 [集成指南](docs/PERMISSION_SYSTEM_INTEGRATION.md) 的常见问题部分
+👉 查看 [集成指南](PERMISSION_SYSTEM_INTEGRATION.md) 的常见问题部分
 
 ### 技术问题
 👉 查看相应的详细文档或源代码注释
 
 ### 找不到答案？
-👉 查看 [文档索引](docs/PERMISSION_DOCS_INDEX.md) 的场景导航
+👉 查看 [文档索引](PERMISSION_DOCS_INDEX.md) 的场景导航
 
 ---
 
@@ -403,9 +403,9 @@ A: ✅ 可以。所有操作都有完整的审计日志。
 ## 🎯 开始使用
 
 ### 第一步：选择合适的文档
-- 👤 **新手**？👉 [快速参考](docs/PERMISSION_QUICK_REFERENCE.md)
-- 🏗️ **架构师**？👉 [集成指南](docs/PERMISSION_SYSTEM_INTEGRATION.md)
-- 📖 **想全面学习**？👉 [文档索引](docs/PERMISSION_DOCS_INDEX.md)
+- 👤 **新手**？👉 [快速参考](PERMISSION_QUICK_REFERENCE.md)
+- 🏗️ **架构师**？👉 [集成指南](PERMISSION_SYSTEM_INTEGRATION.md)
+- 📖 **想全面学习**？👉 [文档索引](PERMISSION_DOCS_INDEX.md)
 
 ### 第二步：按步骤执行
 1. 执行 SQL 初始化脚本

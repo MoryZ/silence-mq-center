@@ -31,10 +31,11 @@ public class ConsumerTemplate {
 
     /**
      * 使用Consumer执行操作 - 自动处理生命周期
-     * @param rpcHook ACL RPC钩子，如果不需要ACL则传null
-     * @param useTLS 是否使用TLS
+     *
+     * @param rpcHook   ACL RPC钩子，如果不需要ACL则传null
+     * @param useTLS    是否使用TLS
      * @param operation Consumer操作函数
-     * @param <T> 返回值类型
+     * @param <T>       返回值类型
      * @return 操作结果
      * @throws Exception 操作异常
      */

@@ -1,5 +1,3 @@
-
-
 package com.old.silence.mq.center.domain.service.impl;
 
 
@@ -21,6 +19,8 @@ public class DashboardServiceImpl implements DashboardService {
 
     public DashboardServiceImpl(DashboardCollectService dashboardCollectService) {
         this.dashboardCollectService = dashboardCollectService;
+    }
+
     public Map<String, List<String>> queryBrokerData(String date) {
         return dashboardCollectService.getBrokerCache(date);
     }
@@ -31,7 +31,7 @@ public class DashboardServiceImpl implements DashboardService {
     }
 
     /**
-     * @param date format yyyy-MM-dd
+     * @param date      format yyyy-MM-dd
      * @param topicName 111
      */
     @Override

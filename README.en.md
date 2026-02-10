@@ -34,7 +34,7 @@ Implements the classic three-layer architecture pattern:
 - Provide unified interface for API calls
 - Handle API exception conversion
 
-See [CLAUDE.md](CLAUDE.md) for complete development specifications
+See [CLAUDE.md](docs/CLAUDE.md) for complete development specifications
 
 ##  Tech Stack
 
@@ -127,7 +127,7 @@ src/main/java/com/old/silence/mq/center/
 
 ### Development Specifications
 
-See [CLAUDE.md](CLAUDE.md) for details, including:
+See [CLAUDE.md](docs/CLAUDE.md) for details, including:
 
 - ✅ **Naming Conventions**: Rules for classes, methods, and variables
 - ✅ **Layered Architecture**: Controller/Service/DAO responsibilities
@@ -159,7 +159,7 @@ Common API endpoints:
 
 Before submitting a PR, ensure:
 
-- [ ] Code follows [CLAUDE.md](CLAUDE.md) development specifications
+- [ ] Code follows [CLAUDE.md](docs/CLAUDE.md) development specifications
 - [ ] Added appropriate logging and exception handling
 - [ ] Includes necessary unit tests
 - [ ] Updated relevant documentation
@@ -180,4 +180,4 @@ Thanks to the RocketMQ open source community and all contributors
 
 ---
 
-For more details, please refer to [CLAUDE.md](CLAUDE.md)
+For more details, please refer to [CLAUDE.md](docs/CLAUDE.md)

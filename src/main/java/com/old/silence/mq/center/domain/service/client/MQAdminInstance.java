@@ -1,4 +1,3 @@
-
 package com.old.silence.mq.center.domain.service.client;
 
 import org.apache.commons.pool2.impl.GenericObjectPool;

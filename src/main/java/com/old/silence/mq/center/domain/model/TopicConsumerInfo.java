@@ -1,6 +1,4 @@
-
 package com.old.silence.mq.center.domain.model;
-
 
 
 import java.util.ArrayList;
@@ -10,7 +8,7 @@ public class TopicConsumerInfo {
     private String topic;
     private long diffTotal;
     private long lastTimestamp;
-    private List<QueueStatInfo> queueStatInfoList = new ArrayList<>();
+    private final List<QueueStatInfo> queueStatInfoList = new ArrayList<>();
 
     public TopicConsumerInfo(String topic) {
         this.topic = topic;

@@ -1,4 +1,3 @@
-
 package com.old.silence.mq.center.domain.service;
 
 import com.old.silence.mq.center.domain.model.ConsumerMonitorConfig;

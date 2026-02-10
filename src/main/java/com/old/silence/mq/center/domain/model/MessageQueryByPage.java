@@ -1,4 +1,3 @@
-
 package com.old.silence.mq.center.domain.model;
 
 
@@ -30,14 +29,6 @@ public class MessageQueryByPage {
         this.end = end;
     }
 
-    public void setPageNo(int pageNo) {
-        this.pageNo = pageNo;
-    }
-
-    public void setPageSize(int pageSize) {
-        this.pageSize = pageSize;
-    }
-
     public String getTopic() {
         return topic;
     }
@@ -66,6 +57,10 @@ public class MessageQueryByPage {
         return pageNo <= 0 ? DEFAULT_PAGE : pageNo - 1;
     }
 
+    public void setPageNo(int pageNo) {
+        this.pageNo = pageNo;
+    }
+
     public int getPageSize() {
         if (pageSize <= 1) {
             return MIN_PAGE_SIZE;
@@ -73,6 +68,10 @@ public class MessageQueryByPage {
             return MAX_PAGE_SIZE;
         }
         return this.pageSize;
+    }
+
+    public void setPageSize(int pageSize) {
+        this.pageSize = pageSize;
     }
 
     public PageRequest page() {

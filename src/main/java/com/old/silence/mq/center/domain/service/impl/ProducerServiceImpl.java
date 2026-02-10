@@ -1,5 +1,3 @@
-
-
 package com.old.silence.mq.center.domain.service.impl;
 
 import org.apache.rocketmq.remoting.protocol.body.ProducerConnection;

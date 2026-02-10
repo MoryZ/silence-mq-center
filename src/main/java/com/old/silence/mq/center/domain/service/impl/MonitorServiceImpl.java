@@ -1,13 +1,12 @@
-
 package com.old.silence.mq.center.domain.service.impl;
 
+import org.springframework.stereotype.Service;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.old.silence.mq.center.api.config.RMQConfigure;
 import com.old.silence.mq.center.domain.model.ConsumerMonitorConfig;
 import com.old.silence.mq.center.domain.service.MonitorService;
 import com.old.silence.mq.center.domain.service.facade.RocketMQClientFacade;
 import com.old.silence.mq.center.domain.service.helper.MonitorConfigHelper;
-import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 import java.io.IOException;
@@ -19,10 +18,8 @@ public class MonitorServiceImpl implements MonitorService {
 
 
     private final RMQConfigure configure;
-
-    private Map<String, ConsumerMonitorConfig> configMap = new ConcurrentHashMap<>();
-    
     private final RocketMQClientFacade mqFacade;
+    private Map<String, ConsumerMonitorConfig> configMap = new ConcurrentHashMap<>();
 
     public MonitorServiceImpl(RMQConfigure configure, RocketMQClientFacade mqFacade) {
         this.configure = configure;
@@ -69,13 +66,14 @@ public class MonitorServiceImpl implements MonitorService {
     private void loadData() throws IOException {
         String primaryPath = getConsumerMonitorConfigDataPath();
         String backupPath = getConsumerMonitorConfigDataPathBackUp();
-        
-        ConcurrentHashMap<String, ConsumerMonitorConfig> loadedMap = 
-            MonitorConfigHelper.loadFromFile(
-                primaryPath,
-                backupPath,
-                new TypeReference<ConcurrentHashMap<String, ConsumerMonitorConfig>>() {});
-        
+
+        ConcurrentHashMap<String, ConsumerMonitorConfig> loadedMap =
+                MonitorConfigHelper.loadFromFile(
+                        primaryPath,
+                        backupPath,
+                        new TypeReference<ConcurrentHashMap<String, ConsumerMonitorConfig>>() {
+                        });
+
         if (loadedMap != null) {
             configMap = loadedMap;
         }

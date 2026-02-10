@@ -1,5 +1,3 @@
-
-
 package com.old.silence.mq.center.api.config;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -25,20 +23,20 @@ public class CollectExecutorConfig {
     @Bean(name = "collectExecutor")
     public ExecutorService collectExecutor(CollectExecutorConfig collectExecutorConfig) {
         return new ThreadPoolExecutor(
-            collectExecutorConfig.getCoreSize(),
-            collectExecutorConfig.getMaxSize(),
-            collectExecutorConfig.getKeepAliveTime(),
-            TimeUnit.MILLISECONDS,
-            new LinkedBlockingDeque<>(collectExecutorConfig.getQueueSize()),
-            new ThreadFactory() {
-                private final AtomicLong threadIndex = new AtomicLong(0);
+                collectExecutorConfig.getCoreSize(),
+                collectExecutorConfig.getMaxSize(),
+                collectExecutorConfig.getKeepAliveTime(),
+                TimeUnit.MILLISECONDS,
+                new LinkedBlockingDeque<>(collectExecutorConfig.getQueueSize()),
+                new ThreadFactory() {
+                    private final AtomicLong threadIndex = new AtomicLong(0);
 
-                @Override
-                public Thread newThread(@NonNull Runnable r) {
-                    return new Thread(r, "collectTopicThread_" + this.threadIndex.incrementAndGet());
-                }
-            },
-            new ThreadPoolExecutor.DiscardOldestPolicy()
+                    @Override
+                    public Thread newThread(@NonNull Runnable r) {
+                        return new Thread(r, "collectTopicThread_" + this.threadIndex.incrementAndGet());
+                    }
+                },
+                new ThreadPoolExecutor.DiscardOldestPolicy()
         );
     }
 

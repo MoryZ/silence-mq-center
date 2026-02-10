@@ -45,28 +45,28 @@ public class TopicController {
 
     @GetMapping(value = "/topics")
     public TopicList list(@RequestParam(required = false) boolean skipSysProcess,
-                                     @RequestParam(required = false) boolean skipRetryAndDlq) {
-        return  topicService.fetchAllTopicList(skipSysProcess, skipRetryAndDlq);
+                          @RequestParam(required = false) boolean skipRetryAndDlq) {
+        return topicService.fetchAllTopicList(skipSysProcess, skipRetryAndDlq);
     }
 
     @PostMapping(value = "/topics/refresh")
     public Boolean refresh() {
-        return  topicService.refreshTopicList();
+        return topicService.refreshTopicList();
     }
 
     @GetMapping(value = "/topics/topicType")
     public TopicTypeList listTopicType() {
-        return  topicService.examineAllTopicType();
+        return topicService.examineAllTopicType();
     }
 
     @GetMapping(value = "/topics/stats")
     public TopicStatsTable stats(@RequestParam String topic) {
-        return  topicService.stats(topic);
+        return topicService.stats(topic);
     }
 
     @GetMapping(value = "/topics/routes")
     public TopicRouteData route(@RequestParam String topic) {
-        return  topicService.route(topic);
+        return topicService.route(topic);
     }
 
 
@@ -74,41 +74,41 @@ public class TopicController {
     public Boolean topicCreateOrUpdateRequest(@RequestBody TopicConfigInfo topicCreateOrUpdateRequest) {
         Preconditions.checkArgument(CollectionUtils.isNotEmpty(topicCreateOrUpdateRequest.getBrokerNameList())
                         || CollectionUtils.isNotEmpty(topicCreateOrUpdateRequest.getClusterNameList()),
-            "clusterName or brokerName can not be all blank");
+                "clusterName or brokerName can not be all blank");
         logger.info("op=look topicCreateOrUpdateRequest:{}", JsonUtil.obj2String(topicCreateOrUpdateRequest));
         topicService.createOrUpdate(topicCreateOrUpdateRequest);
-        return  true;
+        return true;
     }
 
     @GetMapping(value = "/topics/queryConsumerByTopic")
     public Map<String, TopicConsumerInfo> queryConsumerByTopic(@RequestParam String topic) {
-        return  consumerService.queryConsumeStatsListByTopicName(topic);
+        return consumerService.queryConsumeStatsListByTopicName(topic);
     }
 
     @RequestMapping(value = "/topics/queryTopicConsumerInfo")
     public GroupList queryTopicConsumerInfo(@RequestParam String topic) {
-        return  topicService.queryTopicConsumerInfo(topic);
+        return topicService.queryTopicConsumerInfo(topic);
     }
 
     @GetMapping(value = "/topics/examineTopicConfig")
     public List<TopicConfigInfo> examineTopicConfig(@RequestParam String topic) {
-        return  topicService.examineTopicConfig(topic);
+        return topicService.examineTopicConfig(topic);
     }
 
     @PostMapping(value = "/topics/send")
     public SendResult sendTopicMessage(
-        @RequestBody SendTopicMessageRequest sendTopicMessageRequest) throws RemotingException, MQClientException, InterruptedException {
-        return  topicService.sendTopicMessageRequest(sendTopicMessageRequest);
+            @RequestBody SendTopicMessageRequest sendTopicMessageRequest) throws RemotingException, MQClientException, InterruptedException {
+        return topicService.sendTopicMessageRequest(sendTopicMessageRequest);
     }
 
     @DeleteMapping(value = "/topics/delete")
     public Boolean delete(@RequestParam(required = false) String clusterName, @RequestParam String topic) {
-        return  topicService.deleteTopic(topic, clusterName);
+        return topicService.deleteTopic(topic, clusterName);
     }
 
     @PostMapping(value = "/topics/deleteTopicByBroker")
     public Boolean deleteTopicByBroker(@RequestParam String brokerName, @RequestParam String topic) {
-        return  topicService.deleteTopicInBroker(brokerName, topic);
+        return topicService.deleteTopicInBroker(brokerName, topic);
     }
 
 }

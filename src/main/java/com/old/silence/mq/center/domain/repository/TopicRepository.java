@@ -1,19 +1,20 @@
 package com.old.silence.mq.center.domain.repository;
 
-import com.old.silence.mq.center.domain.model.permission.Topic;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
+import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Select;
 import org.springframework.data.repository.query.Param;
-import org.springframework.stereotype.Repository;
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.old.silence.mq.center.domain.model.permission.Topic;
 
+import java.math.BigInteger;
 import java.util.List;
 import java.util.Optional;
 
 /**
  * Topic Repository
  */
-@Repository
-public interface TopicRepository extends JpaRepository<Topic, Long> {
+@Mapper
+public interface TopicRepository extends BaseMapper<Topic> {
 
     /**
      * 根据 Topic 名称查找
@@ -23,19 +24,19 @@ public interface TopicRepository extends JpaRepository<Topic, Long> {
     /**
      * 查询指定集群下的所有 Topic
      */
-    @Query("SELECT t FROM Topic t WHERE t.clusterName = :clusterName AND t.status = 'ACTIVE'")
+    @Select("SELECT t FROM topic t WHERE t.clusterName = :clusterName AND t.status = 'ACTIVE'")
     List<Topic> findByClusterName(@Param("clusterName") String clusterName);
 
     /**
      * 查询指定所有者的所有 Topic
      */
-    @Query("SELECT t FROM Topic t WHERE t.ownerId = :ownerId AND t.status = 'ACTIVE'")
-    List<Topic> findByOwnerId(@Param("ownerId") Long ownerId);
+    @Select("SELECT t FROM topic t WHERE t.ownerId = :ownerId AND t.status = 'ACTIVE'")
+    List<Topic> findByOwnerId(@Param("ownerId") BigInteger ownerId);
 
     /**
      * 查询所有非系统 Topic
      */
-    @Query("SELECT t FROM Topic t WHERE t.isSystemTopic = 0 AND t.status = 'ACTIVE'")
+    @Select("SELECT t FROM topic t WHERE t.isSystemTopic = 0 AND t.status = 'ACTIVE'")
     List<Topic> findAllUserTopics();
 
     /**

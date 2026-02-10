@@ -1,4 +1,3 @@
-
 package com.old.silence.mq.center.domain.service;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -18,15 +17,14 @@ public abstract class AbstractCommonService {
     }
 
     protected final Set<String> changeToBrokerNameSet(Map<String, Set<String>> clusterAddrTable,
-        List<String> clusterNameList, List<String> brokerNameList) {
+                                                      List<String> clusterNameList, List<String> brokerNameList) {
         Set<String> finalBrokerNameList = Sets.newHashSet();
         if (CollectionUtils.isNotEmpty(clusterNameList)) {
             try {
                 for (String clusterName : clusterNameList) {
                     finalBrokerNameList.addAll(clusterAddrTable.get(clusterName));
                 }
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 Throwables.throwIfUnchecked(e);
                 throw new RuntimeException(e);
             }

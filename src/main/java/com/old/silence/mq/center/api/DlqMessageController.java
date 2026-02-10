@@ -1,7 +1,5 @@
 package com.old.silence.mq.center.api;
 
-import jakarta.servlet.http.HttpServletResponse;
-
 import org.apache.rocketmq.common.MixAll;
 import org.apache.rocketmq.common.message.MessageExt;
 import org.apache.rocketmq.tools.admin.MQAdminExt;
@@ -21,6 +19,7 @@ import com.old.silence.mq.center.domain.model.request.MessageQuery;
 import com.old.silence.mq.center.domain.service.DlqMessageService;
 import com.old.silence.mq.center.exception.ServiceException;
 
+import javax.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -58,7 +57,7 @@ public class DlqMessageController {
         try {
             //ExcelUtil.writeExcel(response, Lists.newArrayList(excelModel), "dlq", "dlq", DlqMessageExcelModel.class);
         } catch (Exception e) {
-            throw new ServiceException(-1, String.format("export dlq message failed!"));
+            throw new ServiceException(-1, "export dlq message failed!");
         }
     }
 
@@ -86,7 +85,7 @@ public class DlqMessageController {
         try {
             //ExcelUtil.writeExcel(response, dlqMessageExcelModelList, "dlqs", "dlqs", DlqMessageExcelModel.class);
         } catch (Exception e) {
-            throw new ServiceException(-1, String.format("export dlq message failed!"));
+            throw new ServiceException(-1, "export dlq message failed!");
         }
 
     }

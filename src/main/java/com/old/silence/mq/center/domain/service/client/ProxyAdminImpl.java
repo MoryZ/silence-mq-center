@@ -1,4 +1,3 @@
-
 package com.old.silence.mq.center.domain.service.client;
 
 import org.apache.commons.pool2.impl.GenericObjectPool;
@@ -11,8 +10,6 @@ import org.apache.rocketmq.remoting.protocol.RemotingCommand;
 import org.apache.rocketmq.remoting.protocol.body.ConsumerConnection;
 import org.apache.rocketmq.remoting.protocol.header.GetConsumerConnectionListRequestHeader;
 import org.apache.rocketmq.tools.admin.MQAdminExt;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import static org.apache.rocketmq.remoting.protocol.RequestCode.GET_CONSUMER_CONNECTION_LIST;

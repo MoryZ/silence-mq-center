@@ -1,11 +1,10 @@
-
-
 package com.old.silence.mq.center.domain.service;
 
 import com.old.silence.mq.center.domain.model.MessageTraceView;
 import com.old.silence.mq.center.domain.model.trace.MessageTraceGraph;
 
 import java.util.List;
+
 public interface MessageTraceService {
 
     List<MessageTraceView> queryMessageTraceKey(final String key);

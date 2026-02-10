@@ -1,17 +1,22 @@
 package com.old.silence.mq.center.domain.service.permission.annotation;
 
-import java.lang.annotation.*;
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
  * 权限检查注解
  * 用于标注需要进行权限检查的方法
- * 
+ * <p>
  * 使用示例：
+ *
  * @RequirePermission(value = "PRODUCE", topicIdParamName = "topicId")
  * public void produceMessage(Long topicId, String message) {
- *     // 方法体
+ * // 方法体
  * }
- * 
+ * <p>
  * 支持的参数获取方式：
  * 1. 直接从方法参数中获取 userId 和 topicId
  * 2. 支持自定义参数名称（通过 userIdParamName 和 topicIdParamName）

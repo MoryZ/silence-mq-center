@@ -1,4 +1,3 @@
-
 package com.old.silence.mq.center.domain.service.checker.impl;
 
 import org.springframework.stereotype.Service;

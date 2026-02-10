@@ -1,4 +1,3 @@
-
 package com.old.silence.mq.center.factory;
 
 import org.apache.commons.collections.MapUtils;
@@ -22,7 +21,7 @@ public class MQAdminPooledObjectFactory implements PooledObjectFactory<MQAdminEx
     @Override
     public PooledObject<MQAdminExt> makeObject() throws Exception {
         return new DefaultPooledObject<>(
-            mqAdminFactory.getInstance());
+                mqAdminFactory.getInstance());
     }
 
     @Override

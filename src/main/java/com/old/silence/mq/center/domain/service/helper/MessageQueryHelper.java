@@ -31,9 +31,9 @@ public class MessageQueryHelper {
      * 根据查询时间范围获取每个队列的起始和结束offset
      */
     public static List<QueueOffsetInfo> initializeQueueOffsets(
-            DefaultMQPullConsumer consumer, 
+            DefaultMQPullConsumer consumer,
             MessageQueryByPage query) throws Exception {
-        
+
         List<QueueOffsetInfo> queueOffsetInfos = new ArrayList<>();
         int idx = 0;
 
@@ -62,7 +62,7 @@ public class MessageQueryHelper {
 
             while (hasIllegalOffset) {
                 PullResult pullResult = consumer.pull(queueOffset.getMessageQueues(), "*", start, 32);
-                
+
                 if (pullResult.getPullStatus() == PullStatus.FOUND) {
                     hasData = true;
                     for (MessageExt msg : pullResult.getMsgFoundList()) {

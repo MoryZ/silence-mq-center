@@ -2,8 +2,12 @@ package com.old.silence.mq.center.api;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.rocketmq.client.exception.MQBrokerException;
 import org.apache.rocketmq.common.AclConfig;
 import org.apache.rocketmq.common.PlainAccessConfig;
+import org.apache.rocketmq.remoting.exception.RemotingConnectException;
+import org.apache.rocketmq.remoting.exception.RemotingSendRequestException;
+import org.apache.rocketmq.remoting.exception.RemotingTimeoutException;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -33,12 +37,12 @@ public class AclController {
 
     @GetMapping("/enable")
     public Boolean isEnableAcl() {
-        return  configure.isACLEnabled();
+        return configure.isACLEnabled();
     }
 
     @GetMapping("/config")
     public AclConfig getAclConfig() {
-        return  aclService.getAclConfig(false);
+        return aclService.getAclConfig(false);
     }
 
     @PostMapping("/add")
@@ -50,21 +54,21 @@ public class AclController {
     }
 
     @DeleteMapping("/delete")
-    public Boolean deleteAclConfig(@RequestBody PlainAccessConfig config) {
+    public Boolean deleteAclConfig(@RequestBody PlainAccessConfig config) throws RemotingSendRequestException, RemotingConnectException, RemotingTimeoutException, MQBrokerException, InterruptedException {
         Preconditions.checkArgument(StringUtils.isNotEmpty(config.getAccessKey()), "accessKey is null");
         aclService.deleteAclConfig(config);
-        return  true;
+        return true;
     }
 
     @PostMapping("/update")
-    public Boolean updateAclConfig(@RequestBody PlainAccessConfig config) {
+    public Boolean updateAclConfig(@RequestBody PlainAccessConfig config) throws RemotingSendRequestException, RemotingConnectException, RemotingTimeoutException, MQBrokerException, InterruptedException {
         Preconditions.checkArgument(StringUtils.isNotEmpty(config.getSecretKey()), "secretKey is null");
         aclService.updateAclConfig(config);
-        return  true;
+        return true;
     }
 
     @PostMapping("/topic/add")
-    public Boolean addAclTopicConfig(@RequestBody AclRequest request) {
+    public Boolean addAclTopicConfig(@RequestBody AclRequest request) throws RemotingSendRequestException, RemotingConnectException, RemotingTimeoutException, MQBrokerException, InterruptedException {
         Preconditions.checkArgument(StringUtils.isNotEmpty(request.getConfig().getAccessKey()), "accessKey is null");
         Preconditions.checkArgument(StringUtils.isNotEmpty(request.getConfig().getSecretKey()), "secretKey is null");
         Preconditions.checkArgument(CollectionUtils.isNotEmpty(request.getConfig().getTopicPerms()), "topic perms is null");
@@ -74,13 +78,13 @@ public class AclController {
     }
 
     @PostMapping("/group/add")
-    public Boolean addAclGroupConfig(@RequestBody AclRequest request) {
+    public Boolean addAclGroupConfig(@RequestBody AclRequest request) throws RemotingSendRequestException, RemotingConnectException, RemotingTimeoutException, MQBrokerException, InterruptedException {
         Preconditions.checkArgument(StringUtils.isNotEmpty(request.getConfig().getAccessKey()), "accessKey is null");
         Preconditions.checkArgument(StringUtils.isNotEmpty(request.getConfig().getSecretKey()), "secretKey is null");
         Preconditions.checkArgument(CollectionUtils.isNotEmpty(request.getConfig().getGroupPerms()), "group perms is null");
         Preconditions.checkArgument(StringUtils.isNotEmpty(request.getGroupPerm()), "group perm is null");
         aclService.addOrUpdateAclGroupConfig(request);
-        return  true;
+        return true;
     }
 
     @PostMapping("/perm/delete")
@@ -88,7 +92,7 @@ public class AclController {
         Preconditions.checkArgument(StringUtils.isNotEmpty(request.getConfig().getAccessKey()), "accessKey is null");
         Preconditions.checkArgument(StringUtils.isNotEmpty(request.getConfig().getSecretKey()), "secretKey is null");
         aclService.deletePermConfig(request);
-        return  true;
+        return true;
     }
 
     @PostMapping("/sync")
@@ -96,26 +100,26 @@ public class AclController {
         Preconditions.checkArgument(StringUtils.isNotEmpty(config.getAccessKey()), "accessKey is null");
         Preconditions.checkArgument(StringUtils.isNotEmpty(config.getSecretKey()), "secretKey is null");
         aclService.syncData(config);
-        return  true;
+        return true;
     }
 
     @PostMapping("/white/list/add")
-    public Boolean addWhiteList(@RequestBody List<String> whiteList) {
+    public Boolean addWhiteList(@RequestBody List<String> whiteList) throws RemotingSendRequestException, RemotingConnectException, RemotingTimeoutException, MQBrokerException, InterruptedException {
         Preconditions.checkArgument(CollectionUtils.isNotEmpty(whiteList), "white list is null");
         aclService.addWhiteList(whiteList);
-        return  true;
+        return true;
     }
 
     @DeleteMapping("/white/list/delete")
-    public Boolean deleteWhiteAddr(@RequestParam String request) {
+    public Boolean deleteWhiteAddr(@RequestParam String request) throws RemotingSendRequestException, RemotingConnectException, RemotingTimeoutException, MQBrokerException, InterruptedException {
         aclService.deleteWhiteAddr(request);
-        return  true;
+        return true;
     }
 
     @PostMapping("/white/list/sync")
-    public Boolean synchronizeWhiteList(@RequestBody List<String> whiteList) {
+    public Boolean synchronizeWhiteList(@RequestBody List<String> whiteList) throws RemotingSendRequestException, RemotingConnectException, RemotingTimeoutException, MQBrokerException, InterruptedException {
         Preconditions.checkArgument(CollectionUtils.isNotEmpty(whiteList), "white list is null");
         aclService.synchronizeWhiteList(whiteList);
-        return  true;
+        return true;
     }
 }

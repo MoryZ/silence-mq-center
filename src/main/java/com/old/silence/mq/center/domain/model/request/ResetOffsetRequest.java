@@ -1,4 +1,3 @@
-
 package com.old.silence.mq.center.domain.model.request;
 
 import java.util.List;

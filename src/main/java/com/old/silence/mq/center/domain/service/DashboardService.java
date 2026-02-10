@@ -1,5 +1,3 @@
-
-
 package com.old.silence.mq.center.domain.service;
 
 import java.util.List;
@@ -17,7 +15,7 @@ public interface DashboardService {
     Map<String, List<String>> queryTopicData(String date);
 
     /**
-     * @param date format yyyy-MM-dd
+     * @param date      format yyyy-MM-dd
      * @param topicName 111
      */
     List<String> queryTopicData(String date, String topicName);

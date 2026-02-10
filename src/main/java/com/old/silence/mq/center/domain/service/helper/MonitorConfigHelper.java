@@ -1,11 +1,11 @@
 package com.old.silence.mq.center.domain.service.helper;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.google.common.base.Throwables;
-import com.old.silence.mq.center.util.JsonUtil;
 import org.apache.rocketmq.common.MixAll;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.google.common.base.Throwables;
+import com.old.silence.mq.center.util.JsonUtil;
 
 import java.io.File;
 import java.io.IOException;
@@ -20,14 +20,15 @@ public class MonitorConfigHelper {
 
     /**
      * 从文件加载配置
+     *
      * @param primaryPath 主文件路径
-     * @param backupPath 备份文件路径
-     * @param typeRef 类型引用
+     * @param backupPath  备份文件路径
+     * @param typeRef     类型引用
      * @return 加载的配置对象
      */
     public static <T> T loadFromFile(String primaryPath, String backupPath, TypeReference<T> typeRef) throws IOException {
         String content = MixAll.file2String(primaryPath);
-        
+
         if (content == null) {
             logger.info("Primary config file not found, trying backup: {}", backupPath);
             content = MixAll.file2String(backupPath);
@@ -48,6 +49,7 @@ public class MonitorConfigHelper {
 
     /**
      * 将配置写入文件
+     *
      * @param path 文件路径
      * @param data 配置数据
      */
@@ -58,7 +60,8 @@ public class MonitorConfigHelper {
 
     /**
      * 将JSON字符串写入文件
-     * @param path 文件路径
+     *
+     * @param path    文件路径
      * @param dataStr JSON字符串
      */
     public static void writeDataToFile(String path, String dataStr) {

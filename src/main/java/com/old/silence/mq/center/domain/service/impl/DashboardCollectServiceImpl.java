@@ -1,4 +1,3 @@
-
 package com.old.silence.mq.center.domain.service.impl;
 
 import org.slf4j.Logger;
@@ -30,49 +29,47 @@ import java.util.Set;
 @Service
 public class DashboardCollectServiceImpl implements DashboardCollectService {
 
-    private final RMQConfigure configure;
-
     private final static Logger log = LoggerFactory.getLogger(DashboardCollectServiceImpl.class);
-
+    private final RMQConfigure configure;
     private final LoadingCache<String, List<String>> brokerMap = CacheBuilder.newBuilder()
-        .maximumSize(1000)
-        .concurrencyLevel(10)
-        .recordStats()
-        .ticker(Ticker.systemTicker())
-        .removalListener(new RemovalListener<Object, Object>() {
-            @Override
-            public void onRemoval(RemovalNotification<Object, Object> notification) {
-                log.debug(notification.getKey() + " was removed, cause is " + notification.getCause());
-            }
-        })
-        .build(
-                new CacheLoader<>() {
-                    @Override
-                    public List<String> load(String key) {
-                        return Collections.emptyList();
-                    }
+            .maximumSize(1000)
+            .concurrencyLevel(10)
+            .recordStats()
+            .ticker(Ticker.systemTicker())
+            .removalListener(new RemovalListener<Object, Object>() {
+                @Override
+                public void onRemoval(RemovalNotification<Object, Object> notification) {
+                    log.debug(notification.getKey() + " was removed, cause is " + notification.getCause());
                 }
-        );
+            })
+            .build(
+                    new CacheLoader<>() {
+                        @Override
+                        public List<String> load(String key) {
+                            return Collections.emptyList();
+                        }
+                    }
+            );
 
-    private LoadingCache<String, List<String>> topicMap = CacheBuilder.newBuilder()
-        .maximumSize(1000)
-        .concurrencyLevel(10)
-        .recordStats()
-        .ticker(Ticker.systemTicker())
-        .removalListener(new RemovalListener<Object, Object>() {
-            @Override
-            public void onRemoval(RemovalNotification<Object, Object> notification) {
-                log.debug(notification.getKey() + " was removed, cause is " + notification.getCause());
-            }
-        })
-        .build(
-                new CacheLoader<>() {
-                    @Override
-                    public List<String> load(String key) {
-                        return Lists.newArrayList();
-                    }
+    private final LoadingCache<String, List<String>> topicMap = CacheBuilder.newBuilder()
+            .maximumSize(1000)
+            .concurrencyLevel(10)
+            .recordStats()
+            .ticker(Ticker.systemTicker())
+            .removalListener(new RemovalListener<Object, Object>() {
+                @Override
+                public void onRemoval(RemovalNotification<Object, Object> notification) {
+                    log.debug(notification.getKey() + " was removed, cause is " + notification.getCause());
                 }
-        );
+            })
+            .build(
+                    new CacheLoader<>() {
+                        @Override
+                        public List<String> load(String key) {
+                            return Lists.newArrayList();
+                        }
+                    }
+            );
 
     public DashboardCollectServiceImpl(RMQConfigure configure) {
         this.configure = configure;
@@ -82,6 +79,7 @@ public class DashboardCollectServiceImpl implements DashboardCollectService {
     public LoadingCache<String, List<String>> getBrokerMap() {
         return brokerMap;
     }
+
     @Override
     public LoadingCache<String, List<String>> getTopicMap() {
         return topicMap;
@@ -92,8 +90,7 @@ public class DashboardCollectServiceImpl implements DashboardCollectService {
         List<String> strings;
         try {
             strings = Files.readLines(file, Charsets.UTF_8);
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             Throwables.throwIfUnchecked(e);
             throw new RuntimeException(e);
         }

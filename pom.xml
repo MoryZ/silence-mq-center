@@ -182,6 +182,16 @@
             <artifactId>platform-webmvc</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>com.old.silence</groupId>
+            <artifactId>platform-data-commons</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>jakarta.persistence</groupId>
+            <artifactId>jakarta.persistence-api</artifactId>
+        </dependency>
+
 
         <!--<dependency>
             <groupId>com.old.silence</groupId>

@@ -1,4 +1,3 @@
-
 package com.old.silence.mq.center.api.config;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -71,8 +70,23 @@ public class RMQConfigure {
         return namesrvAddr;
     }
 
+    public void setNamesrvAddr(String namesrvAddr) {
+        if (StringUtils.isNotBlank(namesrvAddr)) {
+            this.namesrvAddr = namesrvAddr;
+            System.setProperty(MixAll.NAMESRV_ADDR_PROPERTY, namesrvAddr);
+            logger.info("setNameSrvAddrByProperty nameSrvAddr={}", namesrvAddr);
+        }
+    }
+
     public List<String> getNamesrvAddrs() {
         return namesrvAddrs;
+    }
+
+    public void setNamesrvAddrs(List<String> namesrvAddrs) {
+        this.namesrvAddrs = namesrvAddrs;
+        if (CollectionUtils.isNotEmpty(namesrvAddrs)) {
+            this.setNamesrvAddr(namesrvAddrs.get(0));
+        }
     }
 
     public List<String> getProxyAddrs() {
@@ -94,24 +108,11 @@ public class RMQConfigure {
         this.proxyAddr = proxyAddr;
     }
 
-    public void setNamesrvAddrs(List<String> namesrvAddrs) {
-        this.namesrvAddrs = namesrvAddrs;
-        if (CollectionUtils.isNotEmpty(namesrvAddrs)) {
-            this.setNamesrvAddr(namesrvAddrs.get(0));
-        }
-    }
-
-    public void setNamesrvAddr(String namesrvAddr) {
-        if (StringUtils.isNotBlank(namesrvAddr)) {
-            this.namesrvAddr = namesrvAddr;
-            System.setProperty(MixAll.NAMESRV_ADDR_PROPERTY, namesrvAddr);
-            logger.info("setNameSrvAddrByProperty nameSrvAddr={}", namesrvAddr);
-        }
-    }
     public boolean isACLEnabled() {
         return !(StringUtils.isAnyBlank(this.accessKey, this.secretKey) ||
-                 StringUtils.isAnyEmpty(this.accessKey, this.secretKey));
+                StringUtils.isAnyEmpty(this.accessKey, this.secretKey));
     }
+
     public String getRocketMqDashboardDataPath() {
         return dataPath;
     }

@@ -1,5 +1,3 @@
-
-
 package com.old.silence.mq.center.domain.service.impl;
 
 
@@ -10,6 +8,7 @@ import org.apache.rocketmq.common.Pair;
 import org.apache.rocketmq.common.message.MessageClientIDSetter;
 import org.apache.rocketmq.common.message.MessageExt;
 import org.apache.rocketmq.remoting.RPCHook;
+import org.apache.rocketmq.remoting.protocol.body.Connection;
 import org.apache.rocketmq.remoting.protocol.body.ConsumeMessageDirectlyResult;
 import org.apache.rocketmq.remoting.protocol.body.ConsumerConnection;
 import org.apache.rocketmq.tools.admin.MQAdminExt;
@@ -39,30 +38,25 @@ import com.old.silence.mq.center.domain.service.template.MessagePullTemplate;
 import com.old.silence.mq.center.exception.ServiceException;
 
 import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 @Service
 public class MessageServiceImpl implements MessageService {
-
-    private final Logger logger = LoggerFactory.getLogger(MessageServiceImpl.class);
 
     private static final Cache<String, List<QueueOffsetInfo>> CACHE = CacheBuilder.newBuilder()
             .maximumSize(10000)
             .expireAfterWrite(60, TimeUnit.MINUTES)
             .build();
-
-    private final RMQConfigure configure;
     /**
      * @see org.apache.rocketmq.store.config.MessageStoreConfig maxMsgsNumBatch = 64;
      * @see org.apache.rocketmq.store.index.IndexService maxNum = Math.min(maxNum, this.defaultMessageStore.getMessageStoreConfig().getMaxMsgsNumBatch());
      */
     private final static int QUERY_MESSAGE_MAX_NUM = 64;
+    private final Logger logger = LoggerFactory.getLogger(MessageServiceImpl.class);
+    private final RMQConfigure configure;
     private final MQAdminExt mqAdminExt;
-    
+
     private final RocketMQClientFacade mqFacade;
 
     public MessageServiceImpl(RMQConfigure configure, MQAdminExt mqAdminExt, RocketMQClientFacade mqFacade) {
@@ -85,7 +79,7 @@ public class MessageServiceImpl implements MessageService {
     @Override
     public List<MessageView> queryMessageByTopicAndKey(String topic, String key) {
         try {
-            return Lists.transform(mqFacade.queryMessage(topic, key).getMessageList(), new Function<MessageExt, MessageView>() {
+            return Lists.transform(mqFacade.queryMessage(topic, key), new Function<MessageExt, MessageView>() {
                 @Override
                 public MessageView apply(MessageExt messageExt) {
                     return MessageView.fromMessageExt(messageExt);
@@ -106,20 +100,20 @@ public class MessageServiceImpl implements MessageService {
             RPCHook rpcHook = ConsumerTemplate.createAclHook(configure.getAccessKey(), configure.getSecretKey());
             return ConsumerTemplate.executeWithConsumer(rpcHook, configure.isUseTLS(), consumer -> {
                 List<MessageView> result = new java.util.ArrayList<>();
-                
+
                 for (org.apache.rocketmq.common.message.MessageQueue mq : consumer.fetchSubscribeMessageQueues(topic)) {
                     long minOffset = consumer.searchOffset(mq, begin);
                     long maxOffset = consumer.searchOffset(mq, end);
-                    
+
                     List<MessageView> messages = MessagePullTemplate.pullMessagesInTimeRange(
                             consumer, mq, minOffset, begin, end, 2000);
                     result.addAll(messages);
-                    
+
                     if (result.size() >= 2000) {
                         break;
                     }
                 }
-                
+
                 // 排序结果
                 result.sort((o1, o2) -> {
                     if (o1.getStoreTimestamp() == o2.getStoreTimestamp()) {
@@ -127,7 +121,7 @@ public class MessageServiceImpl implements MessageService {
                     }
                     return o1.getStoreTimestamp() > o2.getStoreTimestamp() ? -1 : 1;
                 });
-                
+
                 return result;
             });
         } catch (Exception e) {
@@ -203,26 +197,26 @@ public class MessageServiceImpl implements MessageService {
     private MessagePageTask queryFirstMessagePage(MessageQueryByPage query) {
         try {
             RPCHook rpcHook = ConsumerTemplate.createAclHook(configure.getAccessKey(), configure.getSecretKey());
-            
+
             return ConsumerTemplate.executeWithConsumer(rpcHook, configure.isUseTLS(), consumer -> {
                 // 初始化队列offset信息
                 List<QueueOffsetInfo> queueOffsets = MessageQueryHelper.initializeQueueOffsets(consumer, query);
-                
+
                 // 调整offset范围到查询时间范围
                 MessageQueryHelper.adjustStartOffsets(consumer, queueOffsets, query);
                 MessageQueryHelper.adjustEndOffsets(consumer, queueOffsets, query);
-                
+
                 // 计算总消息数和页大小
                 long total = MessageQueryHelper.calculateTotalMessages(queueOffsets);
                 long pageSize = Math.min(total, query.getPageSize());
-                
+
                 // 移动offset用于分页
                 int next = MessageQueryHelper.moveStartOffset(queueOffsets, query);
                 MessageQueryHelper.moveEndOffset(queueOffsets, query, next);
-                
+
                 // 拉取第一页的消息
                 List<MessageView> messages = MessagePullTemplate.pullMessagesFromQueues(consumer, queueOffsets, pageSize);
-                
+
                 PageImpl<MessageView> page = new PageImpl<>(messages, query.page(), total);
                 return new MessagePageTask(page, queueOffsets);
             });
@@ -235,31 +229,31 @@ public class MessageServiceImpl implements MessageService {
     private Page<MessageView> queryMessageByTaskPage(MessageQueryByPage query, List<QueueOffsetInfo> queueOffsets) {
         try {
             RPCHook rpcHook = ConsumerTemplate.createAclHook(configure.getAccessKey(), configure.getSecretKey());
-            
+
             return ConsumerTemplate.executeWithConsumer(rpcHook, configure.isUseTLS(), consumer -> {
                 // 重新初始化offset起始点
                 for (QueueOffsetInfo info : queueOffsets) {
                     info.setStartOffset(info.getStart());
                     info.setEndOffset(info.getStart());
                 }
-                
+
                 // 计算总消息数
                 long total = MessageQueryHelper.calculateTotalMessages(queueOffsets);
                 long offset = (long) query.getPageNo() * query.getPageSize();
-                
+
                 if (total <= offset) {
                     return Page.empty();
                 }
-                
+
                 long pageSize = Math.min(total - offset, query.getPageSize());
-                
+
                 // 移动offset用于分页
                 int next = MessageQueryHelper.moveStartOffset(queueOffsets, query);
                 MessageQueryHelper.moveEndOffset(queueOffsets, query, next);
-                
+
                 // 拉取当前页的消息
                 List<MessageView> messages = MessagePullTemplate.pullMessagesFromQueues(consumer, queueOffsets, pageSize);
-                
+
                 return new PageImpl<>(messages, query.page(), total);
             });
         } catch (Exception e) {

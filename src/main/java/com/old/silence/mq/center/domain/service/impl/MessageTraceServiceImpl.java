@@ -1,18 +1,11 @@
-
-
 package com.old.silence.mq.center.domain.service.impl;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.rocketmq.client.trace.TraceType;
-import org.apache.rocketmq.common.Pair;
 import org.apache.rocketmq.common.message.MessageExt;
 import org.apache.rocketmq.common.topic.TopicValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
-import com.old.silence.mq.center.api.config.RMQConfigure;
 import com.old.silence.mq.center.domain.model.MessageTraceView;
 import com.old.silence.mq.center.domain.model.trace.MessageTraceGraph;
 import com.old.silence.mq.center.domain.service.MessageTraceService;
@@ -29,17 +22,9 @@ public class MessageTraceServiceImpl implements MessageTraceService {
 
     private final Logger logger = LoggerFactory.getLogger(MessageTraceServiceImpl.class);
 
-    private final static int QUERY_MESSAGE_MAX_NUM = 64;
-
-    private final static String UNKNOWN_GROUP_NAME = "%UNKNOWN_GROUP%";
-    private final static int MESSAGE_TRACE_MISSING_VALUE = -1;
-
-    private final RMQConfigure configure;
-    
     private final RocketMQClientFacade mqFacade;
 
-    public MessageTraceServiceImpl(RMQConfigure configure, RocketMQClientFacade mqFacade) {
-        this.configure = configure;
+    public MessageTraceServiceImpl(RocketMQClientFacade mqFacade) {
         this.mqFacade = mqFacade;
     }
 
@@ -54,7 +39,7 @@ public class MessageTraceServiceImpl implements MessageTraceService {
     public List<MessageTraceView> queryMessageTraceByTopicAndKey(String topic, String key) {
         try {
             List<MessageTraceView> messageTraceViews = new ArrayList<MessageTraceView>();
-            List<MessageExt> messageTraceList = mqFacade.queryMessage(topic, key).getMessageList();
+            List<MessageExt> messageTraceList = mqFacade.queryMessage(topic, key);
             for (MessageExt messageExt : messageTraceList) {
                 List<MessageTraceView> messageTraceView = MessageTraceView.decodeFromTraceTransData(key, messageExt);
                 messageTraceViews.addAll(messageTraceView);
@@ -76,7 +61,5 @@ public class MessageTraceServiceImpl implements MessageTraceService {
 
     private MessageTraceGraph buildMessageTraceGraph(List<MessageTraceView> messageTraceViews) {
         return TraceGraphBuilder.buildGraph(messageTraceViews);
-    }
-        return traceNodeList;
     }
 }

@@ -34,17 +34,17 @@ public class MessageTraceController {
         Map<String, Object> messageViewMap = Maps.newHashMap();
         Pair<MessageView, List<MessageTrack>> messageViewListPair = messageService.viewMessage(topic, msgId);
         messageViewMap.put("messageView", messageViewListPair.getObject1());
-        return  messageViewMap;
+        return messageViewMap;
     }
 
     @GetMapping(value = "/viewMessageTraceDetail")
     public List<MessageTraceView> viewTraceMessages(@RequestParam String msgId) {
-        return  messageTraceService.queryMessageTraceKey(msgId);
+        return messageTraceService.queryMessageTraceKey(msgId);
     }
 
     @GetMapping(value = "/viewMessageTraceGraph")
     public MessageTraceGraph viewMessageTraceGraph(@RequestParam String msgId,
                                                    @RequestParam(required = false) String traceTopic) {
-        return  messageTraceService.queryMessageTraceGraph(msgId, traceTopic);
+        return messageTraceService.queryMessageTraceGraph(msgId, traceTopic);
     }
 }

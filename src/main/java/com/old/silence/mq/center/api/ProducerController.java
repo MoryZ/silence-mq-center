@@ -22,6 +22,6 @@ public class ProducerController {
     public ProducerConnection producerConnection(@RequestParam String producerGroup, @RequestParam String topic) {
         ProducerConnection producerConnection = producerService.getProducerConnection(producerGroup, topic);
         producerConnection.setConnectionSet(ConnectionInfo.buildConnectionInfoHashSet(producerConnection.getConnectionSet()));
-        return  producerConnection;
+        return producerConnection;
     }
 }

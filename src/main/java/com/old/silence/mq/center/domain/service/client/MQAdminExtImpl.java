@@ -1,4 +1,3 @@
-
 package com.old.silence.mq.center.domain.service.client;
 
 import org.apache.rocketmq.client.QueryResult;
@@ -55,15 +54,16 @@ import static org.apache.rocketmq.remoting.protocol.RemotingSerializable.decode;
 
 @Service
 public class MQAdminExtImpl implements MQAdminExt {
+    private static final ConcurrentMap<String, TopicConfigSerializeWrapper> TOPIC_CONFIG_CACHE = new ConcurrentHashMap<>();
     private final Logger logger = LoggerFactory.getLogger(MQAdminExtImpl.class);
 
-    private static final ConcurrentMap<String, TopicConfigSerializeWrapper> TOPIC_CONFIG_CACHE = new ConcurrentHashMap<>();
-
-    public MQAdminExtImpl() {}
+    public MQAdminExtImpl() {
+    }
 
     public static void clearTopicConfigCache() {
         TOPIC_CONFIG_CACHE.clear();
     }
+
     @Override
     public void updateBrokerConfig(String brokerAddr, Properties properties)
             throws RemotingConnectException, RemotingSendRequestException, RemotingTimeoutException,
@@ -120,8 +120,7 @@ public class MQAdminExtImpl implements MQAdminExt {
         RemotingCommand response = null;
         try {
             response = remotingClient.invokeSync(addr, request, 8000);
-        }
-        catch (Exception err) {
+        } catch (Exception err) {
             Throwables.throwIfUnchecked(err);
             throw new RuntimeException(err);
         }
@@ -207,7 +206,7 @@ public class MQAdminExtImpl implements MQAdminExt {
 
     @Override
     public ConsumerConnection examineConsumerConnectionInfo(String consumerGroup)
-            throws RemotingConnectException, RemotingSendRequestException, RemotingTimeoutException,
+            throws
             InterruptedException, MQBrokerException, RemotingException, MQClientException {
         return MQAdminInstance.threadLocalMQAdminExt().examineConsumerConnectionInfo(consumerGroup);
     }
@@ -322,7 +321,7 @@ public class MQAdminExtImpl implements MQAdminExt {
 
     @Override
     public GroupList queryTopicConsumeByWho(String topic)
-            throws RemotingConnectException, RemotingSendRequestException, RemotingTimeoutException,
+            throws
             InterruptedException, MQBrokerException, RemotingException, MQClientException {
         return MQAdminInstance.threadLocalMQAdminExt().queryTopicConsumeByWho(topic);
     }
@@ -426,8 +425,10 @@ public class MQAdminExtImpl implements MQAdminExt {
     //next version we will remove it
     //https://issues.apache.org/jira/browse/ROCKETMQ-111
     //https://github.com/apache/incubator-rocketmq/pull/69
+
     /**
      * 根据消息ID查询消息
+     *
      * @param topic 主题名称
      * @param msgId 消息ID
      * @return 消息对象，未找到时返回null
@@ -445,6 +446,17 @@ public class MQAdminExtImpl implements MQAdminExt {
 
         // 2. 降级到MQAdminImpl查询
         return queryWithMQAdminImpl(topic, msgId);
+    }
+
+    @Override
+    public MessageExt viewMessage(String offsetMsgId) throws RemotingException, MQBrokerException, InterruptedException, MQClientException {
+        logger.info("Querying message by offsetMsgId: {}", offsetMsgId);
+        try {
+            return MQAdminInstance.threadLocalMQAdminExt().viewMessage(offsetMsgId);
+        } catch (Exception e) {
+            logger.error("Failed to query message by offsetMsgId: {}, error: {}", offsetMsgId, e.getMessage());
+            throw e;
+        }
     }
 
     /**
@@ -609,29 +621,34 @@ public class MQAdminExtImpl implements MQAdminExt {
     }
 
     // 4.0.0 added
-    @Override public void updateNameServerConfig(Properties properties,
-                                                 List<String> list) throws InterruptedException, RemotingConnectException, UnsupportedEncodingException, RemotingSendRequestException, RemotingTimeoutException, MQClientException, MQBrokerException {
+    @Override
+    public void updateNameServerConfig(Properties properties,
+                                       List<String> list) throws InterruptedException, RemotingConnectException, UnsupportedEncodingException, RemotingSendRequestException, RemotingTimeoutException, MQClientException, MQBrokerException {
 
     }
 
-    @Override public Map<String, Properties> getNameServerConfig(
+    @Override
+    public Map<String, Properties> getNameServerConfig(
             List<String> list) throws InterruptedException, RemotingTimeoutException, RemotingSendRequestException, RemotingConnectException, MQClientException, UnsupportedEncodingException {
         return null;
     }
 
-    @Override public QueryConsumeQueueResponseBody queryConsumeQueue(String brokerAddr, String topic,
-                                                                     int queueId, long index, int count,
-                                                                     String consumerGroup) throws InterruptedException, RemotingTimeoutException, RemotingSendRequestException, RemotingConnectException, MQClientException {
+    @Override
+    public QueryConsumeQueueResponseBody queryConsumeQueue(String brokerAddr, String topic,
+                                                           int queueId, long index, int count,
+                                                           String consumerGroup) throws InterruptedException, RemotingTimeoutException, RemotingSendRequestException, RemotingConnectException, MQClientException {
         return null;
     }
 
-    @Override public boolean resumeCheckHalfMessage(
+    @Override
+    public boolean resumeCheckHalfMessage(
             String msgId) throws RemotingException, MQClientException, InterruptedException, MQBrokerException {
         return false;
     }
 
-    @Override public boolean resumeCheckHalfMessage(String topic,
-                                                    String msgId) throws RemotingException, MQClientException, InterruptedException, MQBrokerException {
+    @Override
+    public boolean resumeCheckHalfMessage(String topic,
+                                          String msgId) throws RemotingException, MQClientException, InterruptedException, MQBrokerException {
         return false;
     }
 

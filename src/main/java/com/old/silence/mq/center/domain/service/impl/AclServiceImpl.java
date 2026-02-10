@@ -1,15 +1,12 @@
-
 package com.old.silence.mq.center.domain.service.impl;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.rocketmq.client.exception.MQBrokerException;
-import org.apache.rocketmq.client.exception.MQClientException;
 import org.apache.rocketmq.common.AclConfig;
 import org.apache.rocketmq.common.MixAll;
 import org.apache.rocketmq.common.PlainAccessConfig;
 import org.apache.rocketmq.remoting.exception.RemotingConnectException;
-import org.apache.rocketmq.remoting.exception.RemotingException;
 import org.apache.rocketmq.remoting.exception.RemotingSendRequestException;
 import org.apache.rocketmq.remoting.exception.RemotingTimeoutException;
 import org.apache.rocketmq.remoting.protocol.body.ClusterInfo;
@@ -42,7 +39,7 @@ public class AclServiceImpl extends AbstractCommonService implements AclService 
 
 
     private static final Logger log = LoggerFactory.getLogger(AclServiceImpl.class);
-    
+
     private final RocketMQClientFacade mqFacade;
 
     protected AclServiceImpl(MQAdminExt mqAdminExt, RocketMQClientFacade mqFacade) {
@@ -95,8 +92,8 @@ public class AclServiceImpl extends AbstractCommonService implements AclService 
             }
 
             // 在所有Broker上创建或更新配置
-            AclConfigHelper.executeBrokerOperation(getBrokerAddrs(), addr -> 
-                mqFacade.createOrUpdatePlainAccessConfig(addr, config)
+            AclConfigHelper.executeBrokerOperation(getBrokerAddrs(), addr ->
+                    mqFacade.createOrUpdatePlainAccessConfig(addr, config)
             );
         } catch (Exception e) {
             Throwables.throwIfUnchecked(e);
@@ -105,7 +102,7 @@ public class AclServiceImpl extends AbstractCommonService implements AclService 
     }
 
     @Override
-    public void deleteAclConfig(PlainAccessConfig config) {
+    public void deleteAclConfig(PlainAccessConfig config) throws RemotingSendRequestException, RemotingConnectException, RemotingTimeoutException, MQBrokerException, InterruptedException {
         AclConfigHelper.executeBrokerOperation(getBrokerAddrs(), addr -> {
             log.info("Start to delete acl [{}] from broker [{}]", config.getAccessKey(), addr);
             if (isExistAccessKey(config.getAccessKey(), addr)) {
@@ -116,7 +113,7 @@ public class AclServiceImpl extends AbstractCommonService implements AclService 
     }
 
     @Override
-    public void updateAclConfig(PlainAccessConfig config) {
+    public void updateAclConfig(PlainAccessConfig config) throws RemotingSendRequestException, RemotingConnectException, RemotingTimeoutException, MQBrokerException, InterruptedException {
         for (String addr : getBrokerAddrs()) {
             AclConfig aclConfig = mqFacade.getAclConfig(addr);
             Optional<PlainAccessConfig> existing = AclConfigHelper.findAccessKeyConfig(aclConfig, config.getAccessKey());
@@ -132,7 +129,7 @@ public class AclServiceImpl extends AbstractCommonService implements AclService 
     }
 
     @Override
-    public void addOrUpdateAclTopicConfig(AclRequest request) {
+    public void addOrUpdateAclTopicConfig(AclRequest request) throws RemotingSendRequestException, RemotingConnectException, RemotingTimeoutException, MQBrokerException, InterruptedException {
         for (String addr : getBrokerAddrs()) {
             AclConfig aclConfig = mqFacade.getAclConfig(addr);
             PlainAccessConfig remoteConfig = AclConfigHelper.findAccessKeyConfig(aclConfig, request.getConfig().getAccessKey()).orElse(null);
@@ -151,7 +148,7 @@ public class AclServiceImpl extends AbstractCommonService implements AclService 
     }
 
     @Override
-    public void addOrUpdateAclGroupConfig(AclRequest request) {
+    public void addOrUpdateAclGroupConfig(AclRequest request) throws RemotingSendRequestException, RemotingConnectException, RemotingTimeoutException, MQBrokerException, InterruptedException {
         for (String addr : getBrokerAddrs()) {
             AclConfig aclConfig = mqFacade.getAclConfig(addr);
             PlainAccessConfig remoteConfig = AclConfigHelper.findAccessKeyConfig(aclConfig, request.getConfig().getAccessKey()).orElse(null);
@@ -217,7 +214,7 @@ public class AclServiceImpl extends AbstractCommonService implements AclService 
     }
 
     @Override
-    public void addWhiteList(List<String> whiteList) {
+    public void addWhiteList(List<String> whiteList) throws RemotingSendRequestException, RemotingConnectException, RemotingTimeoutException, MQBrokerException, InterruptedException {
         if (whiteList == null) {
             return;
         }
@@ -234,7 +231,7 @@ public class AclServiceImpl extends AbstractCommonService implements AclService 
     }
 
     @Override
-    public void deleteWhiteAddr(String deleteAddr) {
+    public void deleteWhiteAddr(String deleteAddr) throws RemotingSendRequestException, RemotingConnectException, RemotingTimeoutException, MQBrokerException, InterruptedException {
         for (String addr : getBrokerAddrs()) {
             AclConfig aclConfig = mqFacade.getAclConfig(addr);
             if (aclConfig.getGlobalWhiteAddrs() == null || aclConfig.getGlobalWhiteAddrs().isEmpty()) {
@@ -246,12 +243,12 @@ public class AclServiceImpl extends AbstractCommonService implements AclService 
     }
 
     @Override
-    public void synchronizeWhiteList(List<String> whiteList) {
+    public void synchronizeWhiteList(List<String> whiteList) throws RemotingSendRequestException, RemotingConnectException, RemotingTimeoutException, MQBrokerException, InterruptedException {
         if (whiteList == null) {
             return;
         }
-        AclConfigHelper.executeBrokerOperation(getBrokerAddrs(), addr -> 
-            mqFacade.updateGlobalWhiteAddrConfig(addr, StringUtils.join(whiteList, ","))
+        AclConfigHelper.executeBrokerOperation(getBrokerAddrs(), addr ->
+                mqFacade.updateGlobalWhiteAddrConfig(addr, StringUtils.join(whiteList, ","))
         );
     }
 

@@ -1,16 +1,14 @@
-
-
 package com.old.silence.mq.center.domain.service.impl;
 
 import org.apache.rocketmq.common.attribute.TopicMessageType;
 import org.apache.rocketmq.remoting.protocol.body.ClusterInfo;
 import org.apache.rocketmq.remoting.protocol.route.BrokerData;
-import com.old.silence.mq.center.domain.service.facade.RocketMQClientFacade;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import com.google.common.collect.Maps;
 import com.old.silence.mq.center.domain.service.ClusterService;
+import com.old.silence.mq.center.domain.service.facade.RocketMQClientFacade;
 import com.old.silence.mq.center.util.JsonUtil;
 
 import java.util.Arrays;
@@ -46,10 +44,9 @@ public class ClusterServiceImpl implements ClusterService {
             resultMap.put("brokerServer", brokerServer);
             // add messageType
             resultMap.put("messageTypes", Arrays.stream(TopicMessageType.values()).sorted()
-                    .collect(Collectors.toMap(TopicMessageType::getValue, messageType ->String.format("MESSAGE_TYPE_%s",messageType.getValue()))));
+                    .collect(Collectors.toMap(TopicMessageType::getValue, messageType -> String.format("MESSAGE_TYPE_%s", messageType.getValue()))));
             return resultMap;
-        }
-        catch (Exception err) {
+        } catch (Exception err) {
             logger.error("op=list failed", err);
             throw new RuntimeException(err);
         }
@@ -60,6 +57,9 @@ public class ClusterServiceImpl implements ClusterService {
     public Properties getBrokerConfig(String brokerAddr) {
         try {
             return mqFacade.getBrokerConfig(brokerAddr);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             logger.error("op=getBrokerConfig failed, brokerAddr={}", brokerAddr, e);
+            throw new RuntimeException(e);
+        }
+    }
+}

@@ -100,33 +100,33 @@ permission_audit_log   -- 审计日志
 
 ### 3. 文档层（4 份）
 
-#### 📘 [快速参考](docs/PERMISSION_QUICK_REFERENCE.md)
+#### 📘 [快速参考](PERMISSION_QUICK_REFERENCE.md)
 - 5 分钟快速开始
 - 常用 API 速查表
 - REST API 速查表
 - 错误排查指南
 
-#### 📗 [拦截器指南](docs/PERMISSION_INTERCEPTOR_GUIDE.md)
+#### 📗 [拦截器指南](PERMISSION_INTERCEPTOR_GUIDE.md)
 - @RequirePermission 详解
 - 6 种使用模式
 - Spring Security 集成
 - 常见问题解答
 
-#### 📙 [集成指南](docs/PERMISSION_SYSTEM_INTEGRATION.md)
+#### 📙 [集成指南](PERMISSION_SYSTEM_INTEGRATION.md)
 - 系统架构详解
 - 逐步集成步骤
 - 12 个 API 完整参考
 - 单元测试示例
 - 集成测试示例
 
-#### 📕 [完成总结](docs/PERMISSION_SYSTEM_IMPLEMENTATION.md)
+#### 📕 [完成总结](PERMISSION_SYSTEM_IMPLEMENTATION.md)
 - 项目完成情况
 - 交付物清单
 - 架构设计详解
 - 核心功能特性
 - 下一步建议
 
-#### 📔 [文档索引](docs/PERMISSION_DOCS_INDEX.md)
+#### 📔 [文档索引](PERMISSION_DOCS_INDEX.md)
 - 文档导航
 - 学习路径推荐
 - 常见场景导航
@@ -459,11 +459,11 @@ public void produceMessage(Long topicId, String message) {
 
 ## 📞 文档导航
 
-快速开始? 👉 [快速参考](docs/PERMISSION_QUICK_REFERENCE.md)  
-想要集成? 👉 [集成指南](docs/PERMISSION_SYSTEM_INTEGRATION.md)  
-深入学习? 👉 [拦截器指南](docs/PERMISSION_INTERCEPTOR_GUIDE.md)  
-全面了解? 👉 [完成总结](docs/PERMISSION_SYSTEM_IMPLEMENTATION.md)  
-找不到东西? 👉 [文档索引](docs/PERMISSION_DOCS_INDEX.md)  
+快速开始? 👉 [快速参考](PERMISSION_QUICK_REFERENCE.md)  
+想要集成? 👉 [集成指南](PERMISSION_SYSTEM_INTEGRATION.md)  
+深入学习? 👉 [拦截器指南](PERMISSION_INTERCEPTOR_GUIDE.md)  
+全面了解? 👉 [完成总结](PERMISSION_SYSTEM_IMPLEMENTATION.md)  
+找不到东西? 👉 [文档索引](PERMISSION_DOCS_INDEX.md)  
 
 ---
 
@@ -513,7 +513,7 @@ public void produceMessage(Long topicId, String message) {
 
 ---
 
-**📌 开始使用**: 先快速浏览 [快速参考](docs/PERMISSION_QUICK_REFERENCE.md)，然后根据需要查阅其他文档。
+**📌 开始使用**: 先快速浏览 [快速参考](PERMISSION_QUICK_REFERENCE.md)，然后根据需要查阅其他文档。
 
 **📌 获取帮助**: 所有常见问题和解答都在对应的文档中，建议先查阅相关文档再寻求帮助。
 

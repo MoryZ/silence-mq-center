@@ -22,18 +22,18 @@ public class ProxyController {
 
     @GetMapping(value = "/homePage")
     public Map<String, Object> homePage() {
-        return  proxyService.getProxyHomePage();
+        return proxyService.getProxyHomePage();
     }
 
     @PostMapping(value = "/addProxyAddr")
     public Boolean addProxyAddr(@RequestParam String newProxyAddr) {
         proxyService.addProxyAddrList(newProxyAddr);
-        return  true;
+        return true;
     }
 
     @PostMapping(value = "/updateProxyAddr")
     public Boolean updateProxyAddr(@RequestParam String proxyAddr) {
         proxyService.updateProxyAddrList(proxyAddr);
-        return  true;
+        return true;
     }
 }

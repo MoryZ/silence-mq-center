@@ -1,4 +1,3 @@
-
 package com.old.silence.mq.center.domain.model.request;
 
 import java.util.List;
@@ -6,6 +5,11 @@ import java.util.List;
 public class TopicTypeList {
     private List<String> topicNameList;
     private List<String> messageTypeList;
+
+    public TopicTypeList(List<String> topicNameList, List<String> messageTypeList) {
+        this.topicNameList = topicNameList;
+        this.messageTypeList = messageTypeList;
+    }
 
     public List<String> getTopicNameList() {
         return topicNameList;
@@ -20,11 +24,6 @@ public class TopicTypeList {
     }
 
     public void setMessageTypeList(List<String> messageTypeList) {
-        this.messageTypeList = messageTypeList;
-    }
-
-    public TopicTypeList(List<String> topicNameList, List<String> messageTypeList) {
-        this.topicNameList = topicNameList;
         this.messageTypeList = messageTypeList;
     }
 }

@@ -1,17 +1,12 @@
-
-
 package com.old.silence.mq.center.domain.service.impl;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.rocketmq.client.exception.MQClientException;
 import org.apache.rocketmq.common.MQVersion;
 import org.apache.rocketmq.common.MixAll;
 import org.apache.rocketmq.common.message.MessageQueue;
 import org.apache.rocketmq.common.utils.ThreadUtils;
-import org.apache.rocketmq.remoting.protocol.ResponseCode;
 import org.apache.rocketmq.remoting.protocol.admin.ConsumeStats;
-import org.apache.rocketmq.remoting.protocol.admin.RollbackStats;
 import org.apache.rocketmq.remoting.protocol.body.ClusterInfo;
 import org.apache.rocketmq.remoting.protocol.body.Connection;
 import org.apache.rocketmq.remoting.protocol.body.ConsumerConnection;
@@ -68,22 +63,28 @@ import java.util.stream.Collectors;
 
 @Service
 public class ConsumerServiceImpl extends AbstractCommonService implements ConsumerService, InitializingBean, DisposableBean {
-    private final Logger logger = LoggerFactory.getLogger(ConsumerServiceImpl.class);
-
-    protected final ProxyAdmin proxyAdmin;
-    private final RMQConfigure configure;
-
-    private final ClusterInfoService clusterInfoService;
-    
-    private final RocketMQClientFacade mqFacade;
-
     private static final Set<String> SYSTEM_GROUP_SET = new HashSet<>();
 
-    private ExecutorService executorService;
+    static {
+        SYSTEM_GROUP_SET.add(MixAll.TOOLS_CONSUMER_GROUP);
+        SYSTEM_GROUP_SET.add(MixAll.FILTERSRV_CONSUMER_GROUP);
+        SYSTEM_GROUP_SET.add(MixAll.SELF_TEST_CONSUMER_GROUP);
+        SYSTEM_GROUP_SET.add(MixAll.ONS_HTTP_PROXY_GROUP);
+        SYSTEM_GROUP_SET.add(MixAll.CID_ONSAPI_PULL_GROUP);
+        SYSTEM_GROUP_SET.add(MixAll.CID_ONSAPI_PERMISSION_GROUP);
+        SYSTEM_GROUP_SET.add(MixAll.CID_ONSAPI_OWNER_GROUP);
+        SYSTEM_GROUP_SET.add(MixAll.CID_SYS_RMQ_TRANS);
+    }
 
+    protected final ProxyAdmin proxyAdmin;
+    private final Logger logger = LoggerFactory.getLogger(ConsumerServiceImpl.class);
+    private final RMQConfigure configure;
+    private final ClusterInfoService clusterInfoService;
+    private final RocketMQClientFacade mqFacade;
+    private final List<GroupConsumeInfo> cacheConsumeInfoList = Collections.synchronizedList(new ArrayList<>());
+    private ExecutorService executorService;
     private volatile boolean isCacheBeingBuilt = false;
 
-    private final List<GroupConsumeInfo> cacheConsumeInfoList = Collections.synchronizedList(new ArrayList<>());
 
     protected ConsumerServiceImpl(MQAdminExt mqAdminExt, ProxyAdmin proxyAdmin, RMQConfigure configure,
                                   ClusterInfoService clusterInfoService, RocketMQClientFacade mqFacade) {
@@ -93,8 +94,6 @@ public class ConsumerServiceImpl extends AbstractCommonService implements Consum
         this.clusterInfoService = clusterInfoService;
         this.mqFacade = mqFacade;
     }
-
-
 
     @Override
     public void afterPropertiesSet() {
@@ -117,17 +116,6 @@ public class ConsumerServiceImpl extends AbstractCommonService implements Consum
     @Override
     public void destroy() {
         ThreadUtils.shutdownGracefully(executorService, 10L, TimeUnit.SECONDS);
-    }
-
-    static {
-        SYSTEM_GROUP_SET.add(MixAll.TOOLS_CONSUMER_GROUP);
-        SYSTEM_GROUP_SET.add(MixAll.FILTERSRV_CONSUMER_GROUP);
-        SYSTEM_GROUP_SET.add(MixAll.SELF_TEST_CONSUMER_GROUP);
-        SYSTEM_GROUP_SET.add(MixAll.ONS_HTTP_PROXY_GROUP);
-        SYSTEM_GROUP_SET.add(MixAll.CID_ONSAPI_PULL_GROUP);
-        SYSTEM_GROUP_SET.add(MixAll.CID_ONSAPI_PERMISSION_GROUP);
-        SYSTEM_GROUP_SET.add(MixAll.CID_ONSAPI_OWNER_GROUP);
-        SYSTEM_GROUP_SET.add(MixAll.CID_SYS_RMQ_TRANS);
     }
 
     @Override
@@ -235,11 +223,11 @@ public class ConsumerServiceImpl extends AbstractCommonService implements Consum
         GroupConsumeInfo groupConsumeInfo = new GroupConsumeInfo();
         try {
             ConsumeStats consumeStats = null;
-                try {
-                    consumeStats = mqFacade.getConsumeStats(consumerGroup);
-                } catch (Exception e) {
-                    logger.warn("examineConsumeStats exception to consumerGroup {}, response [{}]", consumerGroup, e.getMessage());
-                }
+            try {
+                consumeStats = mqFacade.getConsumeStats(consumerGroup);
+            } catch (Exception e) {
+                logger.warn("examineConsumeStats exception to consumerGroup {}, response [{}]", consumerGroup, e.getMessage());
+            }
             if (consumeStats != null) {
                 groupConsumeInfo.setConsumeTps((int) consumeStats.getConsumeTps());
                 groupConsumeInfo.setDiffTotal(consumeStats.computeTotalDiff());
@@ -360,31 +348,31 @@ public class ConsumerServiceImpl extends AbstractCommonService implements Consum
         // 🎯 使用 Facade 简化 resetOffset 实现
         // 从 50+ 行简化到 10 行，代码减少 80%
         Map<String, ConsumerGroupRollBackStat> groupRollbackStats = Maps.newHashMap();
-        
-        logger.info("op=resetOffset start, topic={}, consumerGroups={}, timestamp={}", 
-            resetOffsetRequest.getTopic(), 
-            resetOffsetRequest.getConsumerGroupList(),
-            resetOffsetRequest.getResetTime());
-        
+
+        logger.info("op=resetOffset start, topic={}, consumerGroups={}, timestamp={}",
+                resetOffsetRequest.getTopic(),
+                resetOffsetRequest.getConsumerGroupList(),
+                resetOffsetRequest.getResetTime());
+
         for (String consumerGroup : resetOffsetRequest.getConsumerGroupList()) {
             try {
                 // 使用 Facade 进行重置，Facade 内部处理所有复杂逻辑
                 mqFacade.resetConsumerOffset(
-                    consumerGroup, 
-                    resetOffsetRequest.getTopic(), 
-                    resetOffsetRequest.getResetTime()
+                        consumerGroup,
+                        resetOffsetRequest.getTopic(),
+                        resetOffsetRequest.getResetTime()
                 );
-                
+
                 // 返回成功状态
                 groupRollbackStats.put(consumerGroup, new ConsumerGroupRollBackStat(true));
-                logger.info("op=resetOffset success, group={}, topic={}", 
-                    consumerGroup, resetOffsetRequest.getTopic());
-                
+                logger.info("op=resetOffset success, group={}, topic={}",
+                        consumerGroup, resetOffsetRequest.getTopic());
+
             } catch (Exception e) {
-                logger.error("op=resetOffset failed, group={}, topic={}", 
-                    consumerGroup, resetOffsetRequest.getTopic(), e);
-                groupRollbackStats.put(consumerGroup, 
-                    new ConsumerGroupRollBackStat(false, e.getMessage()));
+                logger.error("op=resetOffset failed, group={}, topic={}",
+                        consumerGroup, resetOffsetRequest.getTopic(), e);
+                groupRollbackStats.put(consumerGroup,
+                        new ConsumerGroupRollBackStat(false, e.getMessage()));
             }
         }
         return groupRollbackStats;
@@ -419,13 +407,10 @@ public class ConsumerServiceImpl extends AbstractCommonService implements Consum
     public boolean deleteSubGroup(DeleteSubGroupRequest deleteSubGroupRequest) {
         Set<String> brokerSet = this.fetchBrokerNameSetBySubscriptionGroup(deleteSubGroupRequest.getGroupName());
         List<String> brokerList = deleteSubGroupRequest.getBrokerNameList();
-        boolean deleteInNsFlag = false;
+        boolean deleteInNsFlag = brokerList.containsAll(brokerSet);
         // If the list of brokers passed in by the request contains the list of brokers that the consumer is in, delete RETRY and DLQ topic in namesrv
-        if (brokerList.containsAll(brokerSet)) {
-            deleteInNsFlag = true;
-        }
         try {
-                ClusterInfo clusterInfo = clusterInfoService.get();
+            ClusterInfo clusterInfo = clusterInfoService.get();
             for (String brokerName : deleteSubGroupRequest.getBrokerNameList()) {
                 logger.info("addr={} groupName={}", clusterInfo.getBrokerAddrTable().get(brokerName).selectBrokerAddr(), deleteSubGroupRequest.getGroupName());
                 mqFacade.deleteSubscriptionGroup(clusterInfo.getBrokerAddrTable().get(brokerName).selectBrokerAddr(), deleteSubGroupRequest.getGroupName(), true);
@@ -441,14 +426,14 @@ public class ConsumerServiceImpl extends AbstractCommonService implements Consum
     }
 
     private void deleteResources(String topic, String brokerName, ClusterInfo clusterInfo, boolean deleteInNsFlag) throws Exception {
-                mqFacade.deleteTopicInBroker(Sets.newHashSet(clusterInfo.getBrokerAddrTable().get(brokerName).selectBrokerAddr()), topic);
+        mqFacade.deleteTopicInBroker(Sets.newHashSet(clusterInfo.getBrokerAddrTable().get(brokerName).selectBrokerAddr()), topic);
         Set<String> nameServerSet = null;
         if (StringUtils.isNotBlank(configure.getNamesrvAddr())) {
             String[] ns = configure.getNamesrvAddr().split(";");
             nameServerSet = new HashSet<>(Arrays.asList(ns));
         }
         if (deleteInNsFlag) {
-                    mqFacade.deleteTopicInNameServer(nameServerSet, topic);
+            mqFacade.deleteTopicInNameServer(nameServerSet, topic);
         }
     }
 

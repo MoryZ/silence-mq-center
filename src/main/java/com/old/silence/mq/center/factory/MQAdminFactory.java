@@ -1,4 +1,3 @@
-
 package com.old.silence.mq.center.factory;
 
 import org.apache.commons.lang3.StringUtils;
@@ -18,12 +17,11 @@ public class MQAdminFactory {
 
     private static final Logger log = LoggerFactory.getLogger(MQAdminFactory.class);
     private final RMQConfigure rmqConfigure;
+    private final AtomicLong adminIndex = new AtomicLong(0);
 
     public MQAdminFactory(RMQConfigure rmqConfigure) {
         this.rmqConfigure = rmqConfigure;
     }
-
-    private final AtomicLong adminIndex = new AtomicLong(0);
 
     public MQAdminExt getInstance() throws Exception {
         RPCHook rpcHook = null;

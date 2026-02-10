@@ -1,8 +1,10 @@
 package com.old.silence.mq.center.domain.service.permission;
 
-import com.old.silence.mq.center.api.config.RMQConfigure;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import com.old.silence.mq.center.api.config.RMQConfigure;
+
+import java.math.BigInteger;
 
 /**
  * 权限检查工具类
@@ -21,7 +23,7 @@ public class PermissionCheckUtil {
      * 获取当前登录用户ID
      * 从请求上下文获取（需要与认证系统集成）
      */
-    public Long getCurrentUserId() {
+    public BigInteger getCurrentUserId() {
         // TODO: 从SecurityContext或请求上下文获取当前用户ID
         // 这里是示例，实际需要根据项目的认证系统实现
         return null;
@@ -38,8 +40,8 @@ public class PermissionCheckUtil {
     /**
      * 检查当前用户是否有权限（如果无权限抛出异常）
      */
-    public void checkCurrentUserPermission(Long topicId, String permissionCode) {
-        Long userId = getCurrentUserId();
+    public void checkCurrentUserPermission(BigInteger topicId, String permissionCode) {
+        BigInteger userId = getCurrentUserId();
         if (userId != null) {
             permissionService.checkPermission(userId, topicId, permissionCode);
         }
@@ -48,8 +50,8 @@ public class PermissionCheckUtil {
     /**
      * 检查当前用户是否有权限（返回boolean）
      */
-    public boolean currentUserHasPermission(Long topicId, String permissionCode) {
-        Long userId = getCurrentUserId();
+    public boolean currentUserHasPermission(BigInteger topicId, String permissionCode) {
+        BigInteger userId = getCurrentUserId();
         if (userId != null) {
             return permissionService.hasPermission(userId, topicId, permissionCode);
         }

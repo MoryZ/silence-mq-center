@@ -36,29 +36,29 @@ public class MessageController {
         Pair<MessageView, List<MessageTrack>> messageViewListPair = messageService.viewMessage(topic, msgId);
         messageViewMap.put("messageView", messageViewListPair.getObject1());
         messageViewMap.put("messageTrackList", messageViewListPair.getObject2());
-        return  messageViewMap;
+        return messageViewMap;
     }
 
     @GetMapping("/queryMessagePageByTopic")
     public MessagePage queryMessagePageByTopic(MessageQuery query) {
-        return  messageService.queryMessageByPage(query);
+        return messageService.queryMessageByPage(query);
     }
 
     @GetMapping(value = "/queryMessageByTopicAndKey")
     public List<MessageView> queryMessageByTopicAndKey(@RequestParam String topic, @RequestParam String key) {
-        return  messageService.queryMessageByTopicAndKey(topic, key);
+        return messageService.queryMessageByTopicAndKey(topic, key);
     }
 
     @GetMapping(value = "/queryMessageByTopic")
     public List<MessageView> queryMessageByTopic(@RequestParam String topic, @RequestParam long begin,
-                                      @RequestParam long end) {
-        return  messageService.queryMessageByTopic(topic, begin, end);
+                                                 @RequestParam long end) {
+        return messageService.queryMessageByTopic(topic, begin, end);
     }
 
     @PostMapping(value = "/consumeMessageDirectly")
     public ConsumeMessageDirectlyResult consumeMessageDirectly(@RequestParam String topic, @RequestParam String consumerGroup,
-                                         @RequestParam String msgId,
-                                         @RequestParam(required = false) String clientId) {
+                                                               @RequestParam String msgId,
+                                                               @RequestParam(required = false) String clientId) {
         logger.info("msgId={} consumerGroup={} clientId={}", msgId, consumerGroup, clientId);
         ConsumeMessageDirectlyResult consumeMessageDirectlyResult = messageService.consumeMessageDirectly(topic, msgId, consumerGroup, clientId);
         logger.info("consumeMessageDirectlyResult={}", JsonUtil.obj2String(consumeMessageDirectlyResult));

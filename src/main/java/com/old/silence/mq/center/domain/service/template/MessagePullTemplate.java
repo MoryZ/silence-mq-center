@@ -11,8 +11,6 @@ import com.old.silence.mq.center.domain.model.MessageView;
 import com.old.silence.mq.center.domain.model.QueueOffsetInfo;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -30,12 +28,13 @@ public class MessagePullTemplate {
 
     /**
      * 从单个队列拉取消息
-     * @param consumer 消费者实例
-     * @param queue 消息队列
-     * @param offset 起始offset
-     * @param pullSize 拉取数量
+     *
+     * @param consumer  消费者实例
+     * @param queue     消息队列
+     * @param offset    起始offset
+     * @param pullSize  拉取数量
      * @param processor 消息处理器
-     * @param <T> 处理结果类型
+     * @param <T>       处理结果类型
      */
     public static <T> void pullMessages(
             DefaultMQPullConsumer consumer,
@@ -55,10 +54,11 @@ public class MessagePullTemplate {
 
     /**
      * 从单个队列拉取指定数量的消息
+     *
      * @param consumer 消费者实例
-     * @param queue 消息队列
-     * @param offset 起始offset
-     * @param count 需要拉取的消息数量
+     * @param queue    消息队列
+     * @param offset   起始offset
+     * @param count    需要拉取的消息数量
      * @return MessageView列表
      */
     public static List<MessageView> pullMessagesAsViews(
@@ -96,12 +96,13 @@ public class MessagePullTemplate {
 
     /**
      * 拉取消息时过滤时间范围
-     * @param consumer 消费者实例
-     * @param queue 消息队列
-     * @param offset 起始offset
+     *
+     * @param consumer  消费者实例
+     * @param queue     消息队列
+     * @param offset    起始offset
      * @param beginTime 开始时间戳
-     * @param endTime 结束时间戳
-     * @param maxCount 最大拉取数量
+     * @param endTime   结束时间戳
+     * @param maxCount  最大拉取数量
      * @return 过滤后的MessageView列表
      */
     public static List<MessageView> pullMessagesInTimeRange(
@@ -137,9 +138,10 @@ public class MessagePullTemplate {
 
     /**
      * 拉取指定offset范围的消息
-     * @param consumer 消费者实例
+     *
+     * @param consumer     消费者实例
      * @param queueOffsets 队列offset信息列表
-     * @param maxCount 最大拉取数量
+     * @param maxCount     最大拉取数量
      * @return MessageView列表
      */
     public static List<MessageView> pullMessagesFromQueues(

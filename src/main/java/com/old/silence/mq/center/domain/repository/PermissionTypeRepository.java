@@ -1,10 +1,9 @@
 package com.old.silence.mq.center.domain.repository;
 
+import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Select;
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.old.silence.mq.center.domain.model.permission.PermissionType;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
-import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
@@ -12,8 +11,8 @@ import java.util.Optional;
 /**
  * 权限类型 Repository
  */
-@Repository
-public interface PermissionTypeRepository extends JpaRepository<PermissionType, Integer> {
+@Mapper
+public interface PermissionTypeRepository extends BaseMapper<PermissionType> {
 
     /**
      * 根据权限代码查找权限类型
@@ -23,7 +22,7 @@ public interface PermissionTypeRepository extends JpaRepository<PermissionType, 
     /**
      * 查询所有激活的权限类型
      */
-    @Query("SELECT pt FROM PermissionType pt WHERE pt.status = 'ACTIVE'")
+    @Select("SELECT pt FROM permission_type pt WHERE pt.status = 'ACTIVE'")
     List<PermissionType> findAllActive();
 
     /**

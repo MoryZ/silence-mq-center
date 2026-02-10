@@ -22,22 +22,22 @@ public class DashboardController {
 
     @GetMapping(value = "/broker")
     public Map<String, List<String>> broker(@RequestParam String date) {
-        return  dashboardService.queryBrokerData(date);
+        return dashboardService.queryBrokerData(date);
     }
 
     @GetMapping(value = "/topic", params = {"date"})
     public Map<String, List<String>> topic(@RequestParam String date) {
-        return  dashboardService.queryTopicData(date);
+        return dashboardService.queryTopicData(date);
     }
 
     @GetMapping(value = "/topic", params = {"date", "topicName"})
     public List<String> topicWithTopicName(@RequestParam String date, @RequestParam String topicName) {
-        return  dashboardService.queryTopicData(date, topicName);
+        return dashboardService.queryTopicData(date, topicName);
     }
 
     @GetMapping(value = "/topicCurrent")
     public List<String> topicCurrent() {
-        return  dashboardService.queryTopicCurrentData();
+        return dashboardService.queryTopicCurrentData();
     }
 
 }

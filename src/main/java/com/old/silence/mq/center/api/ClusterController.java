@@ -21,11 +21,11 @@ public class ClusterController {
 
     @GetMapping(value = "/list")
     public Map<String, Object> list() {
-        return  clusterService.list();
+        return clusterService.list();
     }
 
     @GetMapping(value = "/brokerConfig")
     public Properties brokerConfig(@RequestParam String brokerAddr) {
-        return  clusterService.getBrokerConfig(brokerAddr);
+        return clusterService.getBrokerConfig(brokerAddr);
     }
 }

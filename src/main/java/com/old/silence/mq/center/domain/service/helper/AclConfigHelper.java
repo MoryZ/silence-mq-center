@@ -4,12 +4,11 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.rocketmq.common.AclConfig;
 import org.apache.rocketmq.common.PlainAccessConfig;
 import org.apache.rocketmq.tools.admin.MQAdminExt;
-import com.old.silence.mq.center.domain.service.facade.RocketMQClientFacade;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.google.common.base.Throwables;
+import com.old.silence.mq.center.domain.service.facade.RocketMQClientFacade;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -19,12 +18,13 @@ import java.util.Optional;
  */
 public class AclConfigHelper {
 
-    private static final Logger logger = LoggerFactory.getLogger(AclConfigHelper);
+    private static final Logger logger = LoggerFactory.getLogger(AclConfigHelper.class);
 
     /**
      * 在所有Broker上执行ACL操作
+     *
      * @param brokerAddrs Broker地址集合
-     * @param operation 操作函数
+     * @param operation   操作函数
      */
     public static void executeBrokerOperation(Iterable<String> brokerAddrs, BrokerOperation operation) {
         try {
@@ -39,12 +39,13 @@ public class AclConfigHelper {
 
     /**
      * 在所有Broker上查询并执行ACL操作
+     *
      * @param brokerAddrs Broker地址集合
-     * @param mqAdminExt MQAdmin实例
-     * @param operation 需要远程配置的操作
+     * @param mqAdminExt  MQAdmin实例
+     * @param operation   需要远程配置的操作
      */
-    public static void executeAclConfigOperation(Iterable<String> brokerAddrs, MQAdminExt mqAdminExt, 
-                                                  AclConfigOperation operation) {
+    public static void executeAclConfigOperation(Iterable<String> brokerAddrs, MQAdminExt mqAdminExt,
+                                                 AclConfigOperation operation) {
         try {
             for (String addr : brokerAddrs) {
                 AclConfig aclConfig = mqAdminExt.examineBrokerClusterAclConfig(addr);
@@ -60,7 +61,7 @@ public class AclConfigHelper {
      * 在所有Broker上查询并执行ACL操作（使用Facade）
      */
     public static void executeAclConfigOperation(Iterable<String> brokerAddrs, RocketMQClientFacade mqFacade,
-                                                  AclConfigOperation operation) {
+                                                 AclConfigOperation operation) {
         try {
             for (String addr : brokerAddrs) {
                 AclConfig aclConfig = mqFacade.getAclConfig(addr);
@@ -79,7 +80,7 @@ public class AclConfigHelper {
         try {
             AclConfig aclConfig = mqAdminExt.examineBrokerClusterAclConfig(brokerAddr);
             List<PlainAccessConfig> configs = aclConfig.getPlainAccessConfigs();
-            
+
             if (configs == null || configs.isEmpty()) {
                 return false;
             }
@@ -117,7 +118,7 @@ public class AclConfigHelper {
      */
     public static Optional<PlainAccessConfig> findAccessKeyConfig(AclConfig aclConfig, String accessKey) {
         List<PlainAccessConfig> configs = aclConfig.getPlainAccessConfigs();
-        
+
         if (configs == null || configs.isEmpty()) {
             return Optional.empty();
         }

@@ -1,5 +1,3 @@
-
-
 package com.old.silence.mq.center.domain.model;
 
 
@@ -57,7 +55,7 @@ public class DlqMessageExcelModel implements Serializable {
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
-        return  instant.atOffset(ZoneOffset.UTC).format(formatter);
+        return instant.atOffset(ZoneOffset.UTC).format(formatter);
     }
 
     public String getTopic() {

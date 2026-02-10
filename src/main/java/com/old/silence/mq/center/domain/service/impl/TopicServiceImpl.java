@@ -1,5 +1,3 @@
-
-
 package com.old.silence.mq.center.domain.service.impl;
 
 import org.apache.commons.lang3.StringUtils;
@@ -27,7 +25,6 @@ import org.apache.rocketmq.remoting.protocol.body.TopicList;
 import org.apache.rocketmq.remoting.protocol.route.BrokerData;
 import org.apache.rocketmq.remoting.protocol.route.TopicRouteData;
 import org.apache.rocketmq.tools.admin.MQAdminExt;
-import org.apache.rocketmq.tools.command.CommandUtil;
 import org.joor.Reflect;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,7 +33,6 @@ import org.springframework.stereotype.Service;
 import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import com.old.silence.mq.center.api.config.RMQConfigure;
 import com.old.silence.mq.center.domain.model.request.SendTopicMessageRequest;
 import com.old.silence.mq.center.domain.model.request.TopicConfigInfo;
@@ -49,8 +45,6 @@ import com.old.silence.mq.center.domain.service.client.MQAdminExtImpl;
 import com.old.silence.mq.center.domain.service.facade.RocketMQClientFacade;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -70,7 +64,7 @@ public class TopicServiceImpl extends AbstractCommonService implements TopicServ
     private final RMQConfigure configure;
 
     private final ClusterInfoService clusterInfoService;
-    
+
     private final RocketMQClientFacade mqFacade;
 
     private final ConcurrentMap<String, TopicRouteData> routeCache = new ConcurrentHashMap<>();
@@ -120,7 +114,7 @@ public class TopicServiceImpl extends AbstractCommonService implements TopicServ
             try {
                 TopicConfigSerializeWrapper topicConfigSerializeWrapper = mqFacade.getAllTopicConfig(brokerAddr.getBrokerAddrs().get(0L), 10000L);
                 for (TopicConfig topicConfig : topicConfigSerializeWrapper.getTopicConfigTable().values()) {
-                    TopicTypeMeta topicType = classifyTopicType(topicConfig.getTopicName(), topicConfigSerializeWrapper.getTopicConfigTable().get(topicConfig.getTopicName()).getAttributes(),sysTopics.getTopicList());
+                    TopicTypeMeta topicType = classifyTopicType(topicConfig.getTopicName(), topicConfigSerializeWrapper.getTopicConfigTable().get(topicConfig.getTopicName()).getAttributes(), sysTopics.getTopicList());
                     if (names.contains(topicType.getTopicName())) {
                         continue;
                     }
@@ -142,7 +136,7 @@ public class TopicServiceImpl extends AbstractCommonService implements TopicServ
         return new TopicTypeList(names, messageTypes);
     }
 
-    private TopicTypeMeta classifyTopicType(String topicName, Map<String,String> attributes, Set<String> sysTopics) {
+    private TopicTypeMeta classifyTopicType(String topicName, Map<String, String> attributes, Set<String> sysTopics) {
         TopicTypeMeta topicType = new TopicTypeMeta();
         topicType.setTopicName(topicName);
 
@@ -299,6 +293,7 @@ public class TopicServiceImpl extends AbstractCommonService implements TopicServ
         mqFacade.deleteTopic(topic);
         return true;
     }
+
     public DefaultMQProducer buildDefaultMQProducer(String producerGroup, RPCHook rpcHook) {
         return buildDefaultMQProducer(producerGroup, rpcHook, false);
     }
@@ -424,9 +419,9 @@ public class TopicServiceImpl extends AbstractCommonService implements TopicServ
     }
 
     static class TransactionListenerImpl implements TransactionListener {
-        private AtomicInteger transactionIndex = new AtomicInteger(0);
+        private final AtomicInteger transactionIndex = new AtomicInteger(0);
 
-        private ConcurrentHashMap<String, Integer> localTrans = new ConcurrentHashMap<>();
+        private final ConcurrentHashMap<String, Integer> localTrans = new ConcurrentHashMap<>();
 
         @Override
         public LocalTransactionState executeLocalTransaction(Message msg, Object arg) {

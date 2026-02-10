@@ -1,7 +1,6 @@
 package com.old.silence.mq.center.domain.service.helper;
 
 import org.apache.commons.pool2.impl.GenericObjectPool;
-import org.apache.rocketmq.tools.admin.MQAdminExt;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.google.common.collect.Maps;
@@ -18,8 +17,9 @@ public class ConfigManagementHelper {
 
     /**
      * 更新配置并清理对象池
+     *
      * @param updateOperation 配置更新操作
-     * @param poolToClear 需要清理的对象池（可选）
+     * @param poolToClear     需要清理的对象池（可选）
      */
     public static void updateConfigAndClearPool(Runnable updateOperation, GenericObjectPool<?> poolToClear) {
         try {

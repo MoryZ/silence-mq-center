@@ -1,5 +1,3 @@
-
-
 package com.old.silence.mq.center.domain.service;
 
 import org.apache.rocketmq.client.producer.SendResult;

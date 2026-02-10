@@ -1,4 +1,3 @@
-
 package com.old.silence.mq.center.task;
 
 import org.apache.rocketmq.common.MixAll;
@@ -7,12 +6,12 @@ import org.apache.rocketmq.remoting.protocol.body.BrokerStatsData;
 import org.apache.rocketmq.remoting.protocol.body.GroupList;
 import org.apache.rocketmq.remoting.protocol.route.BrokerData;
 import org.apache.rocketmq.remoting.protocol.route.TopicRouteData;
-import com.old.silence.mq.center.domain.service.facade.RocketMQClientFacade;
 import org.apache.rocketmq.tools.command.stats.StatsAllSubCommand;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.google.common.base.Throwables;
 import com.old.silence.mq.center.domain.service.DashboardCollectService;
+import com.old.silence.mq.center.domain.service.facade.RocketMQClientFacade;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -51,13 +50,13 @@ public class CollectTaskRunnable implements Runnable {
             for (BrokerData bd : topicRouteData.getBrokerDatas()) {
                 String masterAddr = bd.getBrokerAddrs().get(MixAll.MASTER_ID);
                 if (masterAddr != null) {
-                            try {
-                                BrokerStatsData bsd = mqFacade.viewBrokerStatsData(masterAddr, Stats.TOPIC_PUT_NUMS, topic);
-                                inTPS += bsd.getStatsMinute().getTps();
-                                inMsgCntToday += StatsAllSubCommand.compute24HourSum(bsd);
-                            } catch (Exception e) {
-                                log.warn("Exception caught: viewBrokerStatsData TOPIC_PUT_NUMS failed, topic: [{}]", topic, e.getMessage());
-                            }
+                    try {
+                        BrokerStatsData bsd = mqFacade.viewBrokerStatsData(masterAddr, Stats.TOPIC_PUT_NUMS, topic);
+                        inTPS += bsd.getStatsMinute().getTps();
+                        inMsgCntToday += StatsAllSubCommand.compute24HourSum(bsd);
+                    } catch (Exception e) {
+                        log.warn("Exception caught: viewBrokerStatsData TOPIC_PUT_NUMS failed, topic: [{}]", topic, e.getMessage());
+                    }
                 }
             }
             if (groupList != null && !groupList.getGroupList().isEmpty()) {
@@ -65,14 +64,14 @@ public class CollectTaskRunnable implements Runnable {
                     for (BrokerData bd : topicRouteData.getBrokerDatas()) {
                         String masterAddr = bd.getBrokerAddrs().get(MixAll.MASTER_ID);
                         if (masterAddr != null) {
-                                        try {
-                                            String statsKey = String.format("%s@%s", topic, group);
-                                            BrokerStatsData bsd = mqFacade.viewBrokerStatsData(masterAddr, Stats.GROUP_GET_NUMS, statsKey);
-                                            outTPS += bsd.getStatsMinute().getTps();
-                                            outMsgCntToday += StatsAllSubCommand.compute24HourSum(bsd);
-                                        } catch (Exception e) {
-                                            log.warn("Exception caught: viewBrokerStatsData GROUP_GET_NUMS failed, topic: [{}], group [{}]", topic, group, e.getMessage());
-                                        }
+                            try {
+                                String statsKey = String.format("%s@%s", topic, group);
+                                BrokerStatsData bsd = mqFacade.viewBrokerStatsData(masterAddr, Stats.GROUP_GET_NUMS, statsKey);
+                                outTPS += bsd.getStatsMinute().getTps();
+                                outMsgCntToday += StatsAllSubCommand.compute24HourSum(bsd);
+                            } catch (Exception e) {
+                                log.warn("Exception caught: viewBrokerStatsData GROUP_GET_NUMS failed, topic: [{}], group [{}]", topic, group, e.getMessage());
+                            }
                         }
                     }
                 }

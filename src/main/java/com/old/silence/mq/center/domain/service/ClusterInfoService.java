@@ -1,4 +1,3 @@
-
 package com.old.silence.mq.center.domain.service;
 
 import org.apache.rocketmq.remoting.protocol.body.ClusterInfo;
@@ -21,13 +20,10 @@ public class ClusterInfoService {
     private static final Logger log = LoggerFactory.getLogger(ClusterInfoService.class);
     private final MQAdminExt mqAdminExt;
     private final RocketMQClientFacade mqFacade;
-
-    @Value("${rocketmq.cluster.cache.expire:60000}")
-    private long cacheExpireMs;
-
-
     private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
     private final AtomicReference<ClusterInfo> cachedRef = new AtomicReference<>();
+    @Value("${rocketmq.cluster.cache.expire:60000}")
+    private long cacheExpireMs;
 
     public ClusterInfoService(MQAdminExt mqAdminExt, RocketMQClientFacade mqFacade) {
         this.mqAdminExt = mqAdminExt;

@@ -66,7 +66,7 @@ public abstract class AbstractFileStore {
 
     private boolean watch() {
         try {
-            FileWatchService fileWatchService = new FileWatchService(new String[] {filePath}, new FileWatchService.Listener() {
+            FileWatchService fileWatchService = new FileWatchService(new String[]{filePath}, new FileWatchService.Listener() {
                 @Override
                 public void onChanged(String path) {
                     log.info("The file changed, reload the context");
