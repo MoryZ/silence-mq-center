@@ -24,7 +24,7 @@ import java.util.concurrent.ExecutionException;
 public class CollectTaskRunnable implements Runnable {
 
 
-    private static final Logger log = LoggerFactory.getLogger(CollectTaskRunnable.class);
+    private static final Logger logger = LoggerFactory.getLogger(CollectTaskRunnable.class);
     private final String topic;
 
     private final MQAdminExt mqAdminExt;
@@ -56,7 +56,7 @@ public class CollectTaskRunnable implements Runnable {
                         inTPS += bsd.getStatsMinute().getTps();
                         inMsgCntToday += StatsAllSubCommand.compute24HourSum(bsd);
                     } catch (Exception e) {
-                        log.warn("Exception caught: mqAdminExt get broker stats data TOPIC_PUT_NUMS failed, topic: [{}]", topic, e.getMessage());
+                        logger.warn("Exception caught: mqAdminExt get broker stats data TOPIC_PUT_NUMS failed, topic: [{}]", topic, e.getMessage());
                     }
                 }
             }
@@ -71,7 +71,7 @@ public class CollectTaskRunnable implements Runnable {
                                 outTPS += bsd.getStatsMinute().getTps();
                                 outMsgCntToday += StatsAllSubCommand.compute24HourSum(bsd);
                             } catch (Exception e) {
-                                log.warn("Exception caught: mqAdminExt get broker stats data GROUP_GET_NUMS failed, topic: [{}], group [{}]", topic, group, e.getMessage());
+                                logger.warn("Exception caught: mqAdminExt get broker stats data GROUP_GET_NUMS failed, topic: [{}], group [{}]", topic, group, e.getMessage());
                             }
                         }
                     }
@@ -92,7 +92,7 @@ public class CollectTaskRunnable implements Runnable {
             list.add(date.getTime() + "," + new BigDecimal(inTPS).setScale(5, RoundingMode.HALF_UP) + "," + inMsgCntToday + "," + new BigDecimal(outTPS).setScale(5, RoundingMode.HALF_UP) + "," + outMsgCntToday);
             dashboardCollectService.getTopicMap().put(topic, list);
         } catch (Exception e) {
-            log.error("Failed to collect topic: {} data", topic, e);
+            logger.error("Failed to collect topic: {} data", topic, e);
         }
     }
 }

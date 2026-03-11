@@ -47,6 +47,14 @@ public class DlqMessageController {
     @GetMapping(value = "/exportDlqMessage")
     public void exportDlqMessage(HttpServletResponse response, @RequestParam String consumerGroup,
                                  @RequestParam String msgId) {
+        org.apache.commons.lang3.Preconditions.checkArgument(
+            org.apache.commons.lang3.StringUtils.isNotEmpty(consumerGroup),
+            "consumerGroup must not be empty"
+        );
+        org.apache.commons.lang3.Preconditions.checkArgument(
+            org.apache.commons.lang3.StringUtils.isNotEmpty(msgId),
+            "msgId must not be empty"
+        );
         MessageExt messageExt = null;
         try {
             String topic = MixAll.DLQ_GROUP_TOPIC_PREFIX + consumerGroup;
@@ -64,6 +72,10 @@ public class DlqMessageController {
 
     @PostMapping(value = "/batchResendDlqMessage")
     public List<DlqMessageResendResult> batchResendDlqMessage(@RequestBody List<DlqMessageRequest> dlqMessages) {
+        org.apache.commons.lang3.Preconditions.checkArgument(
+            org.apache.commons.collections.CollectionUtils.isNotEmpty(dlqMessages),
+            "dlqMessages must not be empty"
+        );
         return dlqMessageService.batchResendDlqMessage(dlqMessages);
     }
 

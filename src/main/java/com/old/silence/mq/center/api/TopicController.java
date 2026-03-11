@@ -61,11 +61,19 @@ public class TopicController {
 
     @GetMapping(value = "/topics/stats")
     public TopicStatsTable stats(@RequestParam String topic) {
+        Preconditions.checkArgument(
+            org.apache.commons.lang3.StringUtils.isNotEmpty(topic),
+            "topic must not be empty"
+        );
         return  topicService.stats(topic);
     }
 
     @GetMapping(value = "/topics/routes")
     public TopicRouteData route(@RequestParam String topic) {
+        Preconditions.checkArgument(
+            org.apache.commons.lang3.StringUtils.isNotEmpty(topic),
+            "topic must not be empty"
+        );
         return  topicService.route(topic);
     }
 
@@ -82,16 +90,28 @@ public class TopicController {
 
     @GetMapping(value = "/topics/queryConsumerByTopic")
     public Map<String, TopicConsumerInfo> queryConsumerByTopic(@RequestParam String topic) {
+        Preconditions.checkArgument(
+            org.apache.commons.lang3.StringUtils.isNotEmpty(topic),
+            "topic must not be empty"
+        );
         return  consumerService.queryConsumeStatsListByTopicName(topic);
     }
 
     @RequestMapping(value = "/topics/queryTopicConsumerInfo")
     public GroupList queryTopicConsumerInfo(@RequestParam String topic) {
+        Preconditions.checkArgument(
+            org.apache.commons.lang3.StringUtils.isNotEmpty(topic),
+            "topic must not be empty"
+        );
         return  topicService.queryTopicConsumerInfo(topic);
     }
 
     @GetMapping(value = "/topics/examineTopicConfig")
     public List<TopicConfigInfo> examineTopicConfig(@RequestParam String topic) {
+        Preconditions.checkArgument(
+            org.apache.commons.lang3.StringUtils.isNotEmpty(topic),
+            "topic must not be empty"
+        );
         return  topicService.examineTopicConfig(topic);
     }
 

@@ -1,0 +1,112 @@
+# Development Environment Configuration
+# 此文件仅在 spring.profiles.active=dev 时加载
+# 应用启动时使用: java -jar app.jar -Dspring.profiles.active=dev
+
+server:
+  port: 8099
+  # 开发环境允许较长的请求超时
+  servlet:
+    session:
+      timeout: 30m
+
+spring:
+  # 开发环境数据库配置（如需要）
+  datasource:
+    url: ${DB_URL:jdbc:mysql://localhost:3306/silence_mq}
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:123456}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+  
+  # 开发环境特定的Cloud配置
+  cloud:
+    nacos:
+      discovery:
+        # 开发环境Nacos地址
+        server-addr: localhost:8848
+        username: nacos
+        password: nacos
+        # 本地开发使用 dev 命名空间，避免与其他环境冲突
+        namespace: dev
+        group: DEV_GROUP
+
+# 开发环境RocketMQ特定配置
+rocketmq:
+  config:
+    # 开发环境使用本地或测试RocketMQ
+    namesrvAddrs:
+      - localhost:9876
+    # 开发环境数据存储路径
+    dataPath: ${user.home}/.mq-console/dev/data
+    enableDashBoardCollect: true
+    # 开发环境关闭登录要求
+    loginRequired: false
+    # 开发环境开启详细日志
+    useTLS: false
+
+# 开发环境线程池配置（较小的线程数）
+thread-pool:
+  config:
+    coreSize: 5
+    maxSize: 10
+    keepAliveTime: 3000
+    queueSize: 2000
+
+# 开发环境日志配置
+logging:
+  level:
+    root: INFO
+    com.old.silence.mq.center: DEBUG
+    org.springframework: DEBUG
+    org.springframework.cloud: DEBUG
+    com.alibaba.nacos: INFO
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+  file:
+    name: logs/dev/mq-console.log
+    max-size: 10MB
+    max-history: 10
+    total-size-cap: 1GB
+
+# Actuator 端点配置（开发环境暴露更多端点用于调试）
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus,env,configprops
+  endpoint:
+    health:
+      show-details: always
+  
+# 开发环境特定应用配置
+platform:
+  system:
+    env: dev
+    identifier: MC-DEV
+
+# 开发环境安全配置（更宽松）
+silence:
+  auth:
+    center:
+      security:
+        api:
+          white-list:
+            - /api/v1/test/**
+            - /swagger-ui.html
+            - /v2/api-docs
+
+# 开发环境启用Swagger文档
+springdoc:
+  swagger-ui:
+    enabled: true
+    path: /swagger-ui.html
+  api-docs:
+    path: /v3/api-docs

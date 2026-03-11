@@ -98,7 +98,8 @@ public class MQAdminExtImpl implements MQAdminExt {
     @Override
     public ClusterAclVersionInfo examineBrokerClusterAclVersionInfo(
             String addr) throws RemotingException, MQBrokerException, InterruptedException, MQClientException {
-        return null;
+        logger.warn("examineBrokerClusterAclVersionInfo not implemented, returning empty info for addr: {}", addr);
+        return new ClusterAclVersionInfo();
     }
 
     @Override
@@ -463,11 +464,14 @@ public class MQAdminExtImpl implements MQAdminExt {
      */
     private MessageExt queryWithMQAdminExt(String topic, String msgId) {
         try {
-            return MQAdminInstance.threadLocalMQAdminExt().viewMessage(topic, msgId);
+            MessageExt message = MQAdminInstance.threadLocalMQAdminExt().viewMessage(topic, msgId);
+            if (message == null) {
+                logger.debug("Message not found with MQAdminExt, will retry with MQAdminImpl, topic: {}, msgId: {}", topic, msgId);
+            }
+            return message;
         } catch (Exception e) {
-            logger.warn("Failed to query message with MQAdminExt, topic: {}, msgId: {}, error: {}",
-                    topic, msgId, e.getMessage());
-            return null;
+            logger.debug("Query message with MQAdminExt failed, will retry with MQAdminImpl, topic: {}, msgId: {}", topic, msgId, e);
+            return null;  // 降级处理，交给 queryWithMQAdminImpl
         }
     }
 
@@ -479,11 +483,19 @@ public class MQAdminExtImpl implements MQAdminExt {
 
         try {
             Set<String> clusterList = MQAdminInstance.threadLocalMQAdminExt().getTopicClusterList(topic);
-            return queryFromClusters(mqAdminImpl, topic, msgId, clusterList);
+            if (clusterList == null || clusterList.isEmpty()) {
+                logger.warn("No cluster list found for topic: {}", topic);
+                return null;
+            }
+            
+            MessageExt message = queryFromClusters(mqAdminImpl, topic, msgId, clusterList);
+            if (message == null) {
+                logger.warn("Message not found in any cluster, topic: {}, msgId: {}", topic, msgId);
+            }
+            return message;
         } catch (Exception e) {
-            logger.error("Failed to query message with MQAdminImpl, topic: {}, msgId: {}, error: {}",
-                    topic, msgId, e.getMessage(), e);
-            return null;
+            logger.error("Failed to query message with MQAdminImpl, topic: {}, msgId: {}", topic, msgId, e);
+            return null;  // 最后的容错，返回 null 由调用方处理
         }
     }
 
@@ -500,6 +512,7 @@ public class MQAdminExtImpl implements MQAdminExt {
         for (String clusterName : clusterList) {
             MessageExt message = querySingleCluster(mqAdminImpl, clusterName, topic, msgId);
             if (message != null) {
+                logger.debug("Found message in cluster: {}, topic: {}, msgId: {}", clusterName, topic, msgId);
                 return message;
             }
         }
@@ -519,8 +532,7 @@ public class MQAdminExtImpl implements MQAdminExt {
 
             return extractMessageFromResult(qr);
         } catch (Exception e) {
-            logger.warn("Failed to query message from cluster: {}, topic: {}, msgId: {}, error: {}",
-                    clusterName, topic, msgId, e.getMessage());
+            logger.debug("Failed to query message from cluster: {}, topic: {}, msgId: {}", clusterName, topic, msgId, e);
             return null;
         }
     }

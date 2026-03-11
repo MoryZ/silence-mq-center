@@ -32,6 +32,10 @@ public class MessageController {
 
     @GetMapping(value = "/viewMessage")
     public Map<String, Object> viewMessage(@RequestParam(required = false) String topic, @RequestParam String msgId) {
+        org.apache.commons.lang3.Preconditions.checkArgument(
+            org.apache.commons.lang3.StringUtils.isNotEmpty(msgId),
+            "msgId must not be empty"
+        );
         Map<String, Object> messageViewMap = Maps.newHashMap();
         Pair<MessageView, List<MessageTrack>> messageViewListPair = messageService.viewMessage(topic, msgId);
         messageViewMap.put("messageView", messageViewListPair.getObject1());
@@ -46,12 +50,32 @@ public class MessageController {
 
     @GetMapping(value = "/queryMessageByTopicAndKey")
     public List<MessageView> queryMessageByTopicAndKey(@RequestParam String topic, @RequestParam String key) {
+        org.apache.commons.lang3.Preconditions.checkArgument(
+            org.apache.commons.lang3.StringUtils.isNotEmpty(topic),
+            "topic must not be empty"
+        );
+        org.apache.commons.lang3.Preconditions.checkArgument(
+            org.apache.commons.lang3.StringUtils.isNotEmpty(key),
+            "key must not be empty"
+        );
         return  messageService.queryMessageByTopicAndKey(topic, key);
     }
 
     @GetMapping(value = "/queryMessageByTopic")
     public List<MessageView> queryMessageByTopic(@RequestParam String topic, @RequestParam long begin,
                                       @RequestParam long end) {
+        org.apache.commons.lang3.Preconditions.checkArgument(
+            org.apache.commons.lang3.StringUtils.isNotEmpty(topic),
+            "topic must not be empty"
+        );
+        org.apache.commons.lang3.Preconditions.checkArgument(
+            begin >= 0,
+            "begin must be non-negative"
+        );
+        org.apache.commons.lang3.Preconditions.checkArgument(
+            end >= begin,
+            "end must be greater than or equal to begin"
+        );
         return  messageService.queryMessageByTopic(topic, begin, end);
     }
 
@@ -59,6 +83,18 @@ public class MessageController {
     public ConsumeMessageDirectlyResult consumeMessageDirectly(@RequestParam String topic, @RequestParam String consumerGroup,
                                          @RequestParam String msgId,
                                          @RequestParam(required = false) String clientId) {
+        org.apache.commons.lang3.Preconditions.checkArgument(
+            org.apache.commons.lang3.StringUtils.isNotEmpty(topic),
+            "topic must not be empty"
+        );
+        org.apache.commons.lang3.Preconditions.checkArgument(
+            org.apache.commons.lang3.StringUtils.isNotEmpty(consumerGroup),
+            "consumerGroup must not be empty"
+        );
+        org.apache.commons.lang3.Preconditions.checkArgument(
+            org.apache.commons.lang3.StringUtils.isNotEmpty(msgId),
+            "msgId must not be empty"
+        );
         logger.info("msgId={} consumerGroup={} clientId={}", msgId, consumerGroup, clientId);
         ConsumeMessageDirectlyResult consumeMessageDirectlyResult = messageService.consumeMessageDirectly(topic, msgId, consumerGroup, clientId);
         logger.info("consumeMessageDirectlyResult={}", JsonUtil.obj2String(consumeMessageDirectlyResult));

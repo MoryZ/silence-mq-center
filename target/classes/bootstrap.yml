@@ -1,0 +1,84 @@
+# Bootstrap Configuration - 应用启动最早加载的配置
+# 这个文件在所有环境中都会被加载，用于配置系统基础设施
+# 加载优先级: bootstrap.yml > application-{profile}.yml > application.yml
+
+spring:
+  application:
+    name: mq-service
+  
+  # 从环境变量或命令行参数读取活跃配置
+  # 默认为 dev，可通过 -Dspring.profiles.active=prd 覆盖
+  profiles:
+    active: dev
+  
+  # Spring Cloud 配置
+  cloud:
+    nacos:
+      discovery:
+        # 从环境变量 NACOS_SERVER_ADDR 读取，默认为空
+        # 支持多个地址: host1:port1,host2:port2
+        server-addr: ${NACOS_SERVER_ADDR:localhost:8848}
+        username: ${NACOS_USERNAME:nacos}
+        password: ${NACOS_PASSWORD:nacos}
+        # 服务发现的命名空间，可选
+        namespace: ${NACOS_NAMESPACE:}
+        # 服务分组，可选
+        group: ${NACOS_GROUP:DEFAULT_GROUP}
+      
+      # 配置中心配置（如果使用）
+      config:
+        server-addr: ${NACOS_SERVER_ADDR:localhost:8848}
+        namespace: ${NACOS_NAMESPACE:}
+        group: ${NACOS_GROUP:DEFAULT_GROUP}
+        file-extension: yml
+
+# 公共应用配置
+platform:
+  system:
+    identifier: MC
+
+# 公共线程池配置
+thread-pool:
+  config:
+    coreSize: 10
+    maxSize: 10
+    keepAliveTime: 3000
+    queueSize: 5000
+
+# 公共RocketMQ配置
+rocketmq:
+  config:
+    # 支持多个集群地址
+    namesrvAddrs:
+      - 110.40.135.216:9876
+    #      - 127.0.0.2:9876
+    #      - 10.151.47.32:9876;10.151.47.33:9876;10.151.47.34:9876
+    #      - 10.151.47.30:9876
+    
+    # 通用配置
+    isVIPChannel:
+    timeoutMillis: 5000
+    enableDashBoardCollect: true
+    msgTrackTopicName:
+    ticketKey: ticket
+    loginRequired: false
+    useTLS: false
+    # 从环境变量读取敏感信息
+    accessKey: ${ROCKETMQ_ACCESS_KEY:}
+    secretKey: ${ROCKETMQ_SECRET_KEY:}
+
+# 公共安全配置
+silence:
+  auth:
+    center:
+      security:
+        api:
+          white-list:
+
+---
+# 日志配置（所有环境通用）
+logging:
+  config: classpath:logback.xml
+  level:
+    root: INFO
+    com.old.silence.mq.center: DEBUG

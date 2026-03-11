@@ -105,9 +105,20 @@ public class DashboardCollectTask {
                 }
                 KVTable kvTable = fetchBrokerRuntimeStats(entry.getKey(), 3);
                 if (kvTable == null) {
+                    logger.warn("Failed to fetch broker runtime stats for broker: {}", entry.getKey());
                     continue;
                 }
-                String[] tpsArray = kvTable.getTable().get("getTotalTps").split(" ");
+                Map<String, String> table = kvTable.getTable();
+                if (table == null || !table.containsKey("getTotalTps")) {
+                    logger.warn("TPS data not found in broker stats for broker: {}", entry.getKey());
+                    continue;
+                }
+                String tpsValue = table.get("getTotalTps");
+                if (StringUtils.isEmpty(tpsValue)) {
+                    logger.warn("TPS value is empty for broker: {}", entry.getKey());
+                    continue;
+                }
+                String[] tpsArray = tpsValue.split(" ");
                 BigDecimal totalTps = new BigDecimal(0);
                 for (String tps : tpsArray) {
                     totalTps = totalTps.add(new BigDecimal(tps));
@@ -136,12 +147,11 @@ public class DashboardCollectTask {
                 Thread.sleep(1000);
             }
             catch (InterruptedException e1) {
-                Throwables.throwIfUnchecked(e1);
-                throw new RuntimeException(e1);
+                logger.error("Sleep interrupted while retrying fetch broker stats", e1);
+                return null;
             }
-            fetchBrokerRuntimeStats(brokerAddr, retryTime - 1);
-            Throwables.throwIfUnchecked(e);
-            throw new RuntimeException(e);
+            logger.debug("Retrying fetch broker stats for addr: {}, retryTime: {}", brokerAddr, retryTime - 1);
+            return fetchBrokerRuntimeStats(brokerAddr, retryTime - 1);
         }
     }
 

@@ -16,7 +16,7 @@ import java.util.concurrent.atomic.AtomicLong;
 public class MQAdminFactory {
 
 
-    private static final Logger log = LoggerFactory.getLogger(MQAdminFactory.class);
+    private static final Logger logger = LoggerFactory.getLogger(MQAdminFactory.class);
     private final RMQConfigure rmqConfigure;
 
     public MQAdminFactory(RMQConfigure rmqConfigure) {
@@ -44,7 +44,7 @@ public class MQAdminFactory {
         mqAdminExt.setUseTLS(rmqConfigure.isUseTLS());
         mqAdminExt.setInstanceName(Long.toString(System.currentTimeMillis()));
         mqAdminExt.start();
-        log.info("create MQAdmin instance {} success.", mqAdminExt);
+        logger.info("create MQAdmin instance {} success.", mqAdminExt);
         return mqAdminExt;
     }
 }

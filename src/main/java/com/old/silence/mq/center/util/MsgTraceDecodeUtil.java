@@ -18,7 +18,7 @@ import java.util.List;
 import static org.apache.rocketmq.client.trace.TraceType.Pub;
 
 public class MsgTraceDecodeUtil {
-    private final static Logger log = LoggerFactory.getLogger(MsgTraceDecodeUtil.class);
+    private final static Logger logger = LoggerFactory.getLogger(MsgTraceDecodeUtil.class);
 
     private static final int TRACE_MSG_PUB_V1_LEN = 12;
     private static final int TRACE_MSG_PUB_V2_LEN = 13;
@@ -72,7 +72,7 @@ public class MsgTraceDecodeUtil {
                         bean.setOffsetMsgId(line[12]);
                         pubContext.setSuccess(Boolean.parseBoolean(line[13]));
                         bean.setClientHost(line[14]);
-                        log.warn("Detect new version trace msg of {} type", Pub.name());
+                        logger.warn("Detect new version trace msg of {} type", Pub.name());
                         break;
                 }
 
@@ -120,7 +120,7 @@ public class MsgTraceDecodeUtil {
                         subAfterContext.setContextCode(Integer.parseInt(line[6]));
                         subAfterContext.setTimeStamp(Long.parseLong(line[7]));
                         subAfterContext.setGroupName(line[8]);
-                        log.warn("Detect new version trace msg of {} type", TraceType.SubAfter.name());
+                        logger.warn("Detect new version trace msg of {} type", TraceType.SubAfter.name());
                         break;
                 }
                 resList.add(subAfterContext);

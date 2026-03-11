@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
 
 public class MQAdminPooledObjectFactory implements PooledObjectFactory<MQAdminExt> {
 
-    private static final Logger log = LoggerFactory.getLogger(MQAdminPooledObjectFactory.class);
+    private static final Logger logger = LoggerFactory.getLogger(MQAdminPooledObjectFactory.class);
     private final MQAdminFactory mqAdminFactory;
 
     public MQAdminPooledObjectFactory(MQAdminFactory mqAdminFactory) {
@@ -32,10 +32,10 @@ public class MQAdminPooledObjectFactory implements PooledObjectFactory<MQAdminEx
             try {
                 mqAdmin.shutdown();
             } catch (Exception e) {
-                log.warn("MQAdminExt shutdown err", e);
+                logger.warn("MQAdminExt shutdown err", e);
             }
         }
-        log.info("destroy object {}", p.getObject());
+        logger.info("destroy object {}", p.getObject());
     }
 
     @Override
@@ -45,7 +45,7 @@ public class MQAdminPooledObjectFactory implements PooledObjectFactory<MQAdminEx
         try {
             clusterInfo = mqAdmin.examineBrokerClusterInfo();
         } catch (Exception e) {
-            log.warn("validate object {} err", p.getObject(), e);
+            logger.warn("validate object {} err", p.getObject(), e);
         }
         if (clusterInfo == null || MapUtils.isEmpty(clusterInfo.getBrokerAddrTable())) {
             log.warn("validateObject failed, clusterInfo = {}", clusterInfo);

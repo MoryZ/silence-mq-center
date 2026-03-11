@@ -17,7 +17,7 @@ import java.util.concurrent.atomic.AtomicReference;
 @Service
 public class ClusterInfoService {
 
-    private static final Logger log = LoggerFactory.getLogger(ClusterInfoService.class);
+    private static final Logger logger = LoggerFactory.getLogger(ClusterInfoService.class);
     private final MQAdminExt mqAdminExt;
 
     @Value("${rocketmq.cluster.cache.expire:60000}")
@@ -49,7 +49,7 @@ public class ClusterInfoService {
             cachedRef.set(fresh);
             return fresh;
         } catch (Exception e) {
-            log.warn("Refresh cluster info failed", e);
+            logger.warn("Refresh cluster info failed", e);
             ClusterInfo old = cachedRef.get();
             if (old != null) {
                 return old;

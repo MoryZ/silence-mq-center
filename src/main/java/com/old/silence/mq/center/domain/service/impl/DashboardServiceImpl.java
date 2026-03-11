@@ -42,10 +42,19 @@ public class DashboardServiceImpl implements DashboardService {
      */
     @Override
     public List<String> queryTopicData(String date, String topicName) {
-        if (null != dashboardCollectService.getTopicCache(date)) {
-            return dashboardCollectService.getTopicCache(date).get(topicName);
+        org.apache.commons.lang3.Preconditions.checkArgument(
+            org.apache.commons.lang3.StringUtils.isNotEmpty(date),
+            "date must not be empty"
+        );
+        org.apache.commons.lang3.Preconditions.checkArgument(
+            org.apache.commons.lang3.StringUtils.isNotEmpty(topicName),
+            "topicName must not be empty"
+        );
+        Map<String, List<String>> cache = dashboardCollectService.getTopicCache(date);
+        if (cache != null) {
+            return cache.get(topicName);  // 可能返回 null，但这是合理的
         }
-        return null;
+        return null;  // 合理的返回值，调用方应检查
     }
 
     @Override
@@ -53,10 +62,20 @@ public class DashboardServiceImpl implements DashboardService {
         Date date = new Date();
         DateFormat format = new SimpleDateFormat("yyyy-MM-dd");
         Map<String, List<String>> topicCache = dashboardCollectService.getTopicCache(format.format(date));
+        // ✅ 防守性检查：cache 可能为 null
+        if (topicCache == null || topicCache.isEmpty()) {
+            return new ArrayList<>();  // 返回空列表而不是 null
+        }
         List<String> result = new ArrayList<>();
         for (Map.Entry<String, List<String>> entry : topicCache.entrySet()) {
             List<String> value = entry.getValue();
-            result.add(entry.getKey() + "," + value.get(value.size() - 1).split(",")[4]);
+            // ✅ 防守性检查：value 可能为 null 或空
+            if (value != null && !value.isEmpty()) {
+                String[] data = value.get(value.size() - 1).split(",");
+                if (data.length > 4) {
+                    result.add(entry.getKey() + "," + data[4]);
+                }
+            }
         }
         return result;
     }

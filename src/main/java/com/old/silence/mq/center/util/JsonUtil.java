@@ -48,7 +48,7 @@ public class JsonUtil {
 
     public static <T> String obj2String(T src) {
         if (src == null) {
-            return null;
+            return "";
         }
 
         try {
@@ -56,13 +56,13 @@ public class JsonUtil {
         }
         catch (Exception e) {
             logger.error("Parse Object to String error src=" + src, e);
-            return null;
+            return "";
         }
     }
 
     public static <T> byte[] obj2Byte(T src) {
         if (src == null) {
-            return null;
+            return new byte[0];
         }
 
         try {
@@ -70,13 +70,13 @@ public class JsonUtil {
         }
         catch (Exception e) {
             logger.error("Parse Object to byte[] error", e);
-            return null;
+            return new byte[0];
         }
     }
 
     public static <T> T string2Obj(String str, Class<T> clazz) {
         if (Strings.isNullOrEmpty(str) || clazz == null) {
-            return null;
+            return null;  // For deserialization, null is appropriate for null inputs
         }
         str = escapesSpecialChar(str);
         try {
@@ -84,7 +84,7 @@ public class JsonUtil {
         }
         catch (Exception e) {
             logger.error("Parse String to Object error\nString: {}\nClass<T>: {}\nError: {}", str, clazz.getName(), e);
-            return null;
+            return null;  // Return null for deserialization errors (objects cannot be empty)
         }
     }
 

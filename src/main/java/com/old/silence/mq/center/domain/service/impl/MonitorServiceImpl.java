@@ -76,15 +76,25 @@ public class MonitorServiceImpl implements MonitorService {
     }
 
     @PostConstruct
-    private void loadData() throws IOException {
-        String content = MixAll.file2String(getConsumerMonitorConfigDataPath());
-        if (content == null) {
-            content = MixAll.file2String(getConsumerMonitorConfigDataPathBackUp());
+    private void loadData() {
+        try {
+            String content = MixAll.file2String(getConsumerMonitorConfigDataPath());
+            if (content == null) {
+                content = MixAll.file2String(getConsumerMonitorConfigDataPathBackUp());
+            }
+            if (content == null) {
+                logger.info("No consumer monitor config file found, using empty map");
+                return;
+            }
+            ConcurrentHashMap<String, ConsumerMonitorConfig> loadedMap = JsonUtil.string2Obj(content, new TypeReference<ConcurrentHashMap<String, ConsumerMonitorConfig>>() {
+            });
+            if (loadedMap != null) {
+                configMap = loadedMap;
+            }
         }
-        if (content == null) {
-            return;
+        catch (Exception e) {
+            logger.error("Failed to load consumer monitor config from file, using empty map", e);
+            configMap = new ConcurrentHashMap<>();
         }
-        configMap = JsonUtil.string2Obj(content, new TypeReference<ConcurrentHashMap<String, ConsumerMonitorConfig>>() {
-        });
     }
 }
