@@ -1,8 +1,7 @@
 package com.old.silence.mq.center.domain.repository;
 
 import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Select;
-import org.springframework.data.repository.query.Param;
+import org.apache.ibatis.annotations.Param;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.old.silence.mq.center.domain.model.permission.PermissionRequest;
 
@@ -18,25 +17,21 @@ public interface PermissionRequestRepository extends BaseMapper<PermissionReques
     /**
      * 查询用户的所有权限申请
      */
-    @Select("SELECT pr FROM PermissionRequest pr WHERE pr.userId = :userId ORDER BY pr.createdTime DESC")
     List<PermissionRequest> findByUserId(@Param("userId") BigInteger userId);
 
     /**
      * 查询指定 Topic 的所有申请
      */
-    @Select("SELECT pr FROM PermissionRequest pr WHERE pr.topicId = :topicId ORDER BY pr.createdTime DESC")
     List<PermissionRequest> findByTopicId(@Param("topicId") BigInteger topicId);
 
     /**
      * 查询所有待审批的申请
      */
-    @Select("SELECT pr FROM PermissionRequest pr WHERE pr.status = 'PENDING' ORDER BY pr.createdTime ASC")
     List<PermissionRequest> findAllPending();
 
     /**
      * 查询用户在指定 Topic 上的申请
      */
-    @Select("SELECT pr FROM PermissionRequest pr WHERE pr.userId = :userId AND pr.topicId = :topicId AND pr.permissionCode = :permissionCode")
     List<PermissionRequest> findUserTopicPermissionRequest(
             @Param("userId") BigInteger userId,
             @Param("topicId") BigInteger topicId,
@@ -46,7 +41,6 @@ public interface PermissionRequestRepository extends BaseMapper<PermissionReques
     /**
      * 查询用户指定权限已批准的申请
      */
-    @Select("SELECT pr FROM PermissionRequest pr WHERE pr.userId = :userId AND pr.permissionCode = :permissionCode AND pr.status = 'APPROVED' AND (pr.expireTime IS NULL OR pr.expireTime > NOW())")
     List<PermissionRequest> findApprovedRequests(
             @Param("userId") BigInteger userId,
             @Param("permissionCode") String permissionCode
@@ -55,6 +49,5 @@ public interface PermissionRequestRepository extends BaseMapper<PermissionReques
     /**
      * 查询指定状态的申请
      */
-    @Select("SELECT pr FROM PermissionRequest pr WHERE pr.status = :status ORDER BY pr.createdTime DESC")
     List<PermissionRequest> findByStatus(@Param("status") String status);
 }

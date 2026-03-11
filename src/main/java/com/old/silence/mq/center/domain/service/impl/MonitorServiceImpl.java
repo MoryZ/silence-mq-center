@@ -9,6 +9,7 @@ import com.old.silence.mq.center.domain.service.facade.RocketMQClientFacade;
 import com.old.silence.mq.center.domain.service.helper.MonitorConfigHelper;
 
 import javax.annotation.PostConstruct;
+import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -66,6 +67,19 @@ public class MonitorServiceImpl implements MonitorService {
     private void loadData() throws IOException {
         String primaryPath = getConsumerMonitorConfigDataPath();
         String backupPath = getConsumerMonitorConfigDataPathBackUp();
+
+        File primaryFile = new File(primaryPath);
+        File backupFile = new File(backupPath);
+
+        // 首次启动时主备文件都不存在，初始化空配置文件，避免无意义告警。
+        if (!primaryFile.exists() && !backupFile.exists()) {
+            File parent = primaryFile.getParentFile();
+            if (parent != null && !parent.exists()) {
+                parent.mkdirs();
+            }
+            MonitorConfigHelper.writeToFile(primaryPath, configMap);
+            return;
+        }
 
         ConcurrentHashMap<String, ConsumerMonitorConfig> loadedMap =
                 MonitorConfigHelper.loadFromFile(

@@ -24,7 +24,7 @@ import com.old.silence.mq.center.domain.model.permission.dto.UserPermissionDTO;
 import com.old.silence.mq.center.domain.service.permission.PermissionService;
 import com.old.silence.mq.center.exception.ServiceException;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import java.math.BigInteger;
 import java.util.List;
 import java.util.stream.Collectors;

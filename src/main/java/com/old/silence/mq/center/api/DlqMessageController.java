@@ -19,7 +19,7 @@ import com.old.silence.mq.center.domain.model.request.MessageQuery;
 import com.old.silence.mq.center.domain.service.DlqMessageService;
 import com.old.silence.mq.center.exception.ServiceException;
 
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
 import java.util.List;
 

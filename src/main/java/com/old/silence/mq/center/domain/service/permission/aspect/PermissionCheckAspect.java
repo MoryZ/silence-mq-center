@@ -13,7 +13,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 import com.old.silence.mq.center.domain.service.permission.PermissionService;
 import com.old.silence.mq.center.domain.service.permission.annotation.RequirePermission;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import java.lang.reflect.Method;
 import java.math.BigInteger;
 

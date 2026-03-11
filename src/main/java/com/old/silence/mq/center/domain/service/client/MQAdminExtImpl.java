@@ -448,17 +448,6 @@ public class MQAdminExtImpl implements MQAdminExt {
         return queryWithMQAdminImpl(topic, msgId);
     }
 
-    @Override
-    public MessageExt viewMessage(String offsetMsgId) throws RemotingException, MQBrokerException, InterruptedException, MQClientException {
-        logger.info("Querying message by offsetMsgId: {}", offsetMsgId);
-        try {
-            return MQAdminInstance.threadLocalMQAdminExt().viewMessage(offsetMsgId);
-        } catch (Exception e) {
-            logger.error("Failed to query message by offsetMsgId: {}, error: {}", offsetMsgId, e.getMessage());
-            throw e;
-        }
-    }
-
     /**
      * 使用MQAdminExt查询消息
      */
