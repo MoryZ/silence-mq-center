@@ -1,0 +1,27 @@
+spring:
+  application:
+    name: silence-mq-center
+
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/silence-platform?allowPublicKeyRetrieval=true&useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=false
+    username: root
+    password: silenceopr@2026
+    type: com.zaxxer.hikari.HikariDataSource
+    hikari:
+      connection-timeout: 30000
+      minimum-idle: 10
+      maximum-pool-size: 100
+      auto-commit: true
+      idle-timeout: 600000
+      max-lifetime: 1200000
+      pool-name: silence_mq_center_pool
+      connection-test-query: SELECT 1
+      validation-timeout: 5000
+      leak-detection-threshold: 60000
+      keepalive-time: 30000
+
+# Override platform default (classpath:/mapper/**/*Mapper.xml) to also pick up *Repository.xml naming
+mybatis-plus:
+  mapper-locations: classpath:mapper/*.xml
+
