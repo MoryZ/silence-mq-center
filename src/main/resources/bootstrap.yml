@@ -1,6 +1,13 @@
 spring:
   application:
-    name: silence-mq-center
+    name: mq-service
+
+  cloud:
+    nacos:
+      discovery:
+        server-addr: localhost:8848
+        username: nacos
+        password: nacos
 
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
