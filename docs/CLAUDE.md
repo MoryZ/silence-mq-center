@@ -4,15 +4,43 @@
 
 本项目是一个基于 Spring Boot 的 RocketMQ 管理控制台，提供消息队列的监控、管理和运维功能。
 
+## 协作风格补充约定
+
+以下约定用于保证后续代码风格一致，优先级高于通用建议：
+
+1. 资源层命名
+- API 层命名优先使用 `XxxResource`，不优先使用 `XxxController`。
+
+2. 参数建模规则
+- 3 到 4 个以内且全部必填参数，可以使用 `@RequestParam`。
+- 参数超过 4 个，或者存在任一非必填参数，统一使用查询对象。
+- 必填字段在查询对象上使用 `@NotBlank`、`@NotNull` 等注解表达。
+- 不推荐使用 `@RequestParam(required = false)` 作为参数设计手段。
+
+3. 查询扩展原则
+- 查询能力优先使用 Query 对象 + QueryWrapper 转换模式。
+- 在相同路径下通过 `params` 进行路由分流属于有效的 REST 语义策略。
+
+4. 集合与空集合风格
+- 不推荐 `Lists.newArrayList()`。
+- 默认优先使用 JDK 集合写法，如 `new ArrayList<>()`、`List.of()`。
+- 空集合优先使用 `List.of()`，不优先使用 `Collections.emptyList()`。
+
+5. JSON 工具约定
+- 优先使用项目现有 `JacksonMapper`，不新增 `JsonUtil` 风格依赖。
+
+6. 文档定位
+- 本项目规范以“项目内一致性”为目标，不将本项目描述为通用最佳实践模板。
+
 ## 架构模式
 
 ### 分层架构
 
 项目采用经典的三层架构模式：
 
-#### 1. Controller层（API层）
+#### 1. Resource层（API层）
 - **职责**：处理HTTP请求，参数校验，调用Service层，返回响应
-- **命名规范**：`XxxController`
+- **命名规范**：`XxxResource`
 - **路径规范**：`/api/v1/{module}`
 - **示例**：[ConsumerController](../src/main/java/com/old/silence/mq/center/api/ConsumerController.java)
 
@@ -20,15 +48,15 @@
 ```java
 @RestController
 @RequestMapping("/api/v1/consumer")
-public class ConsumerController {
+public class ConsumerResource {
     private final ConsumerService consumerService;
 
-    public ConsumerController(ConsumerService consumerService) {
+    public ConsumerResource(ConsumerService consumerService) {
         this.consumerService = consumerService;
     }
 
     @GetMapping(value = "/groupList")
-    public List<GroupConsumeInfo> list(@RequestParam(required = false) boolean skipSysGroup, String address) {
+    public List<GroupConsumeInfo> list(@RequestParam boolean skipSysGroup, String address) {
         return consumerService.queryGroupList(skipSysGroup, address);
     }
 }
@@ -37,8 +65,8 @@ public class ConsumerController {
 **关键点**：
 - 使用构造器注入依赖（推荐），避免 `@Autowired` 字段注入
 - 方法返回具体类型，避免返回 `Object`
-- 使用 `@RequestParam` 明确指定参数是否必填
-- 使用 `@RequestBody` 处理复杂请求体
+- 参数规则优先遵循“少量必填用 `@RequestParam`，其余用查询对象”
+- 查询对象的必填字段用 Bean Validation 注解显式表达
 
 #### 2. Service层（业务逻辑层）
 - **职责**：封装业务逻辑，调用MQAdminExt等客户端API，处理异常
@@ -234,8 +262,8 @@ ClusterInfo clusterInfo = mqAdminExt.examineBrokerClusterInfo();
 // Maps 工具类
 Map<String, Object> resultMap = Maps.newHashMap();
 
-// Lists 工具类
-List<String> list = Lists.newArrayList();
+// 集合创建优先 JDK 写法
+List<String> list = new ArrayList<>();
 
 // LoadingCache 缓存
 LoadingCache<String, List<String>> cache = CacheBuilder.newBuilder()
@@ -244,7 +272,7 @@ LoadingCache<String, List<String>> cache = CacheBuilder.newBuilder()
     .build(new CacheLoader<String, List<String>>() {
         @Override
         public List<String> load(String key) {
-            return Collections.emptyList();
+            return List.of();
         }
     });
 
@@ -254,9 +282,9 @@ Throwables.throwIfUnchecked(e);
 
 #### 3. Jackson (JSON处理)
 ```java
-// 通过 JsonUtil 工具类统一处理
-String json = JsonUtil.obj2String(object);
-Object obj = JsonUtil.str2Obj(json, Object.class);
+// 通过 JacksonMapper 统一处理
+String json = JacksonMapper.getSharedInstance().toJson(object);
+Object obj = JacksonMapper.getSharedInstance().fromJson(json, Object.class);
 ```
 
 #### 4. Commons Collections
@@ -273,18 +301,18 @@ StringUtils.isNotEmpty(str)
 
 ### 工具类使用
 
-#### JsonUtil
-参考：[JsonUtil](../src/main/java/com/old/silence/mq/center/util/JsonUtil.java)
+#### JacksonMapper
+参考：`com.old.silence.json.JacksonMapper`
 
 ```java
 // 对象转JSON
-String json = JsonUtil.obj2String(object);
+String json = JacksonMapper.getSharedInstance().toJson(object);
 
 // JSON转对象
-MyObject obj = JsonUtil.str2Obj(json, MyObject.class);
+MyObject obj = JacksonMapper.getSharedInstance().fromJson(json, MyObject.class);
 
 // JSON转集合
-Map<String, Object> map = JsonUtil.str2Obj(json, new TypeReference<Map<String, Object>>() {});
+Map<String, Object> map = JacksonMapper.getSharedInstance().fromJson(json, Map.class);
 ```
 
 ## 开发红线

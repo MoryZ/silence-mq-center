@@ -13,15 +13,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import com.google.common.base.Preconditions;
-import com.old.silence.mq.center.domain.model.ConnectionInfo;
-import com.old.silence.mq.center.domain.model.ConsumerGroupRollBackStat;
-import com.old.silence.mq.center.domain.model.GroupConsumeInfo;
-import com.old.silence.mq.center.domain.model.TopicConsumerInfo;
-import com.old.silence.mq.center.domain.model.request.ConsumerConfigInfo;
-import com.old.silence.mq.center.domain.model.request.DeleteSubGroupRequest;
-import com.old.silence.mq.center.domain.model.request.ResetOffsetRequest;
+import com.old.silence.json.JacksonMapper;
+import com.old.silence.mq.center.dto.ConnectionInfo;
+import com.old.silence.mq.center.dto.ConsumerGroupRollBackStat;
+import com.old.silence.mq.center.dto.GroupConsumeInfo;
+import com.old.silence.mq.center.dto.TopicConsumerInfo;
+import com.old.silence.mq.center.dto.ConsumerConfigInfo;
+import com.old.silence.mq.center.dto.DeleteSubGroupRequest;
+import com.old.silence.mq.center.dto.ResetOffsetRequest;
 import com.old.silence.mq.center.domain.service.ConsumerService;
-import com.old.silence.mq.center.util.JsonUtil;
 
 import java.util.List;
 import java.util.Map;
@@ -33,74 +33,76 @@ public class ConsumerController {
     private final Logger logger = LoggerFactory.getLogger(ConsumerController.class);
 
     private final ConsumerService consumerService;
+    private final JacksonMapper jacksonMapper;
 
-    public ConsumerController(ConsumerService consumerService) {
+    public ConsumerController(ConsumerService consumerService, JacksonMapper jacksonMapper) {
         this.consumerService = consumerService;
+        this.jacksonMapper = jacksonMapper;
     }
 
     @GetMapping(value = "/groupList")
-    public List<GroupConsumeInfo> list(@RequestParam(value = "skipSysGroup", required = false) boolean skipSysGroup, String address) {
+    public List<GroupConsumeInfo> list(@RequestParam(value = "skipSysGroup", required = false) boolean skipSysGroup, String address) throws Exception {
         return consumerService.queryGroupList(skipSysGroup, address);
     }
 
     @GetMapping(value = "/group/refresh")
     public GroupConsumeInfo refresh(String address,
-                                    String consumerGroup) {
+                                    String consumerGroup) throws Exception {
         return consumerService.refreshGroup(address, consumerGroup);
     }
 
     @GetMapping(value = "/group/refreshAll")
-    public List<GroupConsumeInfo> refreshAll(String address) {
+    public List<GroupConsumeInfo> refreshAll(String address) throws Exception {
         return consumerService.refreshAllGroup(address);
     }
 
     @GetMapping(value = "/group")
-    public GroupConsumeInfo groupQuery(@RequestParam String consumerGroup, String address) {
+    public GroupConsumeInfo groupQuery(@RequestParam String consumerGroup, String address) throws Exception {
         return consumerService.queryGroup(consumerGroup, address);
     }
 
     @PostMapping(value = "/resetOffset")
-    public Map<String, ConsumerGroupRollBackStat> resetOffset(@RequestBody ResetOffsetRequest resetOffsetRequest) {
-        logger.info("op=look resetOffsetRequest:{}", JsonUtil.obj2String(resetOffsetRequest));
+    public Map<String, ConsumerGroupRollBackStat> resetOffset(@RequestBody ResetOffsetRequest resetOffsetRequest) throws Exception {
+        logger.info("op=look resetOffsetRequest:{}", jacksonMapper.toJson(resetOffsetRequest));
         return consumerService.resetOffset(resetOffsetRequest);
     }
 
     @PostMapping(value = "/skipAccumulate")
-    public Map<String, ConsumerGroupRollBackStat> skipAccumulate(@RequestBody ResetOffsetRequest resetOffsetRequest) {
-        logger.info("op=look resetOffsetRequest:{}", JsonUtil.obj2String(resetOffsetRequest));
+    public Map<String, ConsumerGroupRollBackStat> skipAccumulate(@RequestBody ResetOffsetRequest resetOffsetRequest) throws Exception {
+        logger.info("op=look resetOffsetRequest:{}", jacksonMapper.toJson(resetOffsetRequest));
         return consumerService.resetOffset(resetOffsetRequest);
     }
 
     @GetMapping(value = "/examineSubscriptionGroupConfig")
-    public List<ConsumerConfigInfo> examineSubscriptionGroupConfig(@RequestParam String consumerGroup) {
+    public List<ConsumerConfigInfo> examineSubscriptionGroupConfig(@RequestParam String consumerGroup) throws Exception {
         return consumerService.examineSubscriptionGroupConfig(consumerGroup);
     }
 
     @DeleteMapping(value = "/deleteSubGroup")
-    public Boolean deleteSubGroup(@RequestBody DeleteSubGroupRequest deleteSubGroupRequest) {
+    public Boolean deleteSubGroup(@RequestBody DeleteSubGroupRequest deleteSubGroupRequest) throws Exception {
         consumerService.deleteSubGroup(deleteSubGroupRequest);
         return true;
     }
 
     @PostMapping(value = "/createOrUpdate")
-    public Boolean consumerCreateOrUpdateRequest(@RequestBody ConsumerConfigInfo consumerConfigInfo) {
+    public Boolean consumerCreateOrUpdateRequest(@RequestBody ConsumerConfigInfo consumerConfigInfo) throws Exception {
         Preconditions.checkArgument(CollectionUtils.isNotEmpty(consumerConfigInfo.getBrokerNameList()) || CollectionUtils.isNotEmpty(consumerConfigInfo.getClusterNameList()),
                 "clusterName or brokerName can not be all blank");
         return consumerService.createAndUpdateSubscriptionGroupConfig(consumerConfigInfo);
     }
 
     @GetMapping(value = "/fetchBrokerNameList")
-    public Set<String> fetchBrokerNameList(@RequestParam String consumerGroup) {
+    public Set<String> fetchBrokerNameList(@RequestParam String consumerGroup) throws Exception {
         return consumerService.fetchBrokerNameSetBySubscriptionGroup(consumerGroup);
     }
 
     @GetMapping(value = "/queryTopicByConsumer")
-    public List<TopicConsumerInfo> queryConsumerByTopic(@RequestParam String consumerGroup, String address) {
+    public List<TopicConsumerInfo> queryConsumerByTopic(@RequestParam String consumerGroup, String address) throws Exception {
         return consumerService.queryConsumeStatsListByGroupName(consumerGroup, address);
     }
 
     @GetMapping(value = "/consumerConnection")
-    public ConsumerConnection consumerConnection(@RequestParam(required = false) String consumerGroup, String address) {
+    public ConsumerConnection consumerConnection(@RequestParam(required = false) String consumerGroup, String address) throws Exception {
         ConsumerConnection consumerConnection = consumerService.getConsumerConnection(consumerGroup, address);
         consumerConnection.setConnectionSet(ConnectionInfo.buildConnectionInfoHashSet(consumerConnection.getConnectionSet()));
         return consumerConnection;
@@ -108,7 +110,7 @@ public class ConsumerController {
 
     @GetMapping(value = "/consumerRunningInfo")
     public ConsumerRunningInfo getConsumerRunningInfo(@RequestParam String consumerGroup, @RequestParam String clientId,
-                                                      @RequestParam boolean jstack) {
+                                                      @RequestParam boolean jstack) throws Exception {
         return consumerService.getConsumerRunningInfo(consumerGroup, clientId, jstack);
     }
 }

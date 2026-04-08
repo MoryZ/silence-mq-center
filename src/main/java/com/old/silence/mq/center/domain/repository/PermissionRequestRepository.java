@@ -3,7 +3,8 @@ package com.old.silence.mq.center.domain.repository;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.old.silence.mq.center.domain.model.permission.PermissionRequest;
+import com.old.silence.data.mybatis.projection.ProjectionMapperRepository;
+import com.old.silence.mq.center.domain.model.PermissionRequest;
 
 import java.math.BigInteger;
 import java.util.List;
@@ -12,7 +13,7 @@ import java.util.List;
  * 权限申请 Repository
  */
 @Mapper
-public interface PermissionRequestRepository extends BaseMapper<PermissionRequest> {
+public interface PermissionRequestRepository extends ProjectionMapperRepository<PermissionRequest, BigInteger> {
 
     /**
      * 查询用户的所有权限申请

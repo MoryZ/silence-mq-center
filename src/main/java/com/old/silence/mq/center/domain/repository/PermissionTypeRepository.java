@@ -1,18 +1,17 @@
 package com.old.silence.mq.center.domain.repository;
 
-import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
-import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.old.silence.mq.center.domain.model.permission.PermissionType;
+import com.old.silence.data.mybatis.projection.ProjectionMapperRepository;
+import com.old.silence.mq.center.domain.model.PermissionType;
 
+import java.math.BigInteger;
 import java.util.List;
 import java.util.Optional;
 
 /**
  * 权限类型 Repository
  */
-@Mapper
-public interface PermissionTypeRepository extends BaseMapper<PermissionType> {
+public interface PermissionTypeRepository extends ProjectionMapperRepository<PermissionType, BigInteger> {
 
     /**
      * 根据权限代码查找权限类型

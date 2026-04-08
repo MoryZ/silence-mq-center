@@ -1,42 +1,82 @@
 package com.old.silence.mq.center.domain.service;
 
-import org.apache.rocketmq.client.producer.SendResult;
+import java.math.BigInteger;
+
 import org.apache.rocketmq.common.TopicConfig;
-import org.apache.rocketmq.remoting.protocol.admin.TopicStatsTable;
-import org.apache.rocketmq.remoting.protocol.body.GroupList;
-import org.apache.rocketmq.remoting.protocol.body.TopicList;
-import org.apache.rocketmq.remoting.protocol.route.TopicRouteData;
-import com.old.silence.mq.center.domain.model.request.SendTopicMessageRequest;
-import com.old.silence.mq.center.domain.model.request.TopicConfigInfo;
-import com.old.silence.mq.center.domain.model.request.TopicTypeList;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.old.silence.core.exception.ResourceNotFoundException;
+import com.old.silence.mq.center.exception.ServiceException;
+import com.old.silence.mq.center.domain.model.Topic;
+import com.old.silence.mq.center.domain.repository.TopicRepository;
 
-public interface TopicService {
-    TopicList fetchAllTopicList(boolean skipSysProcess, boolean skipRetryAndDlq);
+@Service
+public class TopicService {
 
-    TopicTypeList examineAllTopicType();
+    private final MQAdminService mqAdminService;
+    private final TopicRepository topicRepository;
 
-    TopicStatsTable stats(String topic);
+    public TopicService(MQAdminService mqAdminService, TopicRepository topicRepository) {
+        this.mqAdminService = mqAdminService;
+        this.topicRepository = topicRepository;
+    }
 
-    TopicRouteData route(String topic);
+    public IPage<Topic> queryTopicPage(QueryWrapper<Topic> queryWrapper, Page<Topic> page) {
+        return topicRepository.findByQuery(queryWrapper, page, Topic.class);
+    }
 
-    GroupList queryTopicConsumerInfo(String topic);
+    @Transactional(rollbackFor = Exception.class)
+    public BigInteger create(Topic topic) {
+        try {
+            topicRepository.insert(topic);
+            createAndUpdateTopicConfig(topic);
+            return topic.getId();
+        } catch (Exception e) {
+            throw new ServiceException(500, "Create topic failed: " + e.getMessage());
+        }
+    }
 
-    void createOrUpdate(TopicConfigInfo topicCreateOrUpdateRequest);
+    private void createAndUpdateTopicConfig(Topic topic) throws Exception {
+        mqAdminService.executeVoid(admin -> {
+            TopicConfig topicConfig = new TopicConfig(topic.getTopicName());
+            topicConfig.setReadQueueNums(topic.getReadQueueNums());
+            topicConfig.setWriteQueueNums(topic.getWriteQueueNums());
+            // RocketMQ 5.3.1 必须设置消息类型
+            topicConfig.getAttributes().put("+message.type", topic.getMessageType());
+            admin.createAndUpdateTopicConfig(topic.getBrokerAddr(), topicConfig);
+        });
+    }
 
-    TopicConfig examineTopicConfig(String topic, String brokerName);
 
-    List<TopicConfigInfo> examineTopicConfig(String topic);
+    @Transactional(rollbackFor = Exception.class)
+    public int update(Topic topic) {
+        try {
+            int affected = topicRepository.update(topic);
+            createAndUpdateTopicConfig(topic);
+            return affected;
+        } catch (Exception e) {
+            throw new ServiceException(500, "Update topic failed: " + e.getMessage());
+        }
+    }
 
-    boolean deleteTopic(String topic, String clusterName);
-
-    boolean deleteTopic(String topic);
-
-    boolean deleteTopicInBroker(String brokerName, String topic);
-
-    SendResult sendTopicMessageRequest(SendTopicMessageRequest sendTopicMessageRequest);
-
-    boolean refreshTopicList();
-
+    @Transactional(rollbackFor = Exception.class)
+    public int delete(BigInteger id) {
+        var optionalTopic = topicRepository.findById(id);
+        if (optionalTopic.isEmpty()) {
+            throw new ResourceNotFoundException();
+        }
+        try {
+            int affected = topicRepository.deleteById(id);
+            mqAdminService.executeVoid(admin ->
+                admin.deleteTopic(optionalTopic.get().getTopicName(), optionalTopic.get().getBrokerAddr())
+            );
+            return affected;
+        } catch (Exception e) {
+            throw new ServiceException(500, "Delete topic failed: " + e.getMessage());
+        }
+    }
 }

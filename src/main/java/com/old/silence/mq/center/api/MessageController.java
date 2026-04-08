@@ -1,8 +1,6 @@
 package com.old.silence.mq.center.api;
 
-import org.apache.rocketmq.common.Pair;
 import org.apache.rocketmq.remoting.protocol.body.ConsumeMessageDirectlyResult;
-import org.apache.rocketmq.tools.admin.api.MessageTrack;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -10,12 +8,12 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import com.google.common.collect.Maps;
-import com.old.silence.mq.center.domain.model.MessagePage;
-import com.old.silence.mq.center.domain.model.MessageView;
-import com.old.silence.mq.center.domain.model.request.MessageQuery;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.old.silence.json.JacksonMapper;
+import com.old.silence.mq.center.dto.MessagePage;
+import com.old.silence.mq.center.dto.MessageView;
+import com.old.silence.mq.center.dto.MessageQuery;
 import com.old.silence.mq.center.domain.service.MessageService;
-import com.old.silence.mq.center.util.JsonUtil;
 
 import java.util.List;
 import java.util.Map;
@@ -31,12 +29,8 @@ public class MessageController {
     }
 
     @GetMapping(value = "/viewMessage")
-    public Map<String, Object> viewMessage(@RequestParam(required = false) String topic, @RequestParam String msgId) {
-        Map<String, Object> messageViewMap = Maps.newHashMap();
-        Pair<MessageView, List<MessageTrack>> messageViewListPair = messageService.viewMessage(topic, msgId);
-        messageViewMap.put("messageView", messageViewListPair.getObject1());
-        messageViewMap.put("messageTrackList", messageViewListPair.getObject2());
-        return messageViewMap;
+    public Map<String, Object> viewMessage(@RequestParam String topic, @RequestParam String msgId) throws Exception {
+        return messageService.viewMessage(topic, msgId);
     }
 
     @GetMapping("/queryMessagePageByTopic")
@@ -45,23 +39,23 @@ public class MessageController {
     }
 
     @GetMapping(value = "/queryMessageByTopicAndKey")
-    public List<MessageView> queryMessageByTopicAndKey(@RequestParam String topic, @RequestParam String key) {
+    public List<MessageView> queryMessageByTopicAndKey(@RequestParam String topic, @RequestParam String key) throws Exception {
         return messageService.queryMessageByTopicAndKey(topic, key);
     }
 
     @GetMapping(value = "/queryMessageByTopic")
     public List<MessageView> queryMessageByTopic(@RequestParam String topic, @RequestParam long begin,
-                                                 @RequestParam long end) {
+                                                 @RequestParam long end) throws Exception {
         return messageService.queryMessageByTopic(topic, begin, end);
     }
 
     @PostMapping(value = "/consumeMessageDirectly")
     public ConsumeMessageDirectlyResult consumeMessageDirectly(@RequestParam String topic, @RequestParam String consumerGroup,
                                                                @RequestParam String msgId,
-                                                               @RequestParam(required = false) String clientId) {
+                                                               @RequestParam(required = false) String clientId) throws Exception {
         logger.info("msgId={} consumerGroup={} clientId={}", msgId, consumerGroup, clientId);
         ConsumeMessageDirectlyResult consumeMessageDirectlyResult = messageService.consumeMessageDirectly(topic, msgId, consumerGroup, clientId);
-        logger.info("consumeMessageDirectlyResult={}", JsonUtil.obj2String(consumeMessageDirectlyResult));
+        logger.info("consumeMessageDirectlyResult={}", JacksonMapper.getSharedInstance().toJson(consumeMessageDirectlyResult));
         return consumeMessageDirectlyResult;
     }
 }

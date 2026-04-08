@@ -3,6 +3,7 @@ package com.old.silence.mq.center.api;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -26,14 +27,12 @@ public class ProxyController {
     }
 
     @PostMapping(value = "/addProxyAddr")
-    public Boolean addProxyAddr(@RequestParam String newProxyAddr) {
-        proxyService.addProxyAddrList(newProxyAddr);
-        return true;
+    public int addProxyAddr(@RequestParam String newProxyAddr) {
+        return proxyService.addProxyNode(newProxyAddr);
     }
 
-    @PostMapping(value = "/updateProxyAddr")
-    public Boolean updateProxyAddr(@RequestParam String proxyAddr) {
-        proxyService.updateProxyAddrList(proxyAddr);
-        return true;
+    @PutMapping(value = "/updateProxyAddr")
+    public int updateProxyAddr(@RequestParam String proxyAddr) {
+        return proxyService.updateProxyAddrList(proxyAddr);
     }
 }

@@ -1,42 +1,20 @@
 package com.old.silence.mq.center.domain.repository;
 
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Param;
-import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.old.silence.mq.center.domain.model.permission.Topic;
+import org.apache.ibatis.annotations.Select;
+import com.old.silence.data.mybatis.projection.ProjectionMapperRepository;
+import com.old.silence.mq.center.domain.model.Topic;
 
 import java.math.BigInteger;
-import java.util.List;
-import java.util.Optional;
 
 /**
  * Topic Repository
  */
-@Mapper
-public interface TopicRepository extends BaseMapper<Topic> {
+public interface TopicRepository extends ProjectionMapperRepository<Topic, BigInteger> {
 
-    /**
-     * 根据 Topic 名称查找
-     */
-    Optional<Topic> findByTopicName(@Param("topicName") String topicName);
-
-    /**
-     * 查询指定集群下的所有 Topic
-     */
-    List<Topic> findByClusterName(@Param("clusterName") String clusterName);
-
-    /**
-     * 查询指定所有者的所有 Topic
-     */
-    List<Topic> findByOwnerId(@Param("ownerId") BigInteger ownerId);
-
-    /**
-     * 查询所有非系统 Topic
-     */
-    List<Topic> findAllUserTopics();
 
     /**
      * 检查 Topic 是否存在
      */
-    boolean existsByTopicName(@Param("topicName") String topicName);
+    @Select("SELECT 1 FROM rmq_topic WHERE topic_name = #{topicName}")
+    boolean existsByTopicName(String topicName);
 }

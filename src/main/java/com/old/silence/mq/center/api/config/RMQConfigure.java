@@ -1,69 +1,47 @@
 package com.old.silence.mq.center.api.config;
 
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.rocketmq.common.MixAll;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.boot.web.server.ErrorPage;
-import org.springframework.boot.web.server.ErrorPageRegistrar;
-import org.springframework.boot.web.server.ErrorPageRegistry;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpStatus;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-
-import static org.apache.rocketmq.client.ClientConfig.SEND_MESSAGE_WITH_VIP_CHANNEL_PROPERTY;
-
-@Configuration
-@ConfigurationProperties(prefix = "rocketmq.config")
+/**
+ * RocketMQ 配置管理
+ * @author moryzang
+ */
+@Component
 public class RMQConfigure {
 
-    private final Logger logger = LoggerFactory.getLogger(RMQConfigure.class);
-    //use rocketmq.namesrv.addr first,if it is empty,than use system property or system env
-    private volatile String namesrvAddr = System.getProperty(MixAll.NAMESRV_ADDR_PROPERTY, System.getenv(MixAll.NAMESRV_ADDR_ENV));
+    @Value("${rocketmq.dashboard.datapath:./data}")
+    private String dataPath;
 
-    private volatile String proxyAddr;
+    @Value("${rocketmq.acl.enable:false}")
+    private Boolean aclEnabled;
 
-    private volatile String isVIPChannel = System.getProperty(SEND_MESSAGE_WITH_VIP_CHANNEL_PROPERTY, "true");
+    @Value("${rocketmq.namesrv.addr:127.0.0.1:9876}")
+    private String namesrvAddr;
 
-
-    private String dataPath = "/tmp/rocketmq-console/data";
-
-    private boolean enableDashBoardCollect;
-
-    private boolean loginRequired = false;
-
+    @Value("${rocketmq.acl.access-key:}")
     private String accessKey;
 
+    @Value("${rocketmq.acl.secret-key:}")
     private String secretKey;
 
-    private boolean useTLS = false;
+    @Value("${rocketmq.tls.enable:false}")
+    private boolean useTLS;
 
-    private Long timeoutMillis;
-
-    private List<String> namesrvAddrs = new ArrayList<>();
-
-    private List<String> proxyAddrs = new ArrayList<>();
-
-    public String getAccessKey() {
-        return accessKey;
+    public String getRocketMqDashboardDataPath() {
+        return dataPath;
     }
 
-    public void setAccessKey(String accessKey) {
-        this.accessKey = accessKey;
+    public void setDataPath(String dataPath) {
+        this.dataPath = dataPath;
     }
 
-    public String getSecretKey() {
-        return secretKey;
+    public Boolean isACLEnabled() {
+        return aclEnabled != null && aclEnabled;
     }
 
-    public void setSecretKey(String secretKey) {
-        this.secretKey = secretKey;
+    public void setACLEnabled(Boolean aclEnabled) {
+        this.aclEnabled = aclEnabled;
     }
 
     public String getNamesrvAddr() {
@@ -71,116 +49,18 @@ public class RMQConfigure {
     }
 
     public void setNamesrvAddr(String namesrvAddr) {
-        if (StringUtils.isNotBlank(namesrvAddr)) {
-            this.namesrvAddr = namesrvAddr;
-            System.setProperty(MixAll.NAMESRV_ADDR_PROPERTY, namesrvAddr);
-            logger.info("setNameSrvAddrByProperty nameSrvAddr={}", namesrvAddr);
-        }
+        this.namesrvAddr = namesrvAddr;
     }
 
-    public List<String> getNamesrvAddrs() {
-        return namesrvAddrs;
+    public String getAccessKey() {
+        return accessKey;
     }
 
-    public void setNamesrvAddrs(List<String> namesrvAddrs) {
-        this.namesrvAddrs = namesrvAddrs;
-        if (CollectionUtils.isNotEmpty(namesrvAddrs)) {
-            this.setNamesrvAddr(namesrvAddrs.get(0));
-        }
-    }
-
-    public List<String> getProxyAddrs() {
-        return this.proxyAddrs;
-    }
-
-    public void setProxyAddrs(List<String> proxyAddrs) {
-        this.proxyAddrs = proxyAddrs;
-        if (CollectionUtils.isNotEmpty(proxyAddrs)) {
-            this.setProxyAddr(proxyAddrs.get(0));
-        }
-    }
-
-    public String getProxyAddr() {
-        return proxyAddr;
-    }
-
-    public void setProxyAddr(String proxyAddr) {
-        this.proxyAddr = proxyAddr;
-    }
-
-    public boolean isACLEnabled() {
-        return !(StringUtils.isAnyBlank(this.accessKey, this.secretKey) ||
-                StringUtils.isAnyEmpty(this.accessKey, this.secretKey));
-    }
-
-    public String getRocketMqDashboardDataPath() {
-        return dataPath;
-    }
-
-    public String getDashboardCollectData() {
-        return dataPath + File.separator + "dashboard";
-    }
-
-    public void setDataPath(String dataPath) {
-        this.dataPath = dataPath;
-    }
-
-    public String getIsVIPChannel() {
-        return isVIPChannel;
-    }
-
-    public void setIsVIPChannel(String isVIPChannel) {
-        if (StringUtils.isNotBlank(isVIPChannel)) {
-            this.isVIPChannel = isVIPChannel;
-            System.setProperty(SEND_MESSAGE_WITH_VIP_CHANNEL_PROPERTY, isVIPChannel);
-            logger.info("setIsVIPChannel isVIPChannel={}", isVIPChannel);
-        }
-    }
-
-    public boolean isEnableDashBoardCollect() {
-        return enableDashBoardCollect;
-    }
-
-    public void setEnableDashBoardCollect(String enableDashBoardCollect) {
-        this.enableDashBoardCollect = Boolean.valueOf(enableDashBoardCollect);
-    }
-
-    public boolean isLoginRequired() {
-        return loginRequired;
-    }
-
-    public void setLoginRequired(boolean loginRequired) {
-        this.loginRequired = loginRequired;
+    public String getSecretKey() {
+        return secretKey;
     }
 
     public boolean isUseTLS() {
         return useTLS;
-    }
-
-    public void setUseTLS(boolean useTLS) {
-        this.useTLS = useTLS;
-    }
-
-    public Long getTimeoutMillis() {
-        return timeoutMillis;
-    }
-
-    public void setTimeoutMillis(Long timeoutMillis) {
-        this.timeoutMillis = timeoutMillis;
-    }
-
-    // Error Page process logic, move to a central configure later
-    @Bean
-    public ErrorPageRegistrar errorPageRegistrar() {
-        return new MyErrorPageRegistrar();
-    }
-
-    private static class MyErrorPageRegistrar implements ErrorPageRegistrar {
-
-        @Override
-        public void registerErrorPages(ErrorPageRegistry registry) {
-            registry.addErrorPages(new ErrorPage(HttpStatus.NOT_FOUND, "/404"));
-        }
-
     }
 }
