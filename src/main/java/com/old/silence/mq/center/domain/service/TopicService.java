@@ -1,8 +1,18 @@
 package com.old.silence.mq.center.domain.service;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.rocketmq.common.TopicConfig;
+import org.apache.rocketmq.common.attribute.TopicMessageType;
+import org.apache.rocketmq.remoting.protocol.admin.TopicStatsTable;
+import org.apache.rocketmq.remoting.protocol.body.ClusterInfo;
+import org.apache.rocketmq.remoting.protocol.route.BrokerData;
+import org.apache.rocketmq.remoting.protocol.route.TopicRouteData;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -13,6 +23,7 @@ import com.old.silence.core.exception.ResourceNotFoundException;
 import com.old.silence.mq.center.exception.ServiceException;
 import com.old.silence.mq.center.domain.model.Topic;
 import com.old.silence.mq.center.domain.repository.TopicRepository;
+import com.old.silence.mq.center.vo.TopicConfigInfo;
 
 @Service
 public class TopicService {
@@ -78,5 +89,90 @@ public class TopicService {
         } catch (Exception e) {
             throw new ServiceException(500, "Delete topic failed: " + e.getMessage());
         }
+    }
+
+    public TopicRouteData route(String topic) {
+        try {
+            return mqAdminService.execute(admin -> admin.examineTopicRouteInfo(topic));
+        } catch (Exception e) {
+            throw new ServiceException(500, "Query topic route failed: " + e.getMessage());
+        }
+    }
+
+
+    public TopicConfig examineTopicConfig(String topic, String brokerName) {
+        try {
+            ClusterInfo clusterInfo = mqAdminService.execute(admin -> admin.examineBrokerClusterInfo());
+            if (clusterInfo == null || clusterInfo.getBrokerAddrTable() == null) {
+                throw new ServiceException(500, "Cluster info is empty");
+            }
+            BrokerData brokerData = clusterInfo.getBrokerAddrTable().get(brokerName);
+            if (brokerData == null) {
+                throw new ServiceException(404, "Broker not found: " + brokerName);
+            }
+            String brokerAddr = brokerData.selectBrokerAddr();
+            if (StringUtils.isBlank(brokerAddr)) {
+                throw new ServiceException(500, "Broker address is empty: " + brokerName);
+            }
+            return mqAdminService.execute(admin -> admin.examineTopicConfig(brokerAddr, topic));
+        } catch (ServiceException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new ServiceException(500, "Query topic config failed: " + e.getMessage());
+        }
+    }
+
+    public List<TopicConfigInfo> examineTopicConfig(String topic) {
+        List<TopicConfigInfo> topicConfigInfoList = new ArrayList<>();
+        TopicRouteData topicRouteData = route(topic);
+        if (topicRouteData == null || topicRouteData.getBrokerDatas() == null) {
+            return topicConfigInfoList;
+        }
+        for (BrokerData brokerData : topicRouteData.getBrokerDatas()) {
+            if (brokerData == null || StringUtils.isBlank(brokerData.getBrokerName())) {
+                continue;
+            }
+            TopicConfigInfo topicConfigInfo = new TopicConfigInfo();
+            TopicConfig topicConfig = examineTopicConfig(topic, brokerData.getBrokerName());
+            BeanUtils.copyProperties(topicConfig, topicConfigInfo);
+            topicConfigInfo.setBrokerNameList(Collections.singletonList(brokerData.getBrokerName()));
+            String messageType = topicConfig.getAttributes() == null
+                ? null
+                : topicConfig.getAttributes().get("+message.type");
+            if (StringUtils.isBlank(messageType)) {
+                messageType = TopicMessageType.UNSPECIFIED.name();
+            }
+            topicConfigInfo.setMessageType(messageType);
+            topicConfigInfoList.add(topicConfigInfo);
+        }
+        return topicConfigInfoList;
+    }
+
+    public TopicStatsTable stats(String topic) throws Exception {
+        return mqAdminService.execute(admin -> admin.examineTopicStats(topic));
+
+    }
+
+    public void createOrUpdate(TopicConfigInfo topicCreateOrUpdateRequest) throws Exception {
+
+        var existsByTopicName = topicRepository.existsByTopicName(topicCreateOrUpdateRequest.getTopicName());
+
+
+        Topic topic = new Topic();
+        topic.setTopicName(topicCreateOrUpdateRequest.getTopicName());
+        topic.setBrokerAddr(topicCreateOrUpdateRequest.getBrokerNameList().get(0));
+        topic.setClusterName(topicCreateOrUpdateRequest.getClusterNameList().get(0));
+        topic.setDescription(topicCreateOrUpdateRequest.getTopicName());
+        topic.setSystemTopic(!"NORMAL".equals(topicCreateOrUpdateRequest.getMessageType()));
+
+        topic.setMessageType(topicCreateOrUpdateRequest.getMessageType());
+        topic.setOwnerId(BigInteger.ONE);
+
+        if (existsByTopicName) {
+            topicRepository.update(topic);
+        } else {
+            topicRepository.insert(topic);
+        }
+        createAndUpdateTopicConfig(topic);
     }
 }
