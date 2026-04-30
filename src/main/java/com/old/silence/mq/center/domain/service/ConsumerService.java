@@ -400,9 +400,6 @@ public class ConsumerService {
     /**
      * 按消费者组查询消费统计信息
      */
-    /**
-     * 按消费者组查询消费统计信息
-     */
     public List<TopicConsumerInfo> queryConsumeStatsListByGroupName(String consumerGroup, String address) throws Exception {
         return mqAdminService.execute(admin -> {
             List<TopicConsumerInfo> topicConsumerList = new ArrayList<>();

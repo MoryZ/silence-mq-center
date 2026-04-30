@@ -69,7 +69,7 @@ public class ConsumerController {
 
     @PostMapping(value = "/skipAccumulate")
     public Map<String, ConsumerGroupRollBackStat> skipAccumulate(@RequestBody ResetOffsetRequest resetOffsetRequest) throws Exception {
-        logger.info("op=look resetOffsetRequest:{}", jacksonMapper.toJson(resetOffsetRequest));
+        logger.info("op=look skipAccumulateRequest:{}", jacksonMapper.toJson(resetOffsetRequest));
         return consumerService.resetOffset(resetOffsetRequest);
     }
 
@@ -86,8 +86,6 @@ public class ConsumerController {
 
     @PostMapping(value = "/createOrUpdate")
     public Boolean consumerCreateOrUpdateRequest(@RequestBody ConsumerConfigInfo consumerConfigInfo) throws Exception {
-        Preconditions.checkArgument(CollectionUtils.isNotEmpty(consumerConfigInfo.getBrokerNameList()) || CollectionUtils.isNotEmpty(consumerConfigInfo.getClusterNameList()),
-                "clusterName or brokerName can not be all blank");
         return consumerService.createAndUpdateSubscriptionGroupConfig(consumerConfigInfo);
     }
 
@@ -97,13 +95,13 @@ public class ConsumerController {
     }
 
     @GetMapping(value = "/queryTopicByConsumer")
-    public List<TopicConsumerInfo> queryConsumerByTopic(@RequestParam String consumerGroup, String address) throws Exception {
-        return consumerService.queryConsumeStatsListByGroupName(consumerGroup, address);
+    public List<TopicConsumerInfo> queryConsumerByTopic(@RequestParam String consumerGroup, String brokerAddress) throws Exception {
+        return consumerService.queryConsumeStatsListByGroupName(consumerGroup, brokerAddress);
     }
 
     @GetMapping(value = "/consumerConnection")
-    public ConsumerConnection consumerConnection(@RequestParam(required = false) String consumerGroup, String address) throws Exception {
-        ConsumerConnection consumerConnection = consumerService.getConsumerConnection(consumerGroup, address);
+    public ConsumerConnection consumerConnection(@RequestParam(required = false) String consumerGroup, String brokerAddress) throws Exception {
+        ConsumerConnection consumerConnection = consumerService.getConsumerConnection(consumerGroup, brokerAddress);
         consumerConnection.setConnectionSet(ConnectionInfo.buildConnectionInfoHashSet(consumerConnection.getConnectionSet()));
         return consumerConnection;
     }

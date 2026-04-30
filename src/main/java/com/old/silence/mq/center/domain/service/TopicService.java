@@ -12,6 +12,7 @@ import org.apache.rocketmq.remoting.protocol.admin.TopicStatsTable;
 import org.apache.rocketmq.remoting.protocol.body.ClusterInfo;
 import org.apache.rocketmq.remoting.protocol.route.BrokerData;
 import org.apache.rocketmq.remoting.protocol.route.TopicRouteData;
+import org.apache.rocketmq.tools.admin.DefaultMQAdminExt;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -102,7 +103,7 @@ public class TopicService {
 
     public TopicConfig examineTopicConfig(String topic, String brokerName) {
         try {
-            ClusterInfo clusterInfo = mqAdminService.execute(admin -> admin.examineBrokerClusterInfo());
+            ClusterInfo clusterInfo = mqAdminService.execute(DefaultMQAdminExt::examineBrokerClusterInfo);
             if (clusterInfo == null || clusterInfo.getBrokerAddrTable() == null) {
                 throw new ServiceException(500, "Cluster info is empty");
             }
@@ -174,5 +175,9 @@ public class TopicService {
             topicRepository.insert(topic);
         }
         createAndUpdateTopicConfig(topic);
+    }
+
+    public Topic findByTopicName(String topicName) {
+        return topicRepository.findByTopicName(topicName);
     }
 }

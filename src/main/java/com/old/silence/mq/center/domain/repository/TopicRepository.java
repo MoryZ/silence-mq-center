@@ -17,4 +17,7 @@ public interface TopicRepository extends ProjectionMapperRepository<Topic, BigIn
      */
     @Select("SELECT count(1) FROM rmq_topic WHERE topic_name = #{topicName}")
     boolean existsByTopicName(String topicName);
+
+    @Select("SELECT * FROM rmq_topic WHERE topic_name = #{topicName}")
+    Topic findByTopicName(String topicName);
 }

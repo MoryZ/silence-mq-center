@@ -1,0 +1,10 @@
+spring:
+  application:
+    name: mq-service
+
+platform:
+  system:
+    identifier: MC
+
+
+

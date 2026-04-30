@@ -1,12 +1,16 @@
 package com.old.silence.mq.center.dto;
 
+import jakarta.validation.constraints.NotEmpty;
+
 import org.apache.rocketmq.remoting.protocol.subscription.SubscriptionGroupConfig;
 
 import java.util.List;
 
 public class ConsumerConfigInfo {
+    @NotEmpty
     private List<String> clusterNameList;
 
+    @NotEmpty
     private List<String> brokerNameList;
     private SubscriptionGroupConfig subscriptionGroupConfig;
 

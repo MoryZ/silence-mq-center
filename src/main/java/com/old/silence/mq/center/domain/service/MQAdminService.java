@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class MQAdminService {
 
-    @Value("${rocketmq.namesrv.addr:110.40.135.216:9876}")
+    @Value("${rocketmq.namesrv.addr:127.0.0.1:9876}")
     private String namesrvAddr;
 
     // 获取 Admin 实例的私有方法
