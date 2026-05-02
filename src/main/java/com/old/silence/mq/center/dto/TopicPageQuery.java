@@ -1,16 +1,14 @@
 package com.old.silence.mq.center.dto;
 
-import java.math.BigInteger;
-
 import com.old.silence.data.commons.annotation.RelationalQueryProperty;
 import com.old.silence.data.commons.converter.Part;
+
+import java.math.BigInteger;
 
 public class TopicPageQuery {
 
     private String keyword;
 
-    @RelationalQueryProperty(type = Part.Type.SIMPLE_PROPERTY)
-    private String clusterName;
 
     @RelationalQueryProperty(type = Part.Type.SIMPLE_PROPERTY)
     private String status;
@@ -27,14 +25,6 @@ public class TopicPageQuery {
 
     public void setKeyword(String keyword) {
         this.keyword = keyword;
-    }
-
-    public String getClusterName() {
-        return clusterName;
-    }
-
-    public void setClusterName(String clusterName) {
-        this.clusterName = clusterName;
     }
 
     public String getStatus() {

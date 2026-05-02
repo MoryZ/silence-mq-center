@@ -1,5 +1,26 @@
 package com.old.silence.mq.center.domain.service;
 
+import org.apache.commons.lang3.StringUtils;
+import org.apache.rocketmq.client.QueryResult;
+import org.apache.rocketmq.client.consumer.DefaultMQPullConsumer;
+import org.apache.rocketmq.client.consumer.PullResult;
+import org.apache.rocketmq.client.consumer.PullStatus;
+import org.apache.rocketmq.client.producer.SendResult;
+import org.apache.rocketmq.common.MixAll;
+import org.apache.rocketmq.common.message.MessageExt;
+import org.apache.rocketmq.common.message.MessageQueue;
+import org.apache.rocketmq.remoting.protocol.body.ConsumeMessageDirectlyResult;
+import org.apache.rocketmq.tools.admin.api.MessageTrack;
+import org.springframework.stereotype.Service;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
+import com.old.silence.mq.center.api.config.RMQConfigure;
+import com.old.silence.mq.center.dto.MessagePage;
+import com.old.silence.mq.center.dto.MessageQuery;
+import com.old.silence.mq.center.dto.MessageView;
+import com.old.silence.mq.center.dto.QueueOffsetInfo;
+
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -10,26 +31,6 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
-import org.apache.rocketmq.client.QueryResult;
-import org.apache.rocketmq.client.consumer.DefaultMQPullConsumer;
-import org.apache.rocketmq.client.consumer.PullResult;
-import org.apache.rocketmq.client.consumer.PullStatus;
-import org.apache.rocketmq.common.MixAll;
-import org.apache.rocketmq.common.message.MessageExt;
-import org.apache.rocketmq.common.message.MessageQueue;
-import org.apache.rocketmq.remoting.protocol.body.ConsumeMessageDirectlyResult;
-import org.apache.rocketmq.tools.admin.api.MessageTrack;
-import org.springframework.stereotype.Service;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.old.silence.mq.center.api.config.RMQConfigure;
-import com.old.silence.mq.center.dto.MessagePage;
-import com.old.silence.mq.center.dto.MessageView;
-import com.old.silence.mq.center.dto.MessageQuery;
-import com.old.silence.mq.center.dto.QueueOffsetInfo;
-import org.apache.commons.lang3.StringUtils;
 
 /**
  * @author moryzang
@@ -42,10 +43,7 @@ public class MessageService {
             .expireAfterWrite(60, TimeUnit.MINUTES)
             .build();
 
-    /**
-     * @see org.apache.rocketmq.store.config.MessageStoreConfig maxMsgsNumBatch = 64
-     * @see org.apache.rocketmq.store.index.IndexService maxNum = Math.min(maxNum, ...)
-     */
+
     private static final int QUERY_MESSAGE_MAX_NUM = 64;
 
     private final MQAdminService mqAdminService;
@@ -59,19 +57,9 @@ public class MessageService {
     public Map<String, Object> viewMessage(String topic, String msgId) throws Exception {
         return mqAdminService.execute(admin -> {
             MessageExt messageExt = admin.viewMessage(topic, msgId);
-
-            Map<String, Object> view = new HashMap<>();
-            view.put("msgId", messageExt.getMsgId());
-            view.put("topic", messageExt.getTopic());
-            view.put("body", new String(messageExt.getBody(), StandardCharsets.UTF_8));
-            view.put("tags", messageExt.getTags());
-            view.put("keys", messageExt.getKeys());
-            view.put("bornTimestamp", messageExt.getBornTimestamp());
-            view.put("deliveryTimestamp", messageExt.getDeliverTimeMs());
-
             List<MessageTrack> tracks = admin.messageTrackDetail(messageExt);
             Map<String, Object> result = new HashMap<>();
-            result.put("messageView", view);
+            result.put("messageView", messageExt);
             result.put("messageTrackList", tracks);
             return result;
         });
@@ -213,12 +201,27 @@ public class MessageService {
         if (StringUtils.isBlank(topic) || StringUtils.isBlank(msgId) || StringUtils.isBlank(consumerGroup)) {
             return null;
         }
-        return mqAdminService.execute(admin -> admin.consumeMessageDirectly(consumerGroup, topic, msgId, clientId));
+        return mqAdminService.execute(admin -> {
+            String effectiveClientId = clientId;
+            if (StringUtils.isBlank(effectiveClientId)) {
+                var connection = admin.examineConsumerConnectionInfo(consumerGroup);
+                if (connection != null && connection.getConnectionSet() != null) {
+                    effectiveClientId = connection.getConnectionSet().stream()
+                            .map(conn -> conn == null ? null : conn.getClientId())
+                            .filter(StringUtils::isNotBlank)
+                            .findFirst()
+                            .orElse(null);
+                }
+            }
+
+            if (StringUtils.isBlank(effectiveClientId)) {
+                throw new IllegalStateException("No online clientId found for consumerGroup=" + consumerGroup);
+            }
+            return admin.consumeMessageDirectly(consumerGroup, effectiveClientId, topic, msgId);
+        });
     }
 
     // ---------- private ----------
-
-    private record MessagePageTask(Page<MessageView> page, List<QueueOffsetInfo> queueOffsetInfos) {}
 
     @SuppressWarnings("deprecation")
     private MessagePageTask queryFirstMessagePage(MessageQuery query) {
@@ -467,6 +470,13 @@ public class MessageService {
         consumer.setNamesrvAddr(configure.getNamesrvAddr());
         consumer.setUseTLS(configure.isUseTLS());
         return consumer;
+    }
+
+    public SendResult resend(String msgId) {
+        return null;
+    }
+
+    private record MessagePageTask(Page<MessageView> page, List<QueueOffsetInfo> queueOffsetInfos) {
     }
 }
 

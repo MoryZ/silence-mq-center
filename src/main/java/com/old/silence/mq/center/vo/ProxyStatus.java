@@ -16,10 +16,27 @@ public class ProxyStatus {
     }
 
     // 标准的 Getter 和 Setter
-    public String getAddr() { return addr; }
-    public void setAddr(String addr) { this.addr = addr; }
-    public boolean isAlive() { return alive; }
-    public void setAlive(boolean alive) { this.alive = alive; }
-    public long getLastCheck() { return lastCheck; }
-    public void setLastCheck(long lastCheck) { this.lastCheck = lastCheck; }
+    public String getAddr() {
+        return addr;
+    }
+
+    public void setAddr(String addr) {
+        this.addr = addr;
+    }
+
+    public boolean isAlive() {
+        return alive;
+    }
+
+    public void setAlive(boolean alive) {
+        this.alive = alive;
+    }
+
+    public long getLastCheck() {
+        return lastCheck;
+    }
+
+    public void setLastCheck(long lastCheck) {
+        this.lastCheck = lastCheck;
+    }
 }

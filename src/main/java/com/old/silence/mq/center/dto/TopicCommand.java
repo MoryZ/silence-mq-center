@@ -1,11 +1,12 @@
 package com.old.silence.mq.center.dto;
 
+import com.old.silence.mq.center.enums.MessageType;
+import com.old.silence.mq.center.enums.TopicStatus;
+
 /**
  * @author moryzang
  */
 public class TopicCommand {
-
-    private String clusterName;
 
     private String topicName;
 
@@ -14,21 +15,13 @@ public class TopicCommand {
     private int writeQueueNums;
 
     /**
-     *  消息类型 NORMAL, FIFO, DELAY, TRANSACTION
+     * 消息类型 NORMAL, FIFO, DELAY, TRANSACTION
      */
-    private String messageType;
-
-    private String brokerAddr;
+    private MessageType messageType;
 
     private Boolean systemTopic;
 
-    public String getClusterName() {
-        return clusterName;
-    }
-
-    public void setClusterName(String clusterName) {
-        this.clusterName = clusterName;
-    }
+    private TopicStatus status;
 
     public String getTopicName() {
         return topicName;
@@ -54,20 +47,12 @@ public class TopicCommand {
         this.writeQueueNums = writeQueueNums;
     }
 
-    public String getMessageType() {
+    public MessageType getMessageType() {
         return messageType;
     }
 
-    public void setMessageType(String messageType) {
+    public void setMessageType(MessageType messageType) {
         this.messageType = messageType;
-    }
-
-    public String getBrokerAddr() {
-        return brokerAddr;
-    }
-
-    public void setBrokerAddr(String brokerAddr) {
-        this.brokerAddr = brokerAddr;
     }
 
     public Boolean getSystemTopic() {
@@ -76,5 +61,13 @@ public class TopicCommand {
 
     public void setSystemTopic(Boolean systemTopic) {
         this.systemTopic = systemTopic;
+    }
+
+    public TopicStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(TopicStatus status) {
+        this.status = status;
     }
 }

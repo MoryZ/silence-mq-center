@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import com.old.silence.mq.center.domain.service.ProxyService;
+import com.old.silence.mq.center.domain.service.ProxyNodeService;
 
 import java.util.Map;
 
@@ -15,24 +15,24 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/v1/proxy")
 public class ProxyController {
-    private final ProxyService proxyService;
+    private final ProxyNodeService proxyNodeService;
 
-    public ProxyController(ProxyService proxyService) {
-        this.proxyService = proxyService;
+    public ProxyController(ProxyNodeService proxyNodeService) {
+        this.proxyNodeService = proxyNodeService;
     }
 
     @GetMapping(value = "/homePage")
     public Map<String, Object> homePage() {
-        return proxyService.getProxyHomePage();
+        return proxyNodeService.getProxyHomePage();
     }
 
     @PostMapping(value = "/addProxyAddr")
     public int addProxyAddr(@RequestParam String newProxyAddr) {
-        return proxyService.addProxyNode(newProxyAddr);
+        return proxyNodeService.addProxyNode(newProxyAddr);
     }
 
     @PutMapping(value = "/updateProxyAddr")
     public int updateProxyAddr(@RequestParam String proxyAddr) {
-        return proxyService.updateProxyAddrList(proxyAddr);
+        return proxyNodeService.updateProxyAddrList(proxyAddr);
     }
 }

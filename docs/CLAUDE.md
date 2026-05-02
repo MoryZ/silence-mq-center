@@ -9,27 +9,33 @@
 以下约定用于保证后续代码风格一致，优先级高于通用建议：
 
 1. 资源层命名
+
 - API 层命名优先使用 `XxxResource`，不优先使用 `XxxController`。
 
 2. 参数建模规则
+
 - 3 到 4 个以内且全部必填参数，可以使用 `@RequestParam`。
 - 参数超过 4 个，或者存在任一非必填参数，统一使用查询对象。
 - 必填字段在查询对象上使用 `@NotBlank`、`@NotNull` 等注解表达。
 - 不推荐使用 `@RequestParam(required = false)` 作为参数设计手段。
 
 3. 查询扩展原则
+
 - 查询能力优先使用 Query 对象 + QueryWrapper 转换模式。
 - 在相同路径下通过 `params` 进行路由分流属于有效的 REST 语义策略。
 
 4. 集合与空集合风格
+
 - 不推荐 `Lists.newArrayList()`。
 - 默认优先使用 JDK 集合写法，如 `new ArrayList<>()`、`List.of()`。
 - 空集合优先使用 `List.of()`，不优先使用 `Collections.emptyList()`。
 
 5. JSON 工具约定
+
 - 优先使用项目现有 `JacksonMapper`，不新增 `JsonUtil` 风格依赖。
 
 6. 文档定位
+
 - 本项目规范以“项目内一致性”为目标，不将本项目描述为通用最佳实践模板。
 
 ## 架构模式
@@ -39,12 +45,14 @@
 项目采用经典的三层架构模式：
 
 #### 1. Resource层（API层）
+
 - **职责**：处理HTTP请求，参数校验，调用Service层，返回响应
 - **命名规范**：`XxxResource`
 - **路径规范**：`/api/v1/{module}`
 - **示例**：[ConsumerController](../src/main/java/com/old/silence/mq/center/api/ConsumerController.java)
 
 **最佳实践**：
+
 ```java
 @RestController
 @RequestMapping("/api/v1/consumer")
@@ -63,17 +71,21 @@ public class ConsumerResource {
 ```
 
 **关键点**：
+
 - 使用构造器注入依赖（推荐），避免 `@Autowired` 字段注入
 - 方法返回具体类型，避免返回 `Object`
 - 参数规则优先遵循“少量必填用 `@RequestParam`，其余用查询对象”
 - 查询对象的必填字段用 Bean Validation 注解显式表达
 
 #### 2. Service层（业务逻辑层）
+
 - **职责**：封装业务逻辑，调用MQAdminExt等客户端API，处理异常
 - **命名规范**：`XxxService` (接口) + `XxxServiceImpl` (实现)
-- **示例**：[ConsumerServiceImpl](../src/main/java/com/old/silence/mq/center/domain/service/impl/ConsumerServiceImpl.java)
+- **示例
+  **：[ConsumerServiceImpl](../src/main/java/com/old/silence/mq/center/domain/service/impl/ConsumerServiceImpl.java)
 
 **最佳实践**：
+
 ```java
 @Service
 public class ConsumerServiceImpl extends AbstractCommonService implements ConsumerService {
@@ -98,16 +110,20 @@ public class ConsumerServiceImpl extends AbstractCommonService implements Consum
 ```
 
 **关键点**：
+
 - 继承 `AbstractCommonService` 获取通用能力
 - 使用 `protected` 构造器注入所有依赖
 - 添加详细的日志记录
-- 合理使用缓存机制（如 [`LoadingCache`](../src/main/java/com/old/silence/mq/center/domain/service/impl/DashboardCollectServiceImpl.java)）
+- 合理使用缓存机制（如 [
+  `LoadingCache`](../src/main/java/com/old/silence/mq/center/domain/service/impl/DashboardCollectServiceImpl.java)）
 
 #### 3. Client层（客户端封装）
+
 - **职责**：封装RocketMQ Admin API，提供统一的调用接口
 - **示例**：[MQAdminExtImpl](../src/main/java/com/old/silence/mq/center/domain/service/client/MQAdminExtImpl.java)
 
 **最佳实践**：
+
 - 实现 `MQAdminExt` 接口
 - 未实现的方法抛出 `UnsupportedOperationException`
 - 添加适当的异常转换和日志
@@ -117,12 +133,14 @@ public class ConsumerServiceImpl extends AbstractCommonService implements Consum
 ### 1. 命名规范
 
 #### 类命名
+
 - Controller: `{模块名}Controller`
 - Service接口: `{模块名}Service`
 - Service实现: `{模块名}ServiceImpl`
 - Model/DTO: 描述性名称，如 `GroupConsumeInfo`, `MessageView`
 
 #### 方法命名
+
 - 查询单个: `get{Entity}`, `query{Entity}`
 - 查询列表: `list{Entity}`, `query{Entity}List`
 - 刷新: `refresh{Entity}`
@@ -130,6 +148,7 @@ public class ConsumerServiceImpl extends AbstractCommonService implements Consum
 - 删除: `delete{Entity}`
 
 #### 变量命名
+
 - 使用有意义的名称，避免单字母变量（循环除外）
 - 集合类型使用复数形式，如 `brokerList`, `topicMap`
 - 布尔类型使用 `is/has/can` 前缀
@@ -137,6 +156,7 @@ public class ConsumerServiceImpl extends AbstractCommonService implements Consum
 ### 2. 注解使用规范
 
 #### Controller层
+
 ```java
 @RestController
 @RequestMapping("/api/v1/module")
@@ -151,6 +171,7 @@ public class ModuleController {
 ```
 
 #### Service层
+
 ```java
 @Service
 public class ModuleServiceImpl implements ModuleService {
@@ -161,11 +182,14 @@ public class ModuleServiceImpl implements ModuleService {
 ### 3. 异常处理规范
 
 **原则**：
+
 1. **禁止吞掉异常**：必须记录日志或重新抛出
-2. **使用自定义异常**：如 [`ServiceException`](../src/main/java/com/old/silence/mq/center/exception/ServiceException.java)
+2. **使用自定义异常**：如 [
+   `ServiceException`](../src/main/java/com/old/silence/mq/center/exception/ServiceException.java)
 3. **异常信息要详细**：包含足够的上下文信息
 
 **正确示例**：
+
 ```java
 try {
     MessageExt messageExt = mqAdminExt.viewMessage(topic, msgId);
@@ -175,6 +199,7 @@ try {
 ```
 
 **错误示例**：
+
 ```java
 // ❌ 禁止：吞掉异常
 try {
@@ -194,12 +219,14 @@ try {
 ### 4. 日志规范
 
 **日志级别**：
+
 - `ERROR`: 系统错误，需要立即处理
 - `WARN`: 警告信息，可能影响功能
 - `INFO`: 关键业务流程信息
 - `DEBUG`: 详细调试信息
 
 **最佳实践**：
+
 ```java
 // ✅ 使用参数化日志
 logger.info("op=look resetOffsetRequest:{}", JsonUtil.obj2String(resetOffsetRequest));
@@ -213,7 +240,8 @@ logger.info("User: " + userName + " executed action: " + action);
 
 ### 5. 并发处理规范
 
-本项目使用线程池处理并发任务，参考 [`ConsumerServiceImpl`](../src/main/java/com/old/silence/mq/center/domain/service/impl/ConsumerServiceImpl.java)：
+本项目使用线程池处理并发任务，参考 [
+`ConsumerServiceImpl`](../src/main/java/com/old/silence/mq/center/domain/service/impl/ConsumerServiceImpl.java)：
 
 ```java
 private ExecutorService executorService;
@@ -242,6 +270,7 @@ public void destroy() {
 ```
 
 **关键点**：
+
 - 实现 `InitializingBean` 和 `DisposableBean` 管理线程池生命周期
 - 使用有意义的线程名称便于调试
 - 应用关闭时优雅关闭线程池
@@ -251,6 +280,7 @@ public void destroy() {
 ### 核心依赖
 
 #### 1. RocketMQ Admin API
+
 ```java
 // 使用 MQAdminExt 管理 RocketMQ
 private final MQAdminExt mqAdminExt;
@@ -258,6 +288,7 @@ ClusterInfo clusterInfo = mqAdminExt.examineBrokerClusterInfo();
 ```
 
 #### 2. Google Guava
+
 ```java
 // Maps 工具类
 Map<String, Object> resultMap = Maps.newHashMap();
@@ -281,6 +312,7 @@ Throwables.throwIfUnchecked(e);
 ```
 
 #### 3. Jackson (JSON处理)
+
 ```java
 // 通过 JacksonMapper 统一处理
 String json = JacksonMapper.getSharedInstance().toJson(object);
@@ -288,12 +320,14 @@ Object obj = JacksonMapper.getSharedInstance().fromJson(json, Object.class);
 ```
 
 #### 4. Commons Collections
+
 ```java
 // 集合判空
 CollectionUtils.isNotEmpty(list)
 ```
 
 #### 5. Commons Lang
+
 ```java
 // 字符串判空
 StringUtils.isNotEmpty(str)
@@ -302,6 +336,7 @@ StringUtils.isNotEmpty(str)
 ### 工具类使用
 
 #### JacksonMapper
+
 参考：`com.old.silence.json.JacksonMapper`
 
 ```java
@@ -320,6 +355,7 @@ Map<String, Object> map = JacksonMapper.getSharedInstance().fromJson(json, Map.c
 ### 1. 性能相关
 
 #### ❌ 禁止在循环中查询数据库/远程服务
+
 ```java
 // ❌ 错误示例
 for (String topic : topicList) {
@@ -330,6 +366,7 @@ for (String topic : topicList) {
 ```
 
 #### ❌ 禁止无限制的集合大小
+
 ```java
 // ❌ 错误
 new LinkedBlockingQueue<>(); // 无界队列
@@ -341,6 +378,7 @@ new LinkedBlockingQueue<>(1000); // 限制大小
 ### 2. 异常处理相关
 
 #### ❌ 禁止吞掉异常
+
 ```java
 // ❌ 错误
 try {
@@ -359,6 +397,7 @@ try {
 ```
 
 #### ❌ 禁止在循环中捕获异常
+
 ```java
 // ❌ 错误
 for (String item : list) {
@@ -373,6 +412,7 @@ for (String item : list) {
 ### 3. 资源管理相关
 
 #### ✅ 必须关闭资源
+
 ```java
 // 实现 DisposableBean 或使用 @PreDestroy
 @Override
@@ -384,6 +424,7 @@ public void destroy() {
 ```
 
 #### ✅ 文件操作必须处理异常
+
 ```java
 try {
     Files.createParentDirs(file);
@@ -397,6 +438,7 @@ try {
 ### 4. 并发相关
 
 #### ✅ 使用线程安全的集合
+
 ```java
 // ✅ 正确
 private final List<GroupConsumeInfo> cacheList = Collections.synchronizedList(new ArrayList<>());
@@ -404,6 +446,7 @@ private final Map<String, Object> configMap = new ConcurrentHashMap<>();
 ```
 
 #### ✅ 使用 volatile 保证可见性
+
 ```java
 private volatile boolean isCacheBeingBuilt = false;
 ```
@@ -411,6 +454,7 @@ private volatile boolean isCacheBeingBuilt = false;
 ### 5. 日志相关
 
 #### ❌ 禁止使用 System.out/err
+
 ```java
 // ❌ 错误
 System.out.println("debug info");
@@ -420,6 +464,7 @@ logger.debug("debug info");
 ```
 
 #### ❌ 禁止日志中包含敏感信息
+
 ```java
 // ❌ 错误
 logger.info("User password: {}", password);
@@ -431,6 +476,7 @@ logger.info("User login, username: {}", username);
 ## 配置管理
 
 ### RMQConfigure
+
 参考：项目使用 [`RMQConfigure`](../src/main/java/com/old/silence/mq/center/api/config/RMQConfigure.java) 管理配置
 
 ```java
@@ -452,6 +498,7 @@ public class MyService {
 ## 数据持久化
 
 ### 文件存储
+
 项目使用文件系统存储监控数据和配置：
 
 ```java
@@ -469,6 +516,7 @@ List<String> lines = Files.readLines(file, Charsets.UTF_8);
 ## 定时任务
 
 ### 使用 @Scheduled
+
 参考：[DashboardCollectTask](../src/main/java/com/old/silence/mq/center/task/DashboardCollectTask.java)
 
 ```java
@@ -483,6 +531,7 @@ public class MyTask {
 ```
 
 **注意**：
+
 - 任务方法必须是无参的
 - 使用 cron 表达式精确控制执行时间
 - 添加开关控制任务是否执行
@@ -490,11 +539,13 @@ public class MyTask {
 ## 测试规范
 
 ### 单元测试
+
 - 使用 JUnit 5
 - Mock 外部依赖
 - 测试覆盖率 > 70%
 
 ### 接口测试
+
 - 使用 Postman/RestAssured
 - 验证正常流程和异常情况
 

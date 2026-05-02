@@ -1,12 +1,9 @@
 package com.old.silence.mq.center.api;
 
-import java.math.BigInteger;
-import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
-
 import org.apache.commons.lang3.StringUtils;
+import org.apache.rocketmq.client.producer.SendResult;
 import org.apache.rocketmq.remoting.protocol.admin.TopicStatsTable;
+import org.apache.rocketmq.remoting.protocol.body.GroupList;
 import org.apache.rocketmq.remoting.protocol.route.TopicRouteData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,16 +19,30 @@ import org.springframework.web.bind.annotation.RestController;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.old.silence.core.util.CollectionUtils;
 import com.old.silence.data.commons.converter.QueryWrapperConverter;
+import com.old.silence.json.JacksonMapper;
 import com.old.silence.mq.center.api.assembler.TopicMapper;
 import com.old.silence.mq.center.domain.model.Topic;
 import com.old.silence.mq.center.domain.service.ConsumerGroupSubscribeRecordService;
 import com.old.silence.mq.center.domain.service.ConsumerService;
 import com.old.silence.mq.center.domain.service.TopicService;
 import com.old.silence.mq.center.dto.GroupConsumeInfo;
+import com.old.silence.mq.center.dto.SendTopicMessageCommand;
 import com.old.silence.mq.center.dto.TopicCommand;
+import com.old.silence.mq.center.dto.TopicConsumerInfo;
+import com.old.silence.mq.center.dto.TopicConsumerInfoDetail;
 import com.old.silence.mq.center.dto.TopicPageQuery;
 import com.old.silence.mq.center.vo.TopicConfigInfo;
+
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import static com.old.silence.webmvc.util.RestControllerUtils.validateModifyingResult;
 
 /**
@@ -49,16 +60,18 @@ public class TopicController {
     private final TopicService topicService;
     private final ConsumerService consumerService;
     private final ConsumerGroupSubscribeRecordService consumerGroupSubscribeRecordService;
-
+    private final JacksonMapper jacksonMapper;
     private final TopicMapper topicMapper;
 
     public TopicController(TopicService topicService,
                            ConsumerService consumerService,
                            ConsumerGroupSubscribeRecordService consumerGroupSubscribeRecordService,
+                           JacksonMapper jacksonMapper,
                            TopicMapper topicMapper) {
         this.topicService = topicService;
         this.consumerService = consumerService;
         this.consumerGroupSubscribeRecordService = consumerGroupSubscribeRecordService;
+        this.jacksonMapper = jacksonMapper;
         this.topicMapper = topicMapper;
     }
 
@@ -112,29 +125,43 @@ public class TopicController {
         return topicService.route(topic);
     }
 
+    @PostMapping(value = "/topics/send")
+    public SendResult sendTopicMessage(@RequestBody SendTopicMessageCommand sendTopicMessageCommand) {
+        return topicService.sendTopicMessage(sendTopicMessageCommand);
+    }
+
+    @GetMapping(value = "/topics/queryTopicConsumerInfo")
+    public GroupList queryTopicConsumerInfo(@RequestParam String topic) throws Exception {
+        return topicService.queryTopicConsumerInfoByTopicName(topic);
+    }
+
     @GetMapping(value = "/topics/queryConsumerByTopic")
-    public List<GroupConsumeInfo> queryConsumerByTopic(@RequestParam String topicName) {
+    public List<TopicConsumerInfoDetail> queryConsumerByTopic(@RequestParam String topicName) {
         var topic = topicService.findByTopicName(topicName);
         if (topic == null || topic.getId() == null) {
-            return List.of();
+            return null;
         }
 
         var groupNames = consumerGroupSubscribeRecordService.findGroupNamesByTopicId(topic.getId());
-        if (groupNames.isEmpty()) {
-            return List.of();
-        }
+        List<TopicConsumerInfoDetail> topicConsumerInfoDetails = new ArrayList<>();
+        for (var groupName : groupNames) {
+            List<TopicConsumerInfo> topicConsumerInfos = null;
+            try {
+                topicConsumerInfos = consumerService.queryTopicConsumerInfo(topicName, groupName);
+            } catch (Exception ignored) {
 
-        return groupNames.stream()
-                .map(groupName -> {
-                    try {
-                        return consumerService.queryGroup(groupName, topic.getBrokerAddr());
-                    } catch (Exception e) {
-                        log.warn("Failed to query consumer group {} for topic {}: {}", groupName, topicName, e.getMessage());
-                        return null;
-                    }
-                })
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
+            }
+            var topicConsumerInfo = CollectionUtils.isEmpty(topicConsumerInfos) ? new TopicConsumerInfo(topicName) : topicConsumerInfos.get(0);
+            topicConsumerInfoDetails.add(new TopicConsumerInfoDetail(groupName, topicConsumerInfo));
+        }
+        return topicConsumerInfoDetails;
+    }
+
+    @PostMapping(value = "/topics/createOrUpdate")
+    public Boolean topicCreateOrUpdateRequest(@RequestBody TopicConfigInfo topicCreateOrUpdateRequest) throws Exception {
+        log.info("op=look topicCreateOrUpdateRequest:{}", jacksonMapper.toJson(topicCreateOrUpdateRequest));
+        topicService.createOrUpdate(topicCreateOrUpdateRequest);
+        return true;
     }
 
 }

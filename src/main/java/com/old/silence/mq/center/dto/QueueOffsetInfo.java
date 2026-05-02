@@ -5,13 +5,21 @@ import org.apache.rocketmq.common.message.MessageQueue;
 public class QueueOffsetInfo {
 
     private int idx;
-    /** queue 时间范围内最小 offset */
+    /**
+     * queue 时间范围内最小 offset
+     */
     private long start;
-    /** queue 时间范围内最大 offset */
+    /**
+     * queue 时间范围内最大 offset
+     */
     private long end;
-    /** 当前页起始 offset */
+    /**
+     * 当前页起始 offset
+     */
     private long startOffset;
-    /** 当前页结束 offset */
+    /**
+     * 当前页结束 offset
+     */
     private long endOffset;
     private MessageQueue messageQueues;
 
@@ -36,19 +44,43 @@ public class QueueOffsetInfo {
         endOffset++;
     }
 
-    public int getIdx() { return idx; }
+    public int getIdx() {
+        return idx;
+    }
 
-    public long getStart() { return start; }
-    public void setStart(long start) { this.start = start; }
+    public long getStart() {
+        return start;
+    }
 
-    public long getEnd() { return end; }
-    public void setEnd(long end) { this.end = end; }
+    public void setStart(long start) {
+        this.start = start;
+    }
 
-    public long getStartOffset() { return startOffset; }
-    public void setStartOffset(long startOffset) { this.startOffset = startOffset; }
+    public long getEnd() {
+        return end;
+    }
 
-    public long getEndOffset() { return endOffset; }
-    public void setEndOffset(long endOffset) { this.endOffset = endOffset; }
+    public void setEnd(long end) {
+        this.end = end;
+    }
 
-    public MessageQueue getMessageQueues() { return messageQueues; }
+    public long getStartOffset() {
+        return startOffset;
+    }
+
+    public void setStartOffset(long startOffset) {
+        this.startOffset = startOffset;
+    }
+
+    public long getEndOffset() {
+        return endOffset;
+    }
+
+    public void setEndOffset(long endOffset) {
+        this.endOffset = endOffset;
+    }
+
+    public MessageQueue getMessageQueues() {
+        return messageQueues;
+    }
 }

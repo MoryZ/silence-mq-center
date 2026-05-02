@@ -3,6 +3,7 @@ package com.old.silence.mq.center.exception;
 
 /**
  * 权限被拒绝异常
+ *
  * @author moryzang
  */
 public class PermissionDeniedException extends RuntimeException {

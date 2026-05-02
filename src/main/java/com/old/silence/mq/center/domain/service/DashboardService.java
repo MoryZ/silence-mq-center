@@ -1,15 +1,16 @@
 package com.old.silence.mq.center.domain.service;
 
+import org.springframework.stereotype.Service;
+
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.stereotype.Service;
+import java.util.stream.Collectors;
 
 /**
  * @author moryzang
@@ -17,155 +18,138 @@ import org.springframework.stereotype.Service;
 @Service
 public class DashboardService {
 
-    private final MQAdminService mqAdminService;
+    private final DashboardCollectService dashboardCollectService;
 
-    public DashboardService(MQAdminService mqAdminService) {
-        this.mqAdminService = mqAdminService;
+    public DashboardService(DashboardCollectService dashboardCollectService) {
+        this.dashboardCollectService = dashboardCollectService;
+    }
+
+
+    /**
+     * @param date format yyyy-MM-dd
+     */
+    public Map<String, Object> queryBrokerData(String date) {
+        Map<String, List<String>> brokerSeries = safeSeriesMap(dashboardCollectService.getBrokerCache(date));
+        return buildDashboardPayload(date, "brokers", "brokerRealtime", brokerSeries);
+    }
+
+    public Map<String, Object> queryTopicData(String date) {
+        Map<String, List<String>> topicSeries = safeSeriesMap(dashboardCollectService.getTopicCache(date));
+        return buildDashboardPayload(date, "topics", "topicRealtime", topicSeries);
     }
 
     /**
-     * 判断是否为当前日期
+     * @param date format yyyy-MM-dd
+     * @param topicName 111
      */
-    private boolean isCurrentDate(String date) {
-        if (StringUtils.isBlank(date)) {
-            return true;
+    public Map<String, Object> queryTopicData(String date, String topicName) {
+        Map<String, List<String>> cache = safeSeriesMap(dashboardCollectService.getTopicCache(date));
+        List<String> topicSeries = cache.getOrDefault(topicName, new ArrayList<>());
+        long realtime = topicSeries.isEmpty() ? 0L : extractRealtimeValue(topicSeries.get(topicSeries.size() - 1));
+
+        Map<String, Object> result = new LinkedHashMap<>();
+        result.put("queryDate", Collections.singletonList(date));
+        result.put("topicName", topicName);
+        result.put("realtime", realtime);
+        result.put("series", topicSeries);
+        return result;
+    }
+
+    public Map<String, Object> queryTopicCurrentData() {
+        Date date = new Date();
+        DateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+        Map<String, List<String>> topicCache = safeSeriesMap(dashboardCollectService.getTopicCache(format.format(date)));
+
+        if (topicCache.isEmpty()) {
+            Map<String, Object> emptyResult = new LinkedHashMap<>();
+            emptyResult.put("queryTime", "");
+            emptyResult.put("totalTopics", 0);
+            emptyResult.put("topics", new ArrayList<>());
+            emptyResult.put("topicRealtime", new LinkedHashMap<>());
+            return emptyResult;
         }
+
+        Map<String, Long> topicRealtime = buildRealtimeMap(topicCache);
+        List<String> sortedTopics = topicRealtime.entrySet().stream()
+                .sorted((a, b) -> Long.compare(b.getValue(), a.getValue()))
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toList());
+
+        DateFormat dateTimeFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        Map<String, Object> result = new LinkedHashMap<>();
+        result.put("queryTime", dateTimeFormat.format(date));
+        result.put("totalTopics", sortedTopics.size());
+        result.put("topics", sortedTopics);
+        result.put("topicRealtime", topicRealtime);
+        return result;
+    }
+
+    private Map<String, List<String>> safeSeriesMap(Map<String, List<String>> raw) {
+        return raw == null ? new LinkedHashMap<>() : raw;
+    }
+
+    private Map<String, Object> buildDashboardPayload(
+            String date,
+            String rankListKey,
+            String realtimeMapKey,
+            Map<String, List<String>> series
+    ) {
+        Map<String, Long> realtime = buildRealtimeMap(series);
+        List<String> rankedNames = realtime.entrySet().stream()
+                .sorted((a, b) -> Long.compare(b.getValue(), a.getValue()))
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toList());
+
+        Map<String, Object> result = new LinkedHashMap<>();
+        result.put("queryDate", Collections.singletonList(date));
+        result.put(rankListKey, rankedNames);
+        result.put(realtimeMapKey, realtime);
+        result.put("series", series);
+        return result;
+    }
+
+    private Map<String, Long> buildRealtimeMap(Map<String, List<String>> source) {
+        Map<String, Long> result = new LinkedHashMap<>();
+        if (source == null || source.isEmpty()) {
+            return result;
+        }
+
+        for (Map.Entry<String, List<String>> entry : source.entrySet()) {
+            List<String> points = entry.getValue();
+            if (points == null || points.isEmpty()) {
+                result.put(entry.getKey(), 0L);
+                continue;
+            }
+
+            String latestPoint = points.get(points.size() - 1);
+            result.put(entry.getKey(), extractRealtimeValue(latestPoint));
+        }
+        return result;
+    }
+
+    private long extractRealtimeValue(String raw) {
+        if (raw == null || raw.trim().isEmpty()) {
+            return 0L;
+        }
+
+        String[] parts = raw.split(",");
+        if (parts.length > 4) {
+            return safeParseLong(parts[4]);
+        }
+
+        if (parts.length > 1) {
+            return safeParseLong(parts[1]);
+        }
+
+        return 0L;
+    }
+
+    private long safeParseLong(String value) {
         try {
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-            String today = sdf.format(new Date());
-            return date.equals(today);
-        } catch (Exception e) {
-            return true;
+            return Long.parseLong(value.trim());
+        } catch (Exception ignored) {
+            return 0L;
         }
-    }
-
-    /**
-     * 查询指定日期的 Broker 数据
-     * 如果是当前日期，返回实时 broker 信息；否则返回历史数据状态
-     */
-    public Map<String, List<String>> queryBrokerData(String date) throws Exception {
-        return mqAdminService.execute(admin -> {
-            Map<String, List<String>> result = new HashMap<>();
-            
-            // 只支持当前日期的实时数据查询
-            if (!isCurrentDate(date)) {
-                result.put("brokers", List.of("Historical data not available for date: " + date));
-                return result;
-            }
-            
-            try {
-                // 获取所有 topic 来推导 broker 信息
-                Set<String> topicNames = admin.fetchAllTopicList().getTopicList();
-                
-                // 返回一个基本的broker列表（从topic派生）
-                List<String> brokerList = new ArrayList<>(topicNames != null ? topicNames : new ArrayList<>());
-                result.put("brokers", brokerList);
-                result.put("queryDate", List.of(new SimpleDateFormat("yyyy-MM-dd").format(new Date())));
-            } catch (Exception e) {
-                // 兼容查询异常，返回空结果
-                result.put("error", List.of(e.getMessage()));
-            }
-            
-            return result;
-        });
-    }
-
-    /**
-     * 查询指定日期的所有 Topic 数据
-     * 如果是当前日期，返回实时 topic 列表；否则返回历史数据状态
-     */
-    public Map<String, List<String>> queryTopicData(String date) throws Exception {
-        return mqAdminService.execute(admin -> {
-            Map<String, List<String>> result = new HashMap<>();
-            
-            // 只支持当前日期的实时数据查询
-            if (!isCurrentDate(date)) {
-                result.put("status", List.of("Historical data not available for date: " + date));
-                result.put("queryDate", List.of(date));
-                return result;
-            }
-            
-            try {
-                Set<String> topicNames = admin.fetchAllTopicList().getTopicList();
-                List<String> topicList = new ArrayList<>(topicNames == null ? new ArrayList<>() : topicNames);
-                
-                result.put("topics", topicList);
-                result.put("count", List.of(String.valueOf(topicList.size())));
-                result.put("queryDate", List.of(new SimpleDateFormat("yyyy-MM-dd").format(new Date())));
-            } catch (Exception e) {
-                // 兼容查询异常，返回错误信息
-                result.put("error", List.of(e.getMessage()));
-            }
-            
-            return result;
-        });
-    }
-
-    /**
-     * 查询指定日期特定 Topic 的数据
-     * 如果是当前日期，返回实时 topic 信息；否则返回历史数据状态
-     */
-    public List<String> queryTopicData(String date, String topicName) throws Exception {
-        return mqAdminService.execute(admin -> {
-            List<String> result = new ArrayList<>();
-            
-            try {
-                // 添加基本信息
-                result.add("Topic: " + topicName);
-                
-                // 只支持当前日期的实时数据查询
-                if (!isCurrentDate(date)) {
-                    result.add("Query Date: " + date);
-                    result.add("Status: HISTORICAL_DATA_UNAVAILABLE");
-                    result.add("Note: Only real-time data (current date) is supported");
-                    return result;
-                }
-                
-                result.add("Query Date: " + new SimpleDateFormat("yyyy-MM-dd").format(new Date()));
-                
-                // 获取所有topic列表验证是否存在
-                Set<String> allTopics = admin.fetchAllTopicList().getTopicList();
-                if (allTopics != null && allTopics.contains(topicName)) {
-                    result.add("Status: ACTIVE");
-                    result.add("Topics Total: " + allTopics.size());
-                } else {
-                    result.add("Status: NOT_FOUND");
-                }
-            } catch (Exception e) {
-                // 兼容查询异常
-                result.add("Error: " + e.getMessage());
-            }
-            
-            return result;
-        });
-    }
-
-    /**
-     * 查询当前 Topic 数据（最新数据）
-     * 返回当前时间点的 topic 列表（不使用 date 参数）
-     */
-    public List<String> queryTopicCurrentData() throws Exception {
-        return mqAdminService.execute(admin -> {
-            List<String> result = new ArrayList<>();
-            
-            try {
-                // 添加查询时间
-                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                result.add("query_time: " + sdf.format(new Date()));
-                
-                // 获取所有 topic
-                Set<String> topicNames = admin.fetchAllTopicList().getTopicList();
-                List<String> topicList = new ArrayList<>(topicNames == null ? new ArrayList<>() : topicNames);
-                
-                result.add("total_topics: " + topicList.size());
-                result.addAll(topicList);
-            } catch (Exception e) {
-                // 兼容查询异常
-                result.add("Error: " + e.getMessage());
-            }
-            
-            return result;
-        });
     }
 }
 

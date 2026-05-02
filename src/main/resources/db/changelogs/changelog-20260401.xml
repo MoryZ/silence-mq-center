@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <databaseChangeLog
-        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
                         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
 
@@ -32,7 +32,8 @@
             <column name="updated_by" type="VARCHAR(100)" remarks="更新人员">
                 <constraints nullable="false"/>
             </column>
-            <column name="updated_date" type="DATETIME" defaultValueComputed="CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP" remarks="更新时间">
+            <column name="updated_date" type="DATETIME"
+                    defaultValueComputed="CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP" remarks="更新时间">
                 <constraints nullable="false"/>
             </column>
         </createTable>
@@ -67,7 +68,8 @@
             <column name="write_queue_nums" type="INT" defaultValueNumeric="8" remarks="写队列数量">
                 <constraints nullable="false"/>
             </column>
-            <column name="message_type" type="VARCHAR(32)" defaultValue="NORMAL" remarks="消息类型：NORMAL/FIFO/DELAY/TRANSACTION">
+            <column name="message_type" type="VARCHAR(32)" defaultValue="NORMAL"
+                    remarks="消息类型：NORMAL/FIFO/DELAY/TRANSACTION">
                 <constraints nullable="false"/>
             </column>
             <column name="broker_addr" type="VARCHAR(255)" remarks="broker地址"/>
@@ -82,7 +84,8 @@
             <column name="updated_by" type="VARCHAR(100)" remarks="更新人员">
                 <constraints nullable="false"/>
             </column>
-            <column name="updated_date" type="DATETIME" defaultValueComputed="CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP" remarks="更新时间">
+            <column name="updated_date" type="DATETIME"
+                    defaultValueComputed="CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP" remarks="更新时间">
                 <constraints nullable="false"/>
             </column>
         </createTable>
@@ -138,7 +141,8 @@
             <column name="updated_by" type="VARCHAR(100)" remarks="更新人员">
                 <constraints nullable="false"/>
             </column>
-            <column name="updated_date" type="DATETIME" defaultValueComputed="CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP" remarks="更新时间">
+            <column name="updated_date" type="DATETIME"
+                    defaultValueComputed="CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP" remarks="更新时间">
                 <constraints nullable="false"/>
             </column>
         </createTable>
@@ -196,7 +200,8 @@
             <column name="updated_by" type="VARCHAR(100)" remarks="更新人员">
                 <constraints nullable="false"/>
             </column>
-            <column name="updated_date" type="DATETIME" defaultValueComputed="CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP" remarks="更新时间">
+            <column name="updated_date" type="DATETIME"
+                    defaultValueComputed="CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP" remarks="更新时间">
                 <constraints nullable="false"/>
             </column>
         </createTable>
@@ -254,7 +259,8 @@
             <column name="updated_by" type="VARCHAR(100)" remarks="更新人员">
                 <constraints nullable="false"/>
             </column>
-            <column name="updated_date" type="DATETIME" defaultValueComputed="CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP" remarks="更新时间">
+            <column name="updated_date" type="DATETIME"
+                    defaultValueComputed="CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP" remarks="更新时间">
                 <constraints nullable="false"/>
             </column>
         </createTable>
@@ -303,7 +309,8 @@
             <column name="updated_by" type="VARCHAR(100)" remarks="更新人员">
                 <constraints nullable="false"/>
             </column>
-            <column name="updated_date" type="DATETIME" defaultValueComputed="CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP" remarks="更新时间">
+            <column name="updated_date" type="DATETIME"
+                    defaultValueComputed="CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP" remarks="更新时间">
                 <constraints nullable="false"/>
             </column>
         </createTable>

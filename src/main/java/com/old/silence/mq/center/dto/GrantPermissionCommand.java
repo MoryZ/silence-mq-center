@@ -1,0 +1,55 @@
+package com.old.silence.mq.center.dto;
+
+import java.time.Instant;
+
+/**
+ * 权限赋予请求DTO
+ * <p>
+ * 用于管理员直接为用户赋予权限
+ *
+ * @author Silence
+ * @since 2024-01-01
+ */
+public class GrantPermissionCommand {
+
+    /**
+     * 目标用户名
+     */
+    private String userName;
+
+
+    /**
+     * 权限代码（如PRODUCE, CONSUME等）
+     */
+    private String permissionCode;
+
+    /**
+     * 权限过期时间
+     */
+    private Instant expireTime;
+
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
+
+    public String getPermissionCode() {
+        return permissionCode;
+    }
+
+    public void setPermissionCode(String permissionCode) {
+        this.permissionCode = permissionCode;
+    }
+
+    public Instant getExpireTime() {
+        return expireTime;
+    }
+
+    public void setExpireTime(Instant expireTime) {
+        this.expireTime = expireTime;
+    }
+}

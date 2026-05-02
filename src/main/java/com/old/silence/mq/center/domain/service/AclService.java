@@ -1,52 +1,51 @@
 package com.old.silence.mq.center.domain.service;
 
-import java.util.List;
-
 import org.apache.rocketmq.common.AclConfig;
 import org.apache.rocketmq.common.PlainAccessConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-
 import com.old.silence.mq.center.dto.AclRequest;
+
+import java.util.List;
 
 /**
  * ACL 服务
  * 管理 RocketMQ 的访问控制列表配置
+ *
  * @author moryzang
  */
 @Service
 public class AclService {
-    
+
     private static final Logger logger = LoggerFactory.getLogger(AclService.class);
-    
+
     private final MQAdminService mqAdminService;
-    
+
     public AclService(MQAdminService mqAdminService) {
         this.mqAdminService = mqAdminService;
     }
-    
+
     /**
      * 获取 ACL 配置
      */
     public AclConfig getAclConfig(boolean fromNameSrv) {
         try {
             logger.debug("Fetching ACL config from {}", fromNameSrv ? "name server" : "broker");
-            AclConfig config = new AclConfig();
-            return config;
+            return new AclConfig();
         } catch (Exception e) {
             logger.error("ACL config retrieval failed from {}", fromNameSrv ? "name server" : "broker", e);
             return new AclConfig();
         }
     }
-    
+
     /**
      * 添加 ACL 配置
      */
     public void addAclConfig(PlainAccessConfig config) throws Exception {
         try {
-            logger.debug("Persisting new ACL user to broker: key={}, admin={}", 
-                config.getAccessKey(), config.isAdmin());
+            logger.debug("Persisting new ACL user to broker: key={}, admin={}",
+                    config.getAccessKey(), config.isAdmin());
             mqAdminService.execute(admin -> {
                 logger.debug("ACL user persisted via admin interface: {}", config.getAccessKey());
                 return null;
@@ -56,7 +55,7 @@ public class AclService {
             throw e;
         }
     }
-    
+
     /**
      * 删除 ACL 配置
      */
@@ -72,7 +71,7 @@ public class AclService {
             throw e;
         }
     }
-    
+
     /**
      * 更新 ACL 配置
      */
@@ -88,7 +87,7 @@ public class AclService {
             throw e;
         }
     }
-    
+
     /**
      * 添加或更新 ACL topic 配置
      */
@@ -98,17 +97,17 @@ public class AclService {
             String topic = request.getTopicPerm();
             logger.debug("Updating topic ACL for user [{}]: topic={}", accessKey, topic);
             mqAdminService.execute(admin -> {
-                logger.debug("Topic permission update request: {} topics configured for [{}]", 
-                    request.getConfig().getTopicPerms().size(), accessKey);
+                logger.debug("Topic permission update request: {} topics configured for [{}]",
+                        request.getConfig().getTopicPerms().size(), accessKey);
                 return null;
             });
         } catch (Exception e) {
-            logger.error("Failed to update topic ACL for user [{}]", 
-                request.getConfig().getAccessKey(), e);
+            logger.error("Failed to update topic ACL for user [{}]",
+                    request.getConfig().getAccessKey(), e);
             throw e;
         }
     }
-    
+
     /**
      * 添加或更新 ACL group 配置
      */
@@ -118,17 +117,17 @@ public class AclService {
             String group = request.getGroupPerm();
             logger.debug("Updating consumer group ACL for user [{}]: group={}", accessKey, group);
             mqAdminService.execute(admin -> {
-                logger.debug("Consumer group permission update: {} groups configured for [{}]", 
-                    request.getConfig().getGroupPerms().size(), accessKey);
+                logger.debug("Consumer group permission update: {} groups configured for [{}]",
+                        request.getConfig().getGroupPerms().size(), accessKey);
                 return null;
             });
         } catch (Exception e) {
-            logger.error("Failed to update consumer group ACL for user [{}]", 
-                request.getConfig().getAccessKey(), e);
+            logger.error("Failed to update consumer group ACL for user [{}]",
+                    request.getConfig().getAccessKey(), e);
             throw e;
         }
     }
-    
+
     /**
      * 删除权限配置
      */
@@ -141,12 +140,12 @@ public class AclService {
                 return null;
             });
         } catch (Exception e) {
-            logger.error("Failed to revoke permissions for user [{}]", 
-                request.getConfig().getAccessKey(), e);
+            logger.error("Failed to revoke permissions for user [{}]",
+                    request.getConfig().getAccessKey(), e);
             throw e;
         }
     }
-    
+
     /**
      * 同步 ACL 配置数据
      */
@@ -162,7 +161,7 @@ public class AclService {
             throw e;
         }
     }
-    
+
     /**
      * 添加白名单
      */
@@ -184,7 +183,7 @@ public class AclService {
             throw e;
         }
     }
-    
+
     /**
      * 删除白名单地址
      */
@@ -200,7 +199,7 @@ public class AclService {
             throw e;
         }
     }
-    
+
     /**
      * 同步白名单
      */

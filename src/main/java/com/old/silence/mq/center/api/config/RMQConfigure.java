@@ -3,8 +3,11 @@ package com.old.silence.mq.center.api.config;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import java.io.File;
+
 /**
  * RocketMQ 配置管理
+ *
  * @author moryzang
  */
 @Component
@@ -16,7 +19,7 @@ public class RMQConfigure {
     @Value("${rocketmq.acl.enable:false}")
     private Boolean aclEnabled;
 
-    @Value("${rocketmq.namesrv.addr:127.0.0.1:9876}")
+    @Value("${rocketmq.namesrv.addr:192.168.50.162:9876}")
     private String namesrvAddr;
 
     @Value("${rocketmq.acl.access-key:}")
@@ -62,5 +65,9 @@ public class RMQConfigure {
 
     public boolean isUseTLS() {
         return useTLS;
+    }
+
+    public String getDashboardCollectData() {
+        return dataPath + File.separator + "dashboard";
     }
 }

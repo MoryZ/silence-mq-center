@@ -1,7 +1,5 @@
 package com.old.silence.mq.center.api;
 
-import java.util.List;
-
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.rocketmq.common.AclConfig;
@@ -17,8 +15,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import com.google.common.base.Preconditions;
 import com.old.silence.mq.center.api.config.RMQConfigure;
-import com.old.silence.mq.center.dto.AclRequest;
 import com.old.silence.mq.center.domain.service.AclService;
+import com.old.silence.mq.center.dto.AclRequest;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/acl")
@@ -81,7 +81,7 @@ public class AclController {
     }
 
     @DeleteMapping("/delete")
-    public Boolean deleteAclConfig(@RequestBody PlainAccessConfig config)  {
+    public Boolean deleteAclConfig(@RequestBody PlainAccessConfig config) {
         try {
             Preconditions.checkArgument(StringUtils.isNotEmpty(config.getAccessKey()), "accessKey is null");
             String accessKey = config.getAccessKey();
@@ -100,7 +100,7 @@ public class AclController {
     }
 
     @PostMapping("/update")
-    public Boolean updateAclConfig(@RequestBody PlainAccessConfig config)  {
+    public Boolean updateAclConfig(@RequestBody PlainAccessConfig config) {
         try {
             Preconditions.checkArgument(StringUtils.isNotEmpty(config.getSecretKey()), "secretKey is null");
             String accessKey = config.getAccessKey();
@@ -211,7 +211,7 @@ public class AclController {
     }
 
     @PostMapping("/white/list/add")
-    public Boolean addWhiteList(@RequestBody List<String> whiteList)  {
+    public Boolean addWhiteList(@RequestBody List<String> whiteList) {
         try {
             Preconditions.checkArgument(CollectionUtils.isNotEmpty(whiteList), "white list is null");
 
@@ -230,7 +230,7 @@ public class AclController {
     }
 
     @DeleteMapping("/white/list/delete")
-    public Boolean deleteWhiteAddr(@RequestParam String request)  {
+    public Boolean deleteWhiteAddr(@RequestParam String request) {
         try {
             logger.info("Removing white list entry: {}", request);
             try {
@@ -247,7 +247,7 @@ public class AclController {
     }
 
     @PostMapping("/white/list/sync")
-    public Boolean synchronizeWhiteList(@RequestBody List<String> whiteList)  {
+    public Boolean synchronizeWhiteList(@RequestBody List<String> whiteList) {
         try {
             Preconditions.checkArgument(CollectionUtils.isNotEmpty(whiteList), "white list is null");
 

@@ -1,11 +1,11 @@
 package com.old.silence.mq.center.domain.service;
 
 import org.apache.rocketmq.client.exception.MQClientException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.rocketmq.client.producer.DefaultMQProducer;
 import org.apache.rocketmq.client.producer.SendResult;
 import org.apache.rocketmq.common.message.Message;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -22,7 +22,7 @@ public class MqProducerService {
 
     private static final Logger log = LoggerFactory.getLogger(MqProducerService.class);
 
-    @Value("${rocketmq.namesrv.addr:127.0.0.1:9876}")
+    @Value("${rocketmq.namesrv.addr:192.168.50.162:9876}")
     private String namesrvAddr;
 
     private DefaultMQProducer producer;

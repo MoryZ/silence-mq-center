@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class MQAdminService {
 
-    @Value("${rocketmq.namesrv.addr:127.0.0.1:9876}")
+    @Value("${rocketmq.namesrv.addr:192.168.50.162:9876}")
     private String namesrvAddr;
 
     // 获取 Admin 实例的私有方法
@@ -24,7 +24,7 @@ public class MQAdminService {
     }
 
     // 执行任务的包装方法（自动关停，防止句柄泄露）
-    public <T> T execute(AdminTask<T> task) throws Exception {
+    public synchronized <T> T execute(AdminTask<T> task) throws Exception {
         DefaultMQAdminExt admin = getAdmin();
         try {
             return task.doTask(admin);
@@ -34,7 +34,7 @@ public class MQAdminService {
     }
 
     // 无返回值任务执行入口
-    public void executeVoid(AdminVoidTask task) throws Exception {
+    public synchronized void executeVoid(AdminVoidTask task) throws Exception {
         DefaultMQAdminExt admin = getAdmin();
         try {
             task.doTask(admin);

@@ -3,6 +3,7 @@ package com.old.silence.mq.center.dto;
 import org.apache.rocketmq.remoting.protocol.heartbeat.ConsumeType;
 import org.apache.rocketmq.remoting.protocol.heartbeat.MessageModel;
 
+import java.time.Instant;
 import java.util.Date;
 import java.util.List;
 
@@ -16,7 +17,7 @@ public class GroupConsumeInfo implements Comparable<GroupConsumeInfo> {
     private int consumeTps;
     private long diffTotal = -1;
     private String subGroupType = "NORMAL";
-    private Date updateTime;
+    private Instant updateTime;
 
     public String getGroup() {
         return group;
@@ -74,11 +75,11 @@ public class GroupConsumeInfo implements Comparable<GroupConsumeInfo> {
         this.subGroupType = subGroupType;
     }
 
-    public Date getUpdateTime() {
+    public Instant getUpdateTime() {
         return updateTime;
     }
 
-    public void setUpdateTime(Date updateTime) {
+    public void setUpdateTime(Instant updateTime) {
         this.updateTime = updateTime;
     }
 

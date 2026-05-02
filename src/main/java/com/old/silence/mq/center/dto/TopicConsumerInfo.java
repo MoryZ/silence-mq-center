@@ -5,10 +5,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TopicConsumerInfo {
+    private final List<QueueStatInfo> queueStatInfoList = new ArrayList<>();
     private String topic;
     private long diffTotal;
     private long lastTimestamp;
-    private final List<QueueStatInfo> queueStatInfoList = new ArrayList<>();
 
     public TopicConsumerInfo(String topic) {
         this.topic = topic;

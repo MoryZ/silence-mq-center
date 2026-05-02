@@ -1,6 +1,5 @@
 package com.old.silence.mq.center.domain.repository;
 
-import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 import com.old.silence.data.mybatis.projection.ProjectionMapperRepository;
 import com.old.silence.mq.center.domain.model.UserPermission;
@@ -14,6 +13,6 @@ import java.math.BigInteger;
 public interface UserPermissionRepository extends ProjectionMapperRepository<UserPermission, BigInteger> {
 
 
-    @Select("SELECT * FROM user_permission WHERE user_id = #{userId} AND topicId = ${topicId} AND permission_code = ${permissionCode}")
-    UserPermission findByUserIdAndTopicIdAndPermissionCode(BigInteger userId, BigInteger topicId, String permissionCode);
+    @Select("SELECT * FROM rmq_user_permission WHERE user_name= #{userName} AND permission_code = ${permissionCode} AND is_expired = 0 ")
+    UserPermission findByUsernameAndPermissionCode(String userName, String permissionCode);
 }

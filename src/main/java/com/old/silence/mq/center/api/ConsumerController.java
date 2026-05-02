@@ -1,6 +1,5 @@
 package com.old.silence.mq.center.api;
 
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.rocketmq.remoting.protocol.body.ConsumerConnection;
 import org.apache.rocketmq.remoting.protocol.body.ConsumerRunningInfo;
 import org.slf4j.Logger;
@@ -12,16 +11,16 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import com.google.common.base.Preconditions;
 import com.old.silence.json.JacksonMapper;
-import com.old.silence.mq.center.dto.ConnectionInfo;
-import com.old.silence.mq.center.dto.ConsumerGroupRollBackStat;
-import com.old.silence.mq.center.dto.GroupConsumeInfo;
-import com.old.silence.mq.center.dto.TopicConsumerInfo;
-import com.old.silence.mq.center.dto.ConsumerConfigInfo;
-import com.old.silence.mq.center.dto.DeleteSubGroupRequest;
-import com.old.silence.mq.center.dto.ResetOffsetRequest;
 import com.old.silence.mq.center.domain.service.ConsumerService;
+import com.old.silence.mq.center.dto.ConnectionInfo;
+import com.old.silence.mq.center.dto.ConsumerConfigInfo;
+import com.old.silence.mq.center.dto.ConsumerGroupRollBackStat;
+import com.old.silence.mq.center.dto.DeleteSubGroupRequest;
+import com.old.silence.mq.center.dto.GroupConsumeInfo;
+import com.old.silence.mq.center.dto.GroupConsumerQuery;
+import com.old.silence.mq.center.dto.ResetOffsetRequest;
+import com.old.silence.mq.center.dto.TopicConsumerInfo;
 
 import java.util.List;
 import java.util.Map;
@@ -41,8 +40,8 @@ public class ConsumerController {
     }
 
     @GetMapping(value = "/groupList")
-    public List<GroupConsumeInfo> list(@RequestParam(value = "skipSysGroup", required = false) boolean skipSysGroup, String address) throws Exception {
-        return consumerService.queryGroupList(skipSysGroup, address);
+    public List<GroupConsumeInfo> list(GroupConsumerQuery groupConsumerQuery) throws Exception {
+        return consumerService.queryGroupList(groupConsumerQuery.isSkipSysGroup(), groupConsumerQuery.getAddress());
     }
 
     @GetMapping(value = "/group/refresh")

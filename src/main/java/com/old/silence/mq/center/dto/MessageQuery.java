@@ -4,7 +4,6 @@ public class MessageQuery {
 
     private String topic;
 
-
     private String taskId;
 
     private int pageNo = 1;

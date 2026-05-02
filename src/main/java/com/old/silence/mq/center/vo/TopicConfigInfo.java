@@ -2,6 +2,8 @@ package com.old.silence.mq.center.vo;
 
 import jakarta.validation.constraints.NotEmpty;
 
+import com.old.silence.mq.center.enums.MessageType;
+
 import java.util.List;
 
 /**
@@ -14,14 +16,17 @@ public class TopicConfigInfo {
     @NotEmpty
     private List<String> brokerNameList;
 
-    /** topicConfig */
+    /**
+     * topicConfig
+     */
     private String topicName;
     private int writeQueueNums;
     private int readQueueNums;
     private int perm;
     private boolean order;
 
-    private String messageType;
+    private MessageType messageType;
+
     public List<String> getClusterNameList() {
         return clusterNameList;
     }
@@ -30,8 +35,9 @@ public class TopicConfigInfo {
         this.clusterNameList = clusterNameList;
     }
 
-    /** topicConfig */
-
+    /**
+     * topicConfig
+     */
 
 
     public List<String> getBrokerNameList() {
@@ -83,11 +89,11 @@ public class TopicConfigInfo {
     }
 
 
-    public String getMessageType() {
+    public MessageType getMessageType() {
         return messageType;
     }
 
-    public void setMessageType(String messageType) {
+    public void setMessageType(MessageType messageType) {
         this.messageType = messageType;
     }
 }

@@ -17,22 +17,22 @@ public class DashboardControllerTest {
     @Test
     public void testBroker() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/dashboard/broker")
-                .param("date", "2024-01-01"))
+                        .param("date", "2024-01-01"))
                 .andExpect(MockMvcResultMatchers.status().isOk());
     }
 
     @Test
     public void testTopic() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/dashboard/topic")
-                .param("date", "2024-01-01"))
+                        .param("date", "2024-01-01"))
                 .andExpect(MockMvcResultMatchers.status().isOk());
     }
 
     @Test
     public void testTopicWithTopicName() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/dashboard/topic")
-                .param("date", "2024-01-01")
-                .param("topicName", "test-topic"))
+                        .param("date", "2024-01-01")
+                        .param("topicName", "test-topic"))
                 .andExpect(MockMvcResultMatchers.status().isOk());
     }
 

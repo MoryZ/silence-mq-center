@@ -1,9 +1,9 @@
 package com.old.silence.mq.center.dto;
 
 
-import java.util.List;
-
 import com.old.silence.mq.center.vo.MessageTraceView;
+
+import java.util.List;
 
 public class MessageTraceGraph {
     private ProducerNode producerNode;
