@@ -106,6 +106,22 @@
             <artifactId>silence-auth-center-client</artifactId>
             <version>2.0.1-SNAPSHOT</version>
         </dependency>
-
     </dependencies>
+
+    <build>
+        <plugins>
+            <!-- Spring Boot 打包插件：必须包含，否则无法生成可执行 JAR -->
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>repackage</goal>  <!-- 关键：重新打包为可执行 JAR -->
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 </project>

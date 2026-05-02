@@ -19,7 +19,7 @@ public class RMQConfigure {
     @Value("${rocketmq.acl.enable:false}")
     private Boolean aclEnabled;
 
-    @Value("${rocketmq.namesrv.addr:192.168.50.162:9876}")
+    @Value("${rocketmq.namesrv.addr:127.0.0.1:9876}")
     private String namesrvAddr;
 
     @Value("${rocketmq.acl.access-key:}")
