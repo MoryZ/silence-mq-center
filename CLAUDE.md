@@ -49,7 +49,7 @@
 - **职责**：处理HTTP请求，参数校验，调用Service层，返回响应
 - **命名规范**：`XxxResource`
 - **路径规范**：`/api/v1/{module}`
-- **示例**：[ConsumerController](../src/main/java/com/old/silence/mq/center/api/ConsumerController.java)
+- **示例**：[ConsumerController](src/main/java/com/old/silence/mq/center/api/ConsumerController.java)
 
 **最佳实践**：
 
@@ -185,7 +185,7 @@ public class ModuleServiceImpl implements ModuleService {
 
 1. **禁止吞掉异常**：必须记录日志或重新抛出
 2. **使用自定义异常**：如 [
-   `ServiceException`](../src/main/java/com/old/silence/mq/center/exception/ServiceException.java)
+   `ServiceException`](src/main/java/com/old/silence/mq/center/exception/ServiceException.java)
 3. **异常信息要详细**：包含足够的上下文信息
 
 **正确示例**：
@@ -477,7 +477,7 @@ logger.info("User login, username: {}", username);
 
 ### RMQConfigure
 
-参考：项目使用 [`RMQConfigure`](../src/main/java/com/old/silence/mq/center/api/config/RMQConfigure.java) 管理配置
+参考：项目使用 [`RMQConfigure`](src/main/java/com/old/silence/mq/center/api/config/RMQConfigure.java) 管理配置
 
 ```java
 @Component
