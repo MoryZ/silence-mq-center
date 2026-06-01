@@ -4,7 +4,7 @@ server:
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: ${DB_URL:jdbc:mysql://obmt7k9agbmkkakg-mi.aliyun-cn-hangzhou-internet.oceanbase.cloud:3306/silence-platform?allowPublicKeyRetrieval=true&useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=false}
+    url: ${DB_URL:jdbc:mysql://obmt7k9agbmkkakg-mi.aliyun-cn-hangzhou-internet.oceanbase.cloud:3306/silence-mq?allowPublicKeyRetrieval=true&useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=false}
     username: ${DB_USERNAME:silenceopr}
     password: ${DB_PASSWORD:88&B3z_*=2Gma(q1}
     type: com.zaxxer.hikari.HikariDataSource
